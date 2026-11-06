@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>PINGPONG VISION</title>
-  <meta name="description" content="폰 카메라로 탁구 랠리의 자세, 공 궤적, 샷 속도를 화면 위에 보여줘요. 영상은 폰 밖으로 나가지 않아요.">
+  <meta name="description" content="폰 카메라로 탁구 랠리의 자세, 공 궤적, 샷 속도를 화면 위에 보여줘요. 영상은 폰 밖으로 나가지 않아요." data-en="Shows your table tennis rally posture, ball path and shot speed over the phone camera picture. The video never leaves your phone." data-i18n-data>
+  <script src="./js/page-lang.js"></script>
   <meta name="theme-color" content="#0b1634">
   <meta name="color-scheme" content="dark">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,10 +21,11 @@
   <link rel="preload" href="./fonts/Galmuri11-Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./fonts/Galmuri9.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./camera-guide.css">
 </head>
 <body>
   <div id="app"></div>
-  <noscript><p>이 앱은 JavaScript가 켜져 있어야 동작해요.</p></noscript>
+  <noscript data-i18n-data><p>이 앱은 JavaScript가 켜져 있어야 동작해요. / This app needs JavaScript.</p></noscript>
   <script type="module" src="./js/app.js"></script>
 </body>
 </html>

@@ -14,6 +14,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { withCodes } from "./player-names.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
 const tag = args.tag || "after";
@@ -254,7 +255,7 @@ const agree = async (want, toast, since) => waitFor(`camera / referee / TV show 
 try {
   await Promise.all([up(ports.tour, "/api/state"), up(ports.vision, "/healthz")]);
   await step("create-tournament", async () => {
-    const r = await api("/api/tournament", { name: "엔드 시험", players: ["김블루", "둘째", "셋째", "넷째"], format: "double", bestOf: 3 });
+    const r = await api("/api/tournament", { name: "엔드 시험", players: await withCodes(origin, ["김블루", "둘째", "셋째", "넷째"]), format: "double", bestOf: 3 });
     if (r.status !== 200) throw new Error(`create ${r.status}`);
     pin = r.body.pin;
     matchId = "m1";

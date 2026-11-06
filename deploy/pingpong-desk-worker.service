@@ -1,0 +1,23 @@
+# The analysis desk worker as a systemd user unit, apart from the tournament server's own service.
+# deploy/install-desk-worker.sh fills in the @...@ values and writes it to
+# ~/.config/systemd/user/pingpong-desk-worker.service. See docs/analysis-desk.md.
+[Unit]
+Description=pingpong analysis desk worker (analysis jobs through the GPU job queue)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=@REPO@
+Environment=TOURNAMENT_DATA_DIR=@DATA_DIR@
+Environment=DESK_SERVER=@SERVER@
+Environment="DESK_HEAVY=@HEAVY@"
+Environment=DESK_HEAVY_QUEUE_DIR=@HEAVY_QUEUE_DIR@
+Environment=PATH=@PATH@
+ExecStart=@BUN@ desk/worker.js
+# a stopped worker stops its analyzer; a killed one leaves it to the next start (desk/worker.js recover)
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=20
+
+[Install]
+WantedBy=default.target

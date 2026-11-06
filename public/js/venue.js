@@ -4,8 +4,13 @@
 // hears which screen took the sound. Write access is the tournament PIN only (typed here, or already
 // on this device from the tournament app), as on the referee screen (owner decision, 2026-10-31).
 import { speak } from "./voice.js";
+import { pick } from "./i18n.js";
 
 const HELLO_MS = 5000;
+// 카메라 여러 대 (docs/multicam.md): clock pings on connect, then every CLOCK_MS
+const CLOCK_FIRST = 4;
+const CLOCK_FIRST_MS = 500;
+const CLOCK_MS = 10000;
 
 function b64url(bytes) {
   return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -25,6 +30,14 @@ export class Venue {
     this.retry = 0;
     this.id = null;
     this.speaker = null;
+    // multicam: this socket's id on the server, the attachment, the match's camera list
+    this.conn = null;
+    this.attached = null; // { conn, matchId, pin } the server accepted
+    this.attaching = false;
+    this.cameras = [];
+    this.clock = null; // a multicam.js Clock, set by app.js
+    this.onCameras = () => {};
+    this.onMc = () => {};
   }
 
   // Only a device that chose the camera role, or holds a tournament PIN, talks to the tournament
@@ -82,6 +95,7 @@ export class Venue {
       this.retry = 0;
       this.tour.setWs("online");
       this.hello();
+      this.pingClock(CLOCK_FIRST);
     };
     ws.onmessage = (ev) => {
       if (ev.data === "pong") return;
@@ -91,16 +105,32 @@ export class Venue {
       } catch {
         return;
       }
+      if (msg.type === "hello" && msg.conn) {
+        this.conn = msg.conn;
+        this.attached = null;
+        this.attach();
+      }
+      if (msg.type === "clock" && this.clock) {
+        this.clock.sample(msg.c, msg.s, performance.now());
+        this.onCameras(this.cameras);
+      }
+      if (msg.type === "cameras") this.setCameras(msg.matches || {});
+      if (msg.type === "mc") this.onMc(msg);
       if (msg.type === "presence") this.onPresence(msg);
       if (msg.type === "state" && msg.state && msg.state.tournament) {
         try {
-          if (!this.tour.pending) this.tour.apply(msg.state);
+          // a point entered elsewhere answers an open 누가 땄나요; the state is skipped only during a 3 s cancel
+          this.tour.seen(msg.state);
+          if (!this.tour.pending || this.tour.pending.choice) this.tour.apply(msg.state);
           this.tour.onChange();
         } catch {}
       }
     };
     ws.onclose = () => {
       if (this.ws !== ws) return;
+      this.conn = null;
+      this.attached = null;
+      this.setCameras({});
       this.tour.setWs("offline");
       this.retry = Math.min(this.retry + 1, 5);
       setTimeout(() => this.connect(), Math.min(10000, 1000 * 2 ** (this.retry - 1)));
@@ -110,6 +140,70 @@ export class Venue {
   hello() {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.id) return;
     this.ws.send(JSON.stringify({ type: "camera", id: this.id, mode: this.mode(), matchId: this.tour.matchId, linked: this.tour.linked() }));
+    this.attach();
+  }
+
+  send(msg) {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return false;
+    this.ws.send(JSON.stringify(msg));
+    return true;
+  }
+
+  // clock pings: n now, 0.5 s apart, then one every CLOCK_MS while the socket is open
+  pingClock(n) {
+    const ws = this.ws;
+    const one = () => this.ws === ws && this.send({ type: "clock", c: performance.now() });
+    for (let i = 0; i < n; i++) setTimeout(one, i * CLOCK_FIRST_MS);
+    clearInterval(this.clockTimer);
+    this.clockTimer = setInterval(() => (this.ws === ws ? one() : clearInterval(this.clockTimer)), CLOCK_MS);
+  }
+
+  // Join this match's camera list with the tournament PIN (a camera without it is never attached,
+  // owner decision). Done again when the socket, the match or the PIN changes; the server drops it when the
+  // socket closes or the hello names another match.
+  async attach() {
+    const pin = this.tour.pin;
+    const matchId = this.tour.matchId;
+    const conn = this.conn;
+    const a = this.attached;
+    if (a && a.conn === conn && a.matchId === matchId && a.pin === pin) return;
+    if (!conn || !pin || !matchId || !this.id || this.attaching) {
+      if (!pin || !matchId) this.attached = null;
+      return;
+    }
+    this.attaching = true;
+    try {
+      const res = await fetch("/api/vision/attach", { method: "POST", headers: { "content-type": "application/json", "x-pin": pin }, body: JSON.stringify({ conn, id: this.id, matchId }) });
+      this.attached = res.ok ? { conn, matchId, pin, at: Date.now() } : null;
+      // the camera hello on the socket can reach the server after this call: try again shortly
+      if (res.status === 404) setTimeout(() => this.attach(), 1000);
+      if (res.ok) {
+        const body = await res.json().catch(() => ({}));
+        if (Array.isArray(body.cameras)) this.setCameras({ [matchId]: body.cameras });
+      }
+    } catch (err) {
+      this.attached = null;
+      console.warn("ppv: camera attach", err);
+    } finally {
+      this.attaching = false;
+    }
+  }
+
+  setCameras(matches) {
+    const a = this.attached;
+    this.cameras = a && Array.isArray(matches[a.matchId]) ? matches[a.matchId] : [];
+    // the server forgot this phone (a sweep, a restart): attach again on the next hello. A list sent
+    // just before the attach answer can still lack it, so give that 2 s.
+    if (a && Date.now() - a.at > 2000 && !this.me()) {
+      this.attached = null;
+      this.cameras = [];
+    }
+    this.onCameras(this.cameras);
+  }
+
+  // this phone's entry in the match's camera list (ids are the first 8 hex of the camera id)
+  me() {
+    return this.attached && this.id ? this.cameras.find((c) => c.id === this.id.slice(0, 8)) || null : null;
   }
 
   async onPresence(msg) {
@@ -119,15 +213,15 @@ export class Venue {
 
   // Call-outs go to the screen that took the sound (a viewer TV or pad); with none, or when the
   // tournament app cannot be reached, this phone speaks. Never both.
-  async say(text) {
+  async say(pair) {
     if (this.speaker && this.tour.linked() && this.tour.ws === "online") {
       try {
-        const res = await fetch("/api/vision/say", { method: "POST", headers: { "content-type": "application/json", ...this.tour.auth() }, body: JSON.stringify({ text }) });
+        const res = await fetch("/api/vision/say", { method: "POST", headers: { "content-type": "application/json", ...this.tour.auth() }, body: JSON.stringify({ text: pair.ko, en: pair.en }) });
         const body = await res.json().catch(() => ({}));
         if (res.ok && body.delivered) return "screen";
       } catch {}
     }
-    speak(text);
+    speak(pick(pair));
     return "phone";
   }
 }

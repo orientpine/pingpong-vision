@@ -52,6 +52,16 @@ test("only a double bounce or a rally with three or more bounces is sure", () =>
   expect(judgePoint({ shots: [shot("near", 0)], bounces: [bounce("near", 0.2), bounce("near", 0.5)] })).toMatchObject({ reason: "double_bounce", sure: true });
 });
 
+test("a one-bounce rally or a short fragment is asked (ask), never sure; a longer rally is not", () => {
+  // the 2026-11-01 04:05 shape: serve, one bounce, ball lost 0.35 s in
+  expect(judgePoint({ shots: [shot("near", 0), shot("far", 0.22)], bounces: [bounce("near", 0.14)], durationS: 0.35 })).toMatchObject({ winner: "far", ask: true, sure: false });
+  expect(judgePoint({ shots: [shot("near", 0)], bounces: [bounce("far", 0.6)], durationS: 2.7 })).toMatchObject({ ask: true, sure: false });
+  // a 0.8 s piece with two shots: asked even with three bounces
+  expect(judgePoint({ shots: [shot("near", 0), shot("far", 0.5)], bounces: [bounce("near", 0.1), bounce("far", 0.3), bounce("near", 0.7)], durationS: 0.8 })).toMatchObject({ ask: true, sure: false });
+  expect(judgePoint({ shots: [shot("near", 0), shot("far", 1)], bounces: serveAndReturn, durationS: 1.6 })).toMatchObject({ ask: false, sure: true });
+  expect(judgePoint({ shots: [shot("near", 0), shot("far", 0.5), shot("near", 0.8)], bounces: serveAndReturn, durationS: 0.9 })).toMatchObject({ ask: false });
+});
+
 test("nothing to judge without a bounce", () => {
   expect(judgePoint({ shots: [shot("near", 0)], bounces: [] })).toBeNull();
   expect(judgePoint()).toBeNull();

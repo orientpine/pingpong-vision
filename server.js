@@ -5,6 +5,7 @@
 import { join, normalize } from "node:path";
 import { createSaveStore } from "./save-server.js";
 import { shellBuild } from "./build-id.js";
+import { createUpdateCheck } from "./update-check.js";
 
 const ROOT = import.meta.dir;
 const PORT = Number(process.env.PORT || 8791);
@@ -69,6 +70,7 @@ function resolve(pathname) {
 }
 
 const saves = createSaveStore();
+const updates = createUpdateCheck({ root: ROOT });
 console.log(`rally saves in ${saves.dir} (upload key file ${saves.keyFile})`);
 
 // at most 30 lines a minute from all phones together, so a stuck page cannot flood the journal
@@ -94,6 +96,9 @@ const server = Bun.serve({
   async fetch(req, srv) {
     const url = new URL(req.url);
     if (url.pathname === "/healthz") return new Response("ok\n");
+    if ((url.pathname === "/vision/api/update" || url.pathname === "/api/update") && req.method === "GET") {
+      return Response.json(await updates.status(), { headers: { "cache-control": "no-store", "x-content-type-options": "nosniff" } });
+    }
     // 판정 안정 모드 switches from a camera phone: numbers only, one journal line each, never stored with
     // the tournament (lead, 2026-10-31: so we can see why a real phone switched)
     if (url.pathname === "/vision/api/stable-log" && req.method === "POST") return stableLog(req);
@@ -142,4 +147,4 @@ const server = Bun.serve({
   },
 });
 
-console.log(`pingpong-vision on http://127.0.0.1:${server.port}/vision/ (qa=${QA}, build ${BUILD.id})`);
+console.log(`pingpong-vision on http://127.0.0.1:${server.port}/vision/ (qa=${QA}, build ${BUILD.id}, version ${updates.version}, update check ${updates.on ? `on: ${updates.repo}` : "off"})`);

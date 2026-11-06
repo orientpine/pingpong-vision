@@ -205,6 +205,22 @@ export function pathResidual(pts) {
   return Math.sqrt(ss / n);
 }
 
+// Below 30 fps the history spans a bounce more often than not. A bounce turns the ball's image
+// path down-then-up at one point while it keeps moving the same way: one parabola in time for x
+// over the whole history, and one for y on each side of the lowest point (the bounce), the later
+// side with at least minAfter points.
+export function bounceSplit(pts, limit, minAfter) {
+  let k = 0;
+  for (let i = 1; i < pts.length; i++) if (pts[i].y > pts[k].y) k = i;
+  if (k < 2 || pts.length - k < minAfter) return false;
+  const xs = pts.map((p) => ({ t: p.t, x: p.x, y: 0 }));
+  if (pathResidual(xs) > limit) return false;
+  const ys = (a) => a.map((p) => ({ t: p.t, x: 0, y: p.y }));
+  const before = pts.slice(0, k + 1);
+  const after = pts.slice(k);
+  return (before.length < 3 || pathResidual(ys(before)) <= limit) && pathResidual(ys(after)) <= limit;
+}
+
 // RMS distance from a least-squares cubic in time (x and y separately). Seen from a low camera
 // behind one end, the ball flies towards or away from the lens: perspective bends its image path
 // off a parabola and the near ball is a big blurred blob whose centre jitters (club clip: 3.6-7.5
@@ -273,9 +289,24 @@ export class BallTracker {
     this.tracks = [];
     this.nextId = 1;
     this.active = null;
+    this.lastT = null;
+    this.dt = null;
+    this.minPoints = 4;
+  }
+
+  // The lock and ball-like tests were tuned as point counts at 30-60 fps. Below 30 fps the same
+  // count spans more time than one flight between a hit and a bounce has (5 points = 0.2 s at
+  // 20 fps), so a phone at 20-23 fps rarely locked (clip12: ball on 30% of frames at 20 fps vs 68%
+  // at 30). Below 30 fps a count asks for the time it spans at 30 fps instead, never under 4
+  // points (3 points fit any parabola exactly). At 30 fps and above the counts are unchanged.
+  pointsFor(n) {
+    if (!this.dt || this.dt <= 1 / 30 + 1e-3) return n;
+    return Math.max(this.minPoints, Math.min(n, Math.ceil((n - 1) / 30 / this.dt - 1e-6) + 1));
   }
 
   update(cands, t) {
+    if (this.lastT != null && t > this.lastT && t - this.lastT < 0.5) this.dt = this.dt ? 0.9 * this.dt + 0.1 * (t - this.lastT) : t - this.lastT;
+    this.lastT = t;
     const used = new Set();
     const order = [...this.tracks].sort((a, b) => b.hits - a.hits);
     for (const tr of order) {
@@ -342,7 +373,7 @@ export class BallTracker {
         // Deciding WHICH track is the ball stays on the parabola even where a cubic may lock:
         // letting the cubic choose as well made a club view call 17 non-ball spots a ball against
         // 14 real ones (8 of them more than 100 px away).
-        ballLike.set(tr, tr.hist.length >= 8 && this.overTableX(tr) && speed(tr) >= this.minSpeed * this.ballLikeSpeed && this.smooth(tr, { allowCubic: false }));
+        ballLike.set(tr, tr.hist.length >= this.pointsFor(8) && this.overTableX(tr) && speed(tr) >= this.minSpeed * this.ballLikeSpeed && this.smooth(tr, { allowCubic: false }));
       }
       return ballLike.get(tr);
     };
@@ -359,7 +390,10 @@ export class BallTracker {
     // The points that earned the lock are real ball positions too; hand them back once so the
     // trail and the rally do not start a few frames late (that delay cost hits at 30 fps).
     let backfill = null;
-    if (a !== this.locked && a.matched && this.smooth(a)) {
+    // A slow, smooth patch on a background barrier can pass the parabola test too. Outside
+    // the calibrated table, require a flying speed of twice the active-track minimum (128 px/s at 640 wide; chosen
+    // after the labelled-set run: 256 lost two test_1 bounces, 128 one).
+    if (a !== this.locked && a.matched && (this.overTableX(a) || speed(a) >= this.minSpeed * 2) && this.smooth(a)) {
       this.locked = a;
       backfill = a.hist.slice(0, -1).map((p) => ({ ...p }));
     }
@@ -379,10 +413,13 @@ export class BallTracker {
 
   smooth(tr, { allowCubic = true } = {}) {
     const pts = tr.hist;
-    if (pts.length < this.lockLen || pts[pts.length - 1].t - pts[0].t < this.lockSpan) return false;
+    if (pts.length < this.pointsFor(this.lockLen) || pts[pts.length - 1].t - pts[0].t < this.lockSpan) return false;
     const step = Math.hypot(pts[pts.length - 1].x - pts[0].x, pts[pts.length - 1].y - pts[0].y) / (pts.length - 1);
-    const limit = this.lockResidual + this.lockResidualPerStep * step;
+    // a lock on fewer points than lockLen (below 30 fps) fits a tighter path: four points leave a
+    // parabola one degree of freedom per axis, so chance chains of blobs fit a loose limit
+    const limit = (this.lockResidual + this.lockResidualPerStep * step) * (pts.length < this.lockLen ? 0.3 : 1);
     if (pathResidual(pts) <= limit) return true;
+    if (this.dt && this.dt > 1 / 30 + 1e-3 && bounceSplit(pts, limit, this.pointsFor(this.lockLen))) return true;
     // The cubic describes a ball flying at the lens, so it only applies to a track that is over
     // the table and has been followed for a while - not to any blob that happens to bend.
     if (!allowCubic || !this.lockCubic || pts.length < this.lockCubicPts) return false;

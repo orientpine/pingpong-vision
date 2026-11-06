@@ -14,6 +14,7 @@
 import { chromium, webkit } from "playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { DEVICES, fakeCamera, startCamera, startOneApp } from "./one-app-harness.mjs";
+import { withCodes } from "./player-names.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
 const out = args.out || "evidence/r8/buttons";
@@ -42,7 +43,7 @@ const SCREENS = [
   ["심판 순위", "referee", true, "", [tab("순위")]],
   ["심판 기록", "referee", true, "", [tab("기록")]],
   ["심판 설정", "referee", true, "", [tab("설정")]],
-  ["새 대회", "referee", true, "", [tab("설정"), async (p) => { await p.locator('[data-act="setup-new"]').click(); await p.locator('dialog [data-ask="1"]').click(); await p.waitForSelector('[data-act="setup-submit"]'); for (const [i, n] of ["가나", "다라", "마바", "사아"].entries()) await p.locator(`[data-draft="p${i}"]`).fill(n); await p.evaluate(() => document.activeElement.blur()); await p.waitForTimeout(100); }]],
+  ["새 대회", "referee", true, "", [tab("설정"), async (p) => { await p.locator('[data-act="setup-new"]').click(); await p.locator('dialog [data-ask="1"]').click(); await p.waitForSelector('[data-act="setup-submit"]'); for (const [i, n] of (await withCodes(app.origin, ["가나", "다라", "마바", "사아"])).entries()) await p.locator(`[data-draft="p${i}"]`).fill(n); await p.evaluate(() => document.activeElement.blur()); await p.waitForTimeout(100); }]],
   ["심판 모드", "referee", true, "", [async (p) => { await p.locator('[data-act="ref-enter"]').first().click(); await p.waitForSelector(".ref"); }]],
   ["카메라 시작", "camera", true, "", [async (p) => p.waitForFunction(() => window.__ppv && window.__ppv.state.mode === "intro", null, { timeout: 20000 })]],
   ["카메라 시작 PIN 없음", "camera", false, "", [async (p) => p.waitForFunction(() => window.__ppv && window.__ppv.state.mode === "intro", null, { timeout: 20000 })]],
@@ -158,12 +159,33 @@ try {
         rows.push({ device: dev, screen: name, control: "(화면)", outcome: "오류", detail: `화면을 못 엶: ${String(err.message || err).split("\n")[0].slice(0, 80)}` });
         continue;
       }
-      const controls = await within(listControls(page), 15000, "list");
+      // a page that stops answering here gets a fresh browser and one more try, then counts as one failure
+      let controls;
+      try {
+        controls = await within(listControls(page), 15000, "list");
+      } catch (err) {
+        console.log(`RETRY wedged list ${dev} ${name}`);
+        await within(browser.close(), 5000, "close").catch(() => {});
+        browser = await launch();
+        await within(app.reset(), 15000, "reset").catch(() => {});
+        try {
+          ({ ctx, page } = await reopen(dev, screen));
+          controls = await within(listControls(page), 15000, "list");
+        } catch (again) {
+          rows.push({ device: dev, screen: name, control: "(목록)", outcome: "오류", detail: `stuck: ${name} 목록` });
+          console.log(`PRESS ${dev} ${name} [목록] 오류 stuck: ${name} 목록`);
+          continue;
+        }
+      }
       await within(page.screenshot({ path: `${out}/${dev}-${name}.png` }), 15000, "shot").catch(() => {});
       console.log(`SCREEN ${dev} ${name} controls=${controls.length}`);
       for (const c of controls) {
+        // each press, with its reopen and reset, has 30 s; past that it is a failure named by screen and
+        // button, the browser starts over, and the run goes on to the next button
+        let gone = false;
+        const one = async () => {
         const row = { device: dev, screen: name, control: c.label, outcome: "", detail: "" };
-        if (c.disabled) { row.outcome = "비활성"; rows.push(row); continue; }
+        if (c.disabled) { row.outcome = "비활성"; rows.push(row); return; }
         if (!ctx) ({ ctx, page } = await reopen(dev, screen));
         // a page that stopped answering: a fresh browser, then this press again
         let now = await within(listControls(page), 15000, "list").catch(async () => {
@@ -225,6 +247,7 @@ try {
         page.off("request", onReq);
         page.off("filechooser", onChooser);
         page.off("dialog", onDialog);
+        if (gone) return;
         rows.push(row);
         console.log(`PRESS ${dev} ${name} [${c.label}] ${row.outcome} ${row.detail}`);
         // next press starts from the same screen: reopen when anything changed, reset data after writes
@@ -232,6 +255,18 @@ try {
           await closeCtx(ctx);
           ctx = null;
           if (posts.length) await app.reset();
+        }
+        };
+        const stuck = await Promise.race([one().then(() => false), new Promise((r) => setTimeout(() => r(true), 30000))]);
+        if (stuck) {
+          gone = true;
+          const label = `stuck: ${name} ${c.label}`;
+          rows.push({ device: dev, screen: name, control: c.label, outcome: "오류", detail: label });
+          console.log(`PRESS ${dev} ${name} [${c.label}] 오류 ${label}`);
+          await within(browser.close(), 5000, "close").catch(() => {});
+          browser = await launch();
+          await within(app.reset(), 15000, "reset").catch(() => {});
+          ctx = null;
         }
       }
       if (ctx) await closeCtx(ctx);

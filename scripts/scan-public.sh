@@ -67,7 +67,7 @@ count emails "$TMP/emails"
 count local-secrets "$TMP/local"
 count "$label" "$TMP/private"
 
-( cd "$DIR" && find . -path ./.git -prune -o -path ./node_modules -prune -o \( -name 'REPORT*.md' -o -name 'BRIEF*.md' -o -name '.omo' -o -path './reference' -o -path './evidence' -o -path './data' -o -name '*.mp4' -o -name '*.webm' -o -name '*.mov' -o -name '*.y4m' -o -name '*.task' -o -name '*.onnx' -o -name 'upload-key' -o -name 'setup-tokens.json' -o -name 'deploy.env' -o -name 'scan-patterns' -o -name 'public-url.txt' \) -print ) > "$TMP/paths"
+( cd "$DIR" && find . -path ./.git -prune -o -path ./node_modules -prune -o \( -name 'REPORT*.md' -o -name 'BRIEF*.md' -o -name '.omo' -o -path './reference' -o -path './evidence' -o -path './data' -o -path './tournament/data' -o -name 'tournament.json' -o -name 'action.log' -o -name 'action.log.1' -o -name 'settings.json' -o -name '*.mp4' -o -name '*.webm' -o -name '*.mov' -o -name '*.y4m' -o -name '*.task' -o -name '*.onnx' -o -name 'upload-key' -o -name 'setup-tokens.json' -o -name 'deploy.env' -o -name 'scan-patterns' -o -name 'public-url.txt' \) -print ) > "$TMP/paths"
 count forbidden-paths "$TMP/paths"
 
 exit $fail

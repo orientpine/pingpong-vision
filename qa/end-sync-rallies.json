@@ -1,0 +1,5983 @@
+{
+ "source": "OpenTTGames test videos run through public/js/pipeline.js (qa/multicam-offline.mjs, camera A with a moving body mask); rallies with 2+ bounces, times relative to the rally start",
+ "rallies": [
+  {
+   "from": "test_2 seed 1 camera A 0.03-11.07 s",
+   "why": "no_bounce",
+   "durS": 11.034,
+   "bounces": [
+    {
+     "dt": 0.867,
+     "side": "far",
+     "tx": 2.156572213479841,
+     "ty": 1.138036283643344
+    },
+    {
+     "dt": 1.434,
+     "side": "near",
+     "tx": 0.2547209589564898,
+     "ty": 0.5582956375930852
+    },
+    {
+     "dt": 1.934,
+     "side": "far",
+     "tx": 1.9478919766498672,
+     "ty": 1.1447661421666382
+    },
+    {
+     "dt": 2.4,
+     "side": "near",
+     "tx": 0.3437009092830119,
+     "ty": 0.4683223232220174
+    },
+    {
+     "dt": 2.917,
+     "side": "far",
+     "tx": 2.4252068148669297,
+     "ty": 1.3962094027816963
+    },
+    {
+     "dt": 3.284,
+     "side": "near",
+     "tx": 0.5348773976712998,
+     "ty": 0.6892696862316534
+    },
+    {
+     "dt": 3.85,
+     "side": "far",
+     "tx": 2.489657146250053,
+     "ty": 1.238057265359722
+    },
+    {
+     "dt": 4.217,
+     "side": "near",
+     "tx": 0.8179923011172102,
+     "ty": 0.4787068054151344
+    },
+    {
+     "dt": 4.8,
+     "side": "far",
+     "tx": 2.1819823721078087,
+     "ty": 1.2550613555520853
+    },
+    {
+     "dt": 5.25,
+     "side": "near",
+     "tx": 0.19369588597850826,
+     "ty": 0.5256581192359253
+    },
+    {
+     "dt": 5.734,
+     "side": "far",
+     "tx": 2.4552905837718644,
+     "ty": 1.3721853804593778
+    },
+    {
+     "dt": 6.117,
+     "side": "near",
+     "tx": 0.4900066243479611,
+     "ty": 0.5372254218824772
+    },
+    {
+     "dt": 6.65,
+     "side": "far",
+     "tx": 2.5154429156189186,
+     "ty": 1.240653739551155
+    },
+    {
+     "dt": 7.084,
+     "side": "near",
+     "tx": 0.1767216446505066,
+     "ty": 0.49724986384837044
+    },
+    {
+     "dt": 7.584,
+     "side": "far",
+     "tx": 2.7131229997127804,
+     "ty": 1.198707472809295
+    },
+    {
+     "dt": 8.017,
+     "side": "near",
+     "tx": 0.12682900023676297,
+     "ty": 0.47299596736487276
+    },
+    {
+     "dt": 8.534,
+     "side": "far",
+     "tx": 2.3435545174666284,
+     "ty": 1.3682509053691496
+    },
+    {
+     "dt": 8.934,
+     "side": "near",
+     "tx": 0.17062452717087265,
+     "ty": 0.5092192003654334
+    },
+    {
+     "dt": 9.4,
+     "side": "near",
+     "tx": 1.2458675277859206,
+     "ty": 1.1743556424868753
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.5,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.15,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.65,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.1,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.534,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.134,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.484,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.967,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.484,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.05,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.4,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.95,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 6.334,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 6.767,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 7.234,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 7.684,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 8.117,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 8.684,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 9.05,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 9.767,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.85
+   },
+   "serveSeen": {
+    "pts": 22,
+    "spanS": 0.533,
+    "maxGapS": 0.733
+   },
+   "maxSpeedKmh": 53
+  },
+  {
+   "from": "test_2 seed 1 camera A 17.98-24.73 s",
+   "why": "no_bounce",
+   "durS": 6.75,
+   "bounces": [
+    {
+     "dt": 0.45,
+     "side": "far",
+     "tx": 2.1922880048700812,
+     "ty": 1.4438982408010503
+    },
+    {
+     "dt": 0.85,
+     "side": "near",
+     "tx": 0.22008783177681,
+     "ty": 0.6547950305189438
+    },
+    {
+     "dt": 1.267,
+     "side": "far",
+     "tx": 2.3133263912309907,
+     "ty": 1.2091288096563904
+    },
+    {
+     "dt": 1.767,
+     "side": "near",
+     "tx": 0.32534492599531645,
+     "ty": 0.625440108774814
+    },
+    {
+     "dt": 2.6,
+     "side": "near",
+     "tx": 0.19347625870837076,
+     "ty": 0.6577218629718515
+    },
+    {
+     "dt": 2.95,
+     "side": "far",
+     "tx": 2.080261806780633,
+     "ty": 1.2013527601651177
+    },
+    {
+     "dt": 3.434,
+     "side": "near",
+     "tx": 0.42945098492708206,
+     "ty": 0.584961271131147
+    },
+    {
+     "dt": 3.817,
+     "side": "far",
+     "tx": 2.325625159308857,
+     "ty": 1.2215402161854392
+    },
+    {
+     "dt": 4.267,
+     "side": "near",
+     "tx": 0.4994619471645947,
+     "ty": 0.6997575780108058
+    },
+    {
+     "dt": 4.684,
+     "side": "far",
+     "tx": 2.358233117721241,
+     "ty": 1.2775949197206444
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.984,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.567,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.967,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.367,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.684,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.3,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.534,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.017,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.384,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.867,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.3,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 1.02
+   },
+   "serveSeen": {
+    "pts": 29,
+    "spanS": 0.583,
+    "maxGapS": 0.133
+   },
+   "maxSpeedKmh": 46
+  },
+  {
+   "from": "test_2 seed 1 camera A 24.82-29.98 s",
+   "why": "ball_lost",
+   "durS": 5.166,
+   "bounces": [
+    {
+     "dt": 1.65,
+     "side": "far",
+     "tx": 2.2950428881020666,
+     "ty": 1.1011587299555832
+    },
+    {
+     "dt": 2.066,
+     "side": "near",
+     "tx": 0.2648732085678676,
+     "ty": 0.4206853659686839
+    },
+    {
+     "dt": 2.5,
+     "side": "far",
+     "tx": 2.2407686606143664,
+     "ty": 1.2519479828133155
+    },
+    {
+     "dt": 2.983,
+     "side": "near",
+     "tx": 0.7091640662392699,
+     "ty": 0.7567997384575652
+    },
+    {
+     "dt": 3.4,
+     "side": "far",
+     "tx": 2.4922055336666338,
+     "ty": 1.3861400202287657
+    },
+    {
+     "dt": 3.866,
+     "side": "near",
+     "tx": 0.2159953796054632,
+     "ty": 0.5882038398765005
+    },
+    {
+     "dt": 4.216,
+     "side": "far",
+     "tx": 2.473730194098765,
+     "ty": 1.351308690992745
+    },
+    {
+     "dt": 4.7,
+     "side": "near",
+     "tx": 0.22122828975785838,
+     "ty": 0.5793194282024664
+    },
+    {
+     "dt": 5.05,
+     "side": "far",
+     "tx": 2.4522089449088194,
+     "ty": 1.394745787122343
+    }
+   ],
+   "shots": [
+    {
+     "dt": 1.1,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.216,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.75,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.1,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.566,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.933,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.433,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.783,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 1.01
+   },
+   "serveSeen": {
+    "pts": 31,
+    "spanS": 0.7,
+    "maxGapS": 0.183
+   },
+   "maxSpeedKmh": 43
+  },
+  {
+   "from": "test_4 seed 1 camera A 13.30-19.27 s",
+   "why": "no_bounce",
+   "durS": 5.967,
+   "bounces": [
+    {
+     "dt": 2.367,
+     "side": "near",
+     "tx": 0.3671255995269868,
+     "ty": 1.5181282742727624
+    },
+    {
+     "dt": 2.75,
+     "side": "far",
+     "tx": 1.9901094730006832,
+     "ty": 1.1170117720732606
+    },
+    {
+     "dt": 3.45,
+     "side": "near",
+     "tx": 0.3072191708245051,
+     "ty": 0.5140783498976715
+    },
+    {
+     "dt": 4.017,
+     "side": "far",
+     "tx": 2.132354875301729,
+     "ty": 0.40089608068289345
+    },
+    {
+     "dt": 4.783,
+     "side": "near",
+     "tx": 0.3850984619721022,
+     "ty": 0.7145087892830393
+    }
+   ],
+   "shots": [
+    {
+     "dt": 2.233,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.167,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.833,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.45,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.1,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.98
+   },
+   "serveSeen": {
+    "pts": 21,
+    "spanS": 0.333,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 54
+  },
+  {
+   "from": "test_4 seed 1 camera A 28.77-32.90 s",
+   "why": "no_shot",
+   "durS": 4.133,
+   "bounces": [
+    {
+     "dt": 1.15,
+     "side": "far",
+     "tx": 2.5349313636435498,
+     "ty": 0.4549706982880124
+    },
+    {
+     "dt": 1.516,
+     "side": "near",
+     "tx": 0.30171289527680295,
+     "ty": 1.0053408155677792
+    },
+    {
+     "dt": 2.116,
+     "side": "far",
+     "tx": 2.0927113809938636,
+     "ty": 0.6719659726816051
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.116,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.05,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.85,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 1.033
+   },
+   "maxSpeedKmh": 27
+  },
+  {
+   "from": "test_4 seed 1 camera A 39.38-41.88 s",
+   "why": "ball_lost",
+   "durS": 2.5,
+   "bounces": [
+    {
+     "dt": 0.25,
+     "side": "near",
+     "tx": 0.8768360423716436,
+     "ty": 1.4983214877413338
+    },
+    {
+     "dt": 1.367,
+     "side": "far",
+     "tx": 1.8909438800818255,
+     "ty": 1.0098830435392532
+    },
+    {
+     "dt": 1.934,
+     "side": "near",
+     "tx": 0.8923648948076189,
+     "ty": 1.166879978300627
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.967,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 15,
+    "spanS": 0.233,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 17
+  },
+  {
+   "from": "test_4 seed 1 camera A 45.40-49.32 s",
+   "why": "no_bounce",
+   "durS": 3.917,
+   "bounces": [
+    {
+     "dt": 0.817,
+     "side": "near",
+     "tx": 0.48229898719401015,
+     "ty": 0.884871735538066
+    },
+    {
+     "dt": 1.183,
+     "side": "far",
+     "tx": 2.069650966185499,
+     "ty": 1.323599724638673
+    },
+    {
+     "dt": 1.683,
+     "side": "near",
+     "tx": 0.06467488147904861,
+     "ty": 1.5941584946842766
+    },
+    {
+     "dt": 2.133,
+     "side": "far",
+     "tx": 1.9536613560928562,
+     "ty": 1.0580107245161245
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.667,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.35,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.833,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.417,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.81
+   },
+   "serveSeen": {
+    "pts": 20,
+    "spanS": 0.317,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 50
+  },
+  {
+   "from": "test_4 seed 1 camera A 58.03-65.65 s",
+   "why": "no_bounce",
+   "durS": 7.617,
+   "bounces": [
+    {
+     "dt": 0.834,
+     "side": "near",
+     "tx": 0.5420751431446662,
+     "ty": 1.5193550787205046
+    },
+    {
+     "dt": 1.25,
+     "side": "far",
+     "tx": 2.0455476384313234,
+     "ty": 1.155227476566821
+    },
+    {
+     "dt": 1.967,
+     "side": "near",
+     "tx": 0.6850858912208418,
+     "ty": 0.7088221088085365
+    },
+    {
+     "dt": 2.867,
+     "side": "far",
+     "tx": 2.724112028247279,
+     "ty": 1.1877993521656813
+    },
+    {
+     "dt": 3.75,
+     "side": "near",
+     "tx": 0.2828157738402537,
+     "ty": 0.7408168961458915
+    },
+    {
+     "dt": 4.6,
+     "side": "far",
+     "tx": 2.34562581908574,
+     "ty": 0.967001719152375
+    },
+    {
+     "dt": 5.85,
+     "side": "far",
+     "tx": 1.4751048509015738,
+     "ty": 0.8190351007923092
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.55,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.617,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.417,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.25,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.134,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.3,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 6.117,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 0.833
+   },
+   "maxSpeedKmh": 29
+  },
+  {
+   "from": "test_4 seed 1 camera A 72.38-76.70 s",
+   "why": "no_bounce",
+   "durS": 4.317,
+   "bounces": [
+    {
+     "dt": 2.067,
+     "side": "far",
+     "tx": 2.5712130460083213,
+     "ty": 0.3555669292561129
+    },
+    {
+     "dt": 2.4,
+     "side": "near",
+     "tx": 0.19972086741334194,
+     "ty": 0.1451678603132942
+    }
+   ],
+   "shots": [
+    {
+     "dt": 1.034,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.017,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.817,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 1.033
+   },
+   "maxSpeedKmh": 30
+  },
+  {
+   "from": "test_4 seed 1 camera A 85.67-91.78 s",
+   "why": "no_bounce",
+   "durS": 6.116,
+   "bounces": [
+    {
+     "dt": 2.716,
+     "side": "far",
+     "tx": 2.4561712111316925,
+     "ty": 0.3912004481211722
+    },
+    {
+     "dt": 3.1,
+     "side": "near",
+     "tx": 0.5900783301326317,
+     "ty": 0.8964228496278279
+    },
+    {
+     "dt": 3.666,
+     "side": "far",
+     "tx": 1.901763087470361,
+     "ty": 1.5144157570162062
+    },
+    {
+     "dt": 4.366,
+     "side": "near",
+     "tx": 0.6777889631019544,
+     "ty": 0.7974734898454129
+    }
+   ],
+   "shots": [
+    {
+     "dt": 1.466,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.65,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.116,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.033,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.633,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 1.25
+   },
+   "maxSpeedKmh": 27
+  },
+  {
+   "from": "test_4 seed 1 camera A 94.23-100.07 s",
+   "why": "ball_lost",
+   "durS": 5.834,
+   "bounces": [
+    {
+     "dt": 1.267,
+     "side": "near",
+     "tx": 0.00807670012842927,
+     "ty": 0.6765384548291155
+    },
+    {
+     "dt": 2.4,
+     "side": "far",
+     "tx": 1.7421720287260167,
+     "ty": 0.3297904238979571
+    },
+    {
+     "dt": 3.15,
+     "side": "near",
+     "tx": 0.2221839038766991,
+     "ty": 1.1550562631904224
+    },
+    {
+     "dt": 3.5,
+     "side": "near",
+     "tx": 0.18393618654504504,
+     "ty": 1.4423528986754361
+    },
+    {
+     "dt": 5.8,
+     "side": "near",
+     "tx": -0.059569173081779815,
+     "ty": 1.2058971069027258
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.25,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.65,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.75,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.384,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.65,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.234,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 1.017
+   },
+   "maxSpeedKmh": 14
+  },
+  {
+   "from": "test_4 seed 1 camera A 101.02-103.13 s",
+   "why": "no_bounce",
+   "durS": 2.116,
+   "bounces": [
+    {
+     "dt": 0.783,
+     "side": "near",
+     "tx": 0.33126222314587406,
+     "ty": 1.4080356694999436
+    },
+    {
+     "dt": 1.2,
+     "side": "far",
+     "tx": 1.8289259604709025,
+     "ty": 0.6991237585934564
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.133,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.6,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 1.05
+   },
+   "serveSeen": {
+    "pts": 55,
+    "spanS": 0.9,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 15
+  },
+  {
+   "from": "test_4 seed 1 camera A 104.83-114.30 s",
+   "why": "no_shot",
+   "durS": 9.467,
+   "bounces": [
+    {
+     "dt": 2.617,
+     "side": "near",
+     "tx": -0.08471669507255812,
+     "ty": 1.5243948522604704
+    },
+    {
+     "dt": 3,
+     "side": "near",
+     "tx": -0.074090226021017,
+     "ty": 1.1566712741435132
+    },
+    {
+     "dt": 4.9,
+     "side": "near",
+     "tx": 0.4976770457192427,
+     "ty": 1.4534594946636563
+    },
+    {
+     "dt": 6,
+     "side": "near",
+     "tx": 0.8796975637709622,
+     "ty": 0.2532409116298277
+    },
+    {
+     "dt": 6.484,
+     "side": "far",
+     "tx": 2.470754567293374,
+     "ty": 1.6020525565201484
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.317,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.867,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.684,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.85,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.384,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 6.242,
+     "side": "near",
+     "inferred": true
+    }
+   ],
+   "serveNet": {
+    "ratio": 17.15
+   },
+   "serveSeen": {
+    "pts": 123,
+    "spanS": 6.117,
+    "maxGapS": 0.95
+   },
+   "maxSpeedKmh": 29
+  },
+  {
+   "from": "test_4 seed 1 camera A 114.32-118.67 s",
+   "why": "ball_lost",
+   "durS": 4.35,
+   "bounces": [
+    {
+     "dt": 3.016,
+     "side": "far",
+     "tx": 2.018960642001662,
+     "ty": 0.539718421100003
+    },
+    {
+     "dt": 3.283,
+     "side": "far",
+     "tx": 2.340616848299513,
+     "ty": 0.15805760046339593
+    },
+    {
+     "dt": 3.9,
+     "side": "far",
+     "tx": 1.684502982669454,
+     "ty": 0.28632605649842735
+    }
+   ],
+   "shots": [
+    {
+     "dt": 2.1,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.233,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.1,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.99
+   },
+   "serveSeen": {
+    "pts": 33,
+    "spanS": 0.633,
+    "maxGapS": 0.1
+   },
+   "maxSpeedKmh": 10
+  },
+  {
+   "from": "test_4 seed 1 camera A 122.38-124.42 s",
+   "why": "ball_lost",
+   "durS": 2.034,
+   "bounces": [
+    {
+     "dt": 1.384,
+     "side": "far",
+     "tx": 2.6066204383170786,
+     "ty": 0.3162739544465312
+    },
+    {
+     "dt": 1.65,
+     "side": "far",
+     "tx": 1.392086715807846,
+     "ty": 0.9099742761335223
+    },
+    {
+     "dt": 1.984,
+     "side": "near",
+     "tx": 0.7738890553552273,
+     "ty": 0.2900778952926137
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.05,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.234,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 1.333
+   },
+   "maxSpeedKmh": null
+  },
+  {
+   "from": "test_4 seed 1 camera A 125.33-127.72 s",
+   "why": "no_bounce",
+   "durS": 2.384,
+   "bounces": [
+    {
+     "dt": 0.45,
+     "side": "near",
+     "tx": 0.7539038144154522,
+     "ty": 1.0916420765391024
+    },
+    {
+     "dt": 0.917,
+     "side": "far",
+     "tx": 1.9346546484722569,
+     "ty": 0.7916897946289312
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.15,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.3,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.94
+   },
+   "serveSeen": {
+    "pts": 31,
+    "spanS": 0.5,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 13
+  },
+  {
+   "from": "test_4 seed 1 camera A 128.08-133.68 s",
+   "why": "no_bounce",
+   "durS": 5.6,
+   "bounces": [
+    {
+     "dt": 0.25,
+     "side": "far",
+     "tx": 2.8477369627043676,
+     "ty": 1.0074564350792001
+    },
+    {
+     "dt": 2.1,
+     "side": "near",
+     "tx": 1.3392863098768226,
+     "ty": 1.447029821207149
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.35,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.334,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.767,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.534,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": null,
+   "maxSpeedKmh": 29
+  },
+  {
+   "from": "test_4 seed 1 camera A 142.85-147.82 s",
+   "why": "ball_lost",
+   "durS": 4.967,
+   "bounces": [
+    {
+     "dt": 1.3,
+     "side": "far",
+     "tx": 1.7617052856228972,
+     "ty": 0.8486334337152017
+    },
+    {
+     "dt": 1.9,
+     "side": "near",
+     "tx": 0.7866296310840529,
+     "ty": 1.0131062896277343
+    },
+    {
+     "dt": 2.717,
+     "side": "near",
+     "tx": 0.23359305631333646,
+     "ty": 1.3349138668926426
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.65,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.617,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.767,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.71
+   },
+   "serveSeen": {
+    "pts": 50,
+    "spanS": 0.817,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 9
+  },
+  {
+   "from": "test_4 seed 1 camera A 150.80-158.30 s",
+   "why": "no_bounce",
+   "durS": 7.5,
+   "bounces": [
+    {
+     "dt": 1.317,
+     "side": "near",
+     "tx": 0.3727044435515783,
+     "ty": 1.4069687555866561
+    },
+    {
+     "dt": 1.717,
+     "side": "far",
+     "tx": 1.900044191194158,
+     "ty": 0.6664778139518928
+    },
+    {
+     "dt": 2.3,
+     "side": "near",
+     "tx": 0.21469536297090727,
+     "ty": 1.3480339975457998
+    },
+    {
+     "dt": 2.933,
+     "side": "far",
+     "tx": 2.5049369880009618,
+     "ty": 0.4606932927719592
+    },
+    {
+     "dt": 5.75,
+     "side": "near",
+     "tx": 1.1816574136485394,
+     "ty": 1.490521575801336
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.033,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.883,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.617,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 4.467,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 6.25,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.96
+   },
+   "serveSeen": {
+    "pts": 48,
+    "spanS": 1.083,
+    "maxGapS": 0.45
+   },
+   "maxSpeedKmh": 30
+  },
+  {
+   "from": "test_4 seed 1 camera A 160.93-165.10 s",
+   "why": "no_bounce",
+   "durS": 4.167,
+   "bounces": [
+    {
+     "dt": 1.15,
+     "side": "near",
+     "tx": 0.36809143882349626,
+     "ty": 1.4945557316903593
+    },
+    {
+     "dt": 1.534,
+     "side": "far",
+     "tx": 1.9723426567827003,
+     "ty": 0.9919083685903018
+    },
+    {
+     "dt": 2.717,
+     "side": "far",
+     "tx": 2.0037970629325157,
+     "ty": 1.3724905340481957
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.85,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.617,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.984,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 1
+   },
+   "serveSeen": {
+    "pts": 62,
+    "spanS": 1.05,
+    "maxGapS": 0.317
+   },
+   "maxSpeedKmh": 45
+  },
+  {
+   "from": "test_4 seed 1 camera A 172.30-176.18 s",
+   "why": "no_bounce",
+   "durS": 3.883,
+   "bounces": [
+    {
+     "dt": 1.65,
+     "side": "far",
+     "tx": 2.396662178579369,
+     "ty": 0.40603627096302214
+    },
+    {
+     "dt": 2.05,
+     "side": "near",
+     "tx": 0.9043287758242271,
+     "ty": 0.5289294129762662
+    },
+    {
+     "dt": 2.367,
+     "side": "near",
+     "tx": 0.3165858712148525,
+     "ty": 1.1229603084209465
+    },
+    {
+     "dt": 2.717,
+     "side": "far",
+     "tx": 1.8915093607248932,
+     "ty": 1.0572338504955676
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.45,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.383,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.917,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 12,
+    "spanS": 0.2,
+    "maxGapS": 0.033
+   },
+   "maxSpeedKmh": 56
+  },
+  {
+   "from": "test_4 seed 1 camera A 180.02-190.47 s",
+   "why": "no_bounce",
+   "durS": 10.45,
+   "bounces": [
+    {
+     "dt": 1.133,
+     "side": "near",
+     "tx": 0.611118462147251,
+     "ty": 0.5115254391751463
+    },
+    {
+     "dt": 1.583,
+     "side": "far",
+     "tx": 2.171570731882329,
+     "ty": 0.36986593101729526
+    },
+    {
+     "dt": 3.783,
+     "side": "far",
+     "tx": 2.6356690791184305,
+     "ty": 0.5317827299340696
+    },
+    {
+     "dt": 4.2,
+     "side": "near",
+     "tx": 0.7560910660087942,
+     "ty": 1.2847670688786612
+    },
+    {
+     "dt": 4.916,
+     "side": "far",
+     "tx": 1.8469115802679394,
+     "ty": 1.2320608482662665
+    },
+    {
+     "dt": 5.733,
+     "side": "near",
+     "tx": 0.33190429582183334,
+     "ty": 0.9504181983114659
+    },
+    {
+     "dt": 6.133,
+     "side": "far",
+     "tx": 1.3795706943292751,
+     "ty": 1.2267826955834196
+    },
+    {
+     "dt": 8,
+     "side": "far",
+     "tx": 2.045537248094145,
+     "ty": 0.8738520623328192
+    },
+    {
+     "dt": 8.633,
+     "side": "near",
+     "tx": 0.5865408573393535,
+     "ty": 1.6563556774359358
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.933,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.5,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.533,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.433,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.966,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 7.55,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 8.966,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.94
+   },
+   "serveSeen": {
+    "pts": 24,
+    "spanS": 0.383,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 20
+  },
+  {
+   "from": "test_4 seed 1 camera A 210.12-211.20 s",
+   "why": "ball_lost",
+   "durS": 1.083,
+   "bounces": [
+    {
+     "dt": 0.116,
+     "side": "far",
+     "tx": 2.0958773562043245,
+     "ty": 0.7820976836666791
+    },
+    {
+     "dt": 0.433,
+     "side": "far",
+     "tx": 2.7399692549244627,
+     "ty": 1.1041406334836972
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.8,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": null,
+   "maxSpeedKmh": 13
+  },
+  {
+   "from": "test_4 seed 1 camera A 228.65-230.82 s",
+   "why": "ball_lost",
+   "durS": 2.167,
+   "bounces": [
+    {
+     "dt": 1.25,
+     "side": "far",
+     "tx": 2.7976271124330774,
+     "ty": 1.401598505048933
+    },
+    {
+     "dt": 2.1,
+     "side": "far",
+     "tx": 2.2341468736210053,
+     "ty": 1.1793919094488658
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.15,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": null,
+   "maxSpeedKmh": null
+  },
+  {
+   "from": "test_4 seed 1 camera A 235.18-238.92 s",
+   "why": "no_shot",
+   "durS": 3.734,
+   "bounces": [
+    {
+     "dt": 0.167,
+     "side": "far",
+     "tx": 2.831935895737244,
+     "ty": 0.3090429222034271
+    },
+    {
+     "dt": 1.1,
+     "side": "far",
+     "tx": 2.769852541091758,
+     "ty": 1.0633933384163494
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.417,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": null,
+   "maxSpeedKmh": null
+  },
+  {
+   "from": "test_4 seed 1 camera A 250.02-259.88 s",
+   "why": "no_bounce",
+   "durS": 9.866,
+   "bounces": [
+    {
+     "dt": 1.266,
+     "side": "near",
+     "tx": 0.16647672002560268,
+     "ty": 1.608139448292867
+    },
+    {
+     "dt": 1.7,
+     "side": "far",
+     "tx": 1.8726359278913123,
+     "ty": 1.2042104464475443
+    },
+    {
+     "dt": 2.416,
+     "side": "near",
+     "tx": 0.2400583041144647,
+     "ty": 1.3703305401313008
+    },
+    {
+     "dt": 2.866,
+     "side": "far",
+     "tx": 1.982302524288317,
+     "ty": 0.820542464572518
+    },
+    {
+     "dt": 3.416,
+     "side": "near",
+     "tx": -0.03476502191867816,
+     "ty": 1.6927545191640592
+    },
+    {
+     "dt": 4.116,
+     "side": "far",
+     "tx": 2.5769513165590356,
+     "ty": 0.871475553271818
+    },
+    {
+     "dt": 4.533,
+     "side": "near",
+     "tx": 0.5703101533270521,
+     "ty": 1.4617476390658775
+    },
+    {
+     "dt": 5.266,
+     "side": "far",
+     "tx": 1.8106232194353415,
+     "ty": 1.143297041246457
+    },
+    {
+     "dt": 6.066,
+     "side": "near",
+     "tx": 0.5331958638601202,
+     "ty": 1.1517851043047813
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.383,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.1,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.983,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.633,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.133,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.616,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.3,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.9,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.833,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 6.75,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 7.633,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 8.566,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 0.883
+   },
+   "maxSpeedKmh": 35
+  },
+  {
+   "from": "test_4 seed 1 camera A 261.83-266.62 s",
+   "why": "ball_lost",
+   "durS": 4.784,
+   "bounces": [
+    {
+     "dt": 1.6,
+     "side": "near",
+     "tx": 0.24149034814958562,
+     "ty": 1.4469377282894373
+    },
+    {
+     "dt": 2,
+     "side": "far",
+     "tx": 2.048655907856428,
+     "ty": 0.8598829985754377
+    },
+    {
+     "dt": 2.7,
+     "side": "near",
+     "tx": 0.9975315905973949,
+     "ty": 1.192779838797023
+    },
+    {
+     "dt": 4.117,
+     "side": "near",
+     "tx": 0.18888279079329823,
+     "ty": 0.41075336571988896
+    },
+    {
+     "dt": 4.684,
+     "side": "near",
+     "tx": 1.2417692628684633,
+     "ty": 1.2111308292072362
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.567,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.434,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.3,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.9,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 1.033
+   },
+   "maxSpeedKmh": 15
+  },
+  {
+   "from": "test_4 seed 1 camera A 276.20-280.23 s",
+   "why": "ball_lost",
+   "durS": 4.033,
+   "bounces": [
+    {
+     "dt": 0.95,
+     "side": "far",
+     "tx": 2.64868492950318,
+     "ty": 0.31075368367515516
+    },
+    {
+     "dt": 1.833,
+     "side": "far",
+     "tx": 1.94601345276764,
+     "ty": 0.6751510011872571
+    },
+    {
+     "dt": 2.583,
+     "side": "near",
+     "tx": 0.734607910177581,
+     "ty": 1.5590925369780526
+    },
+    {
+     "dt": 3.183,
+     "side": "far",
+     "tx": 2.3312980870715703,
+     "ty": 0.7867536627713833
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.667,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.6,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.133,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.767,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 0.95
+   },
+   "maxSpeedKmh": 24
+  },
+  {
+   "from": "test_4 seed 1 camera A 289.88-291.43 s",
+   "why": "no_bounce",
+   "durS": 1.55,
+   "bounces": [
+    {
+     "dt": 0.1,
+     "side": "far",
+     "tx": 2.4606867716112224,
+     "ty": 0.31250876312650533
+    },
+    {
+     "dt": 0.484,
+     "side": "near",
+     "tx": 0.8072305840757996,
+     "ty": 0.6346836478524832
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.75,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.86
+   },
+   "serveSeen": {
+    "pts": 20,
+    "spanS": 0.317,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 38
+  },
+  {
+   "from": "test_5 seed 1 camera A 1.98-4.75 s",
+   "why": "no_shot",
+   "durS": 2.767,
+   "bounces": [
+    {
+     "dt": 1.134,
+     "side": "near",
+     "tx": 0.5289080029880121,
+     "ty": 0.5578343426730092
+    },
+    {
+     "dt": 1.584,
+     "side": "far",
+     "tx": 1.9620900984255316,
+     "ty": 1.131416204920193
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.81
+   },
+   "serveSeen": {
+    "pts": 43,
+    "spanS": 1.367,
+    "maxGapS": 0.483
+   },
+   "maxSpeedKmh": 8
+  },
+  {
+   "from": "test_5 seed 1 camera A 5.02-8.68 s",
+   "why": "no_bounce",
+   "durS": 3.666,
+   "bounces": [
+    {
+     "dt": 1.216,
+     "side": "far",
+     "tx": 2.461633214765504,
+     "ty": 1.5594326143507566
+    },
+    {
+     "dt": 1.7,
+     "side": "near",
+     "tx": 0.5554943160101086,
+     "ty": 0.4930666107239697
+    },
+    {
+     "dt": 2.133,
+     "side": "far",
+     "tx": 2.0106163569877036,
+     "ty": 0.9568714897845054
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.216,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.066,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.783,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.316,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 1
+   },
+   "maxSpeedKmh": 23
+  },
+  {
+   "from": "test_5 seed 1 camera A 14.97-17.00 s",
+   "why": "ball_lost",
+   "durS": 2.033,
+   "bounces": [
+    {
+     "dt": 0.266,
+     "side": "near",
+     "tx": 0.41335197682158215,
+     "ty": 0.5576005072431781
+    },
+    {
+     "dt": 0.75,
+     "side": "far",
+     "tx": 1.7512626580562374,
+     "ty": 1.0557943974873716
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.82
+   },
+   "serveSeen": {
+    "pts": 35,
+    "spanS": 0.567,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 13
+  },
+  {
+   "from": "test_5 seed 1 camera A 18.02-19.77 s",
+   "why": "ball_lost",
+   "durS": 1.75,
+   "bounces": [
+    {
+     "dt": 0.45,
+     "side": "near",
+     "tx": 0.48708322251329456,
+     "ty": 0.4418764073455068
+    },
+    {
+     "dt": 1,
+     "side": "far",
+     "tx": 2.653583624692089,
+     "ty": 1.3345844117379602
+    },
+    {
+     "dt": 1.483,
+     "side": "near",
+     "tx": -0.03525178853571628,
+     "ty": 0.2602723168178265
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.516,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.116,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 1.04
+   },
+   "serveSeen": {
+    "pts": 13,
+    "spanS": 0.2,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 26
+  },
+  {
+   "from": "test_5 seed 1 camera A 31.93-34.73 s",
+   "why": "ball_lost",
+   "durS": 2.8,
+   "bounces": [
+    {
+     "dt": 1.134,
+     "side": "near",
+     "tx": 0.20915366080285244,
+     "ty": -0.11836132900190831
+    },
+    {
+     "dt": 1.567,
+     "side": "far",
+     "tx": 1.9648782870690156,
+     "ty": 0.5444237235387069
+    },
+    {
+     "dt": 2.25,
+     "side": "near",
+     "tx": 0.23887738363910935,
+     "ty": 0.5664083632974002
+    },
+    {
+     "dt": 2.6,
+     "side": "far",
+     "tx": 2.726310445854582,
+     "ty": 1.7681805048911083
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.167,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.817,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.367,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 1.133
+   },
+   "maxSpeedKmh": 44
+  },
+  {
+   "from": "test_5 seed 1 camera A 44.30-46.12 s",
+   "why": "ball_lost",
+   "durS": 1.817,
+   "bounces": [
+    {
+     "dt": 0.117,
+     "side": "near",
+     "tx": 0.20754755523804705,
+     "ty": -0.01788533742596438
+    },
+    {
+     "dt": 0.65,
+     "side": "far",
+     "tx": 2.0002062828044713,
+     "ty": 0.6331575178205608
+    },
+    {
+     "dt": 1.2,
+     "side": "near",
+     "tx": 0.11642723378088062,
+     "ty": 0.4870769487960088
+    },
+    {
+     "dt": 1.483,
+     "side": "far",
+     "tx": 2.262303724477621,
+     "ty": 1.038899558083346
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.017,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.167,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.867,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.342,
+     "side": "near",
+     "inferred": true
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 0.1
+   },
+   "maxSpeedKmh": 31
+  },
+  {
+   "from": "test_5 seed 1 camera A 53.15-58.63 s",
+   "why": "ball_lost",
+   "durS": 5.483,
+   "bounces": [
+    {
+     "dt": 1.05,
+     "side": "far",
+     "tx": 1.8777393048925635,
+     "ty": 1.0567163770319765
+    },
+    {
+     "dt": 3.383,
+     "side": "far",
+     "tx": 2.194568818493419,
+     "ty": 1.4279432346091407
+    },
+    {
+     "dt": 4.283,
+     "side": "far",
+     "tx": 2.018987696108584,
+     "ty": 0.9842774576153258
+    },
+    {
+     "dt": 4.817,
+     "side": "near",
+     "tx": 0.3309202067525968,
+     "ty": 0.7237481177403723
+    },
+    {
+     "dt": 5.133,
+     "side": "far",
+     "tx": 2.2397882896364187,
+     "ty": 1.5346415750155749
+    },
+    {
+     "dt": 5.45,
+     "side": "near",
+     "tx": 1.3643831303329144,
+     "ty": 0.9206527509838213
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.617,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.2,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.033,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.483,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.917,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.2,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.82
+   },
+   "serveSeen": {
+    "pts": 14,
+    "spanS": 0.217,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 42
+  },
+  {
+   "from": "test_5 seed 1 camera A 59.93-62.02 s",
+   "why": "no_shot",
+   "durS": 2.084,
+   "bounces": [
+    {
+     "dt": 0.934,
+     "side": "near",
+     "tx": 1.08171498118758,
+     "ty": 0.6721943897339061
+    },
+    {
+     "dt": 1.95,
+     "side": "near",
+     "tx": 0.019294371478584954,
+     "ty": 1.0725590785804247
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": null,
+   "maxSpeedKmh": 11
+  },
+  {
+   "from": "test_5 seed 1 camera A 64.23-67.30 s",
+   "why": "ball_lost",
+   "durS": 3.067,
+   "bounces": [
+    {
+     "dt": 0.917,
+     "side": "far",
+     "tx": 2.4874524319540083,
+     "ty": 1.6024732132444828
+    },
+    {
+     "dt": 1.367,
+     "side": "near",
+     "tx": 0.5232632308016952,
+     "ty": 0.630855681665458
+    },
+    {
+     "dt": 1.55,
+     "side": "near",
+     "tx": 0.10027220980082491,
+     "ty": 1.7269466984264987
+    },
+    {
+     "dt": 1.867,
+     "side": "far",
+     "tx": 1.8739483418738332,
+     "ty": 1.099009593130626
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.784,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.467,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.217,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.7,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 1
+   },
+   "serveSeen": {
+    "pts": 21,
+    "spanS": 0.333,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 53
+  },
+  {
+   "from": "test_5 seed 1 camera A 92.63-95.83 s",
+   "why": "ball_lost",
+   "durS": 3.2,
+   "bounces": [
+    {
+     "dt": 0.934,
+     "side": "near",
+     "tx": 0.5066143013957498,
+     "ty": 0.19714776987466226
+    },
+    {
+     "dt": 1.284,
+     "side": "far",
+     "tx": 1.918975181463837,
+     "ty": 0.2929788295783476
+    },
+    {
+     "dt": 1.867,
+     "side": "near",
+     "tx": 0.291849842552304,
+     "ty": 0.6724175425616802
+    },
+    {
+     "dt": 2.184,
+     "side": "far",
+     "tx": 2.3007084700215175,
+     "ty": 1.4517746771712314
+    },
+    {
+     "dt": 2.667,
+     "side": "near",
+     "tx": 0.3869041353396587,
+     "ty": 1.1413113624660522
+    },
+    {
+     "dt": 3.067,
+     "side": "far",
+     "tx": 2.0113369314089375,
+     "ty": 0.2518029715058239
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.017,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.8,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.4,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.967,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.384,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.867,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 0.917
+   },
+   "maxSpeedKmh": 50
+  },
+  {
+   "from": "test_6 seed 1 camera A 2.63-5.52 s",
+   "why": "ball_lost",
+   "durS": 2.884,
+   "bounces": [
+    {
+     "dt": 0.117,
+     "side": "far",
+     "tx": 2.754517829561249,
+     "ty": 0.3789142818764587
+    },
+    {
+     "dt": 1.467,
+     "side": "near",
+     "tx": 0.7017893789692615,
+     "ty": 1.4535959567107448
+    },
+    {
+     "dt": 2,
+     "side": "far",
+     "tx": 2.2766432316674194,
+     "ty": 1.2182269059755244
+    },
+    {
+     "dt": 2.45,
+     "side": "near",
+     "tx": 0.30121130604633034,
+     "ty": 0.4853092281628827
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.067,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.734,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 2.225,
+     "side": "far",
+     "inferred": true
+    },
+    {
+     "dt": 2.617,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 0.117
+   },
+   "maxSpeedKmh": 47
+  },
+  {
+   "from": "test_6 seed 1 camera A 9.53-15.52 s",
+   "why": "no_bounce",
+   "durS": 5.984,
+   "bounces": [
+    {
+     "dt": 1.034,
+     "side": "near",
+     "tx": 0.17019280248024551,
+     "ty": 1.4249872405709698
+    },
+    {
+     "dt": 1.467,
+     "side": "far",
+     "tx": 2.634507388402025,
+     "ty": 0.5188720036070451
+    },
+    {
+     "dt": 1.767,
+     "side": "near",
+     "tx": 0.4001192855583042,
+     "ty": 0.8361592374096536
+    },
+    {
+     "dt": 2.334,
+     "side": "far",
+     "tx": 2.0273963405882243,
+     "ty": 0.7049633407590102
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.034,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.65,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.084,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.617,
+     "side": "far",
+     "inferred": true
+    },
+    {
+     "dt": 2.05,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 4.534,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.87
+   },
+   "serveSeen": {
+    "pts": 25,
+    "spanS": 0.433,
+    "maxGapS": 0.817
+   },
+   "maxSpeedKmh": 37
+  },
+  {
+   "from": "test_6 seed 1 camera A 24.95-33.90 s",
+   "why": "no_bounce",
+   "durS": 8.95,
+   "bounces": [
+    {
+     "dt": 0.45,
+     "side": "near",
+     "tx": 0.571731332769543,
+     "ty": 1.4822084660046122
+    },
+    {
+     "dt": 0.833,
+     "side": "far",
+     "tx": 2.1923982883536257,
+     "ty": 1.2858281758125543
+    },
+    {
+     "dt": 1.533,
+     "side": "near",
+     "tx": -0.022924068461406433,
+     "ty": 0.41458260938363023
+    },
+    {
+     "dt": 2.217,
+     "side": "far",
+     "tx": 2.6310263833734187,
+     "ty": 1.0252503467817478
+    },
+    {
+     "dt": 2.733,
+     "side": "near",
+     "tx": 0.43192517941425407,
+     "ty": 1.2473390878824806
+    },
+    {
+     "dt": 3.4,
+     "side": "far",
+     "tx": 2.6080553263949207,
+     "ty": 0.6948636727254893
+    },
+    {
+     "dt": 4.817,
+     "side": "far",
+     "tx": 1.8493882801855466,
+     "ty": 0.21938783143035187
+    },
+    {
+     "dt": 5.433,
+     "side": "near",
+     "tx": 0.34117135369297297,
+     "ty": 1.4522118608533277
+    },
+    {
+     "dt": 6.517,
+     "side": "far",
+     "tx": 2.195247221762529,
+     "ty": 0.830104417233564
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.267,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.15,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.783,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.6,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.9,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.25,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.833,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 7.383,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 7.567,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 6,
+    "spanS": 0.083,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 51
+  },
+  {
+   "from": "test_6 seed 1 camera A 45.23-47.72 s",
+   "why": "no_bounce",
+   "durS": 2.484,
+   "bounces": [
+    {
+     "dt": 0.434,
+     "side": "near",
+     "tx": 0.3081648223012848,
+     "ty": 1.548943222166421
+    },
+    {
+     "dt": 0.85,
+     "side": "far",
+     "tx": 1.9523772248364508,
+     "ty": 1.0299624557526041
+    },
+    {
+     "dt": 1.334,
+     "side": "near",
+     "tx": 0.5514573300330411,
+     "ty": 1.5651129073041223
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.284,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.05,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.5,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 8,
+    "spanS": 0.117,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 26
+  },
+  {
+   "from": "test_6 seed 1 camera A 50.30-56.52 s",
+   "why": "no_bounce",
+   "durS": 6.217,
+   "bounces": [
+    {
+     "dt": 1.267,
+     "side": "far",
+     "tx": 2.7428824530087916,
+     "ty": 0.48054996876097816
+    },
+    {
+     "dt": 2.4,
+     "side": "far",
+     "tx": 2.1242710378235667,
+     "ty": 0.3318399450306912
+    },
+    {
+     "dt": 2.8,
+     "side": "near",
+     "tx": 0.5029544994052224,
+     "ty": 0.9149626716206306
+    },
+    {
+     "dt": 3.167,
+     "side": "near",
+     "tx": 1.3357944080301711,
+     "ty": 0.5478521486503064
+    },
+    {
+     "dt": 4.467,
+     "side": "far",
+     "tx": 2.5287159868458713,
+     "ty": 0.5151076884734053
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.2,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.967,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.733,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.82
+   },
+   "serveSeen": {
+    "pts": 111,
+    "spanS": 2.35,
+    "maxGapS": 0.233
+   },
+   "maxSpeedKmh": 21
+  },
+  {
+   "from": "test_6 seed 1 camera A 58.07-64.47 s",
+   "why": "no_bounce",
+   "durS": 6.4,
+   "bounces": [
+    {
+     "dt": 1.3,
+     "side": "near",
+     "tx": 0.6821017451059342,
+     "ty": 0.5875969933663924
+    },
+    {
+     "dt": 1.466,
+     "side": "near",
+     "tx": 0.0009052882083790628,
+     "ty": 1.2258225616438025
+    },
+    {
+     "dt": 1.85,
+     "side": "far",
+     "tx": 2.162262579327906,
+     "ty": 1.412410176474833
+    },
+    {
+     "dt": 2.5,
+     "side": "near",
+     "tx": 0.49797306959598187,
+     "ty": 1.3798384822377634
+    },
+    {
+     "dt": 3.066,
+     "side": "far",
+     "tx": 2.1507033425544893,
+     "ty": 0.8633409188843466
+    },
+    {
+     "dt": 3.6,
+     "side": "near",
+     "tx": 0.004513838900063104,
+     "ty": 1.2592780176658782
+    },
+    {
+     "dt": 4.05,
+     "side": "far",
+     "tx": 2.5316917163219075,
+     "ty": 0.7771873781658374
+    },
+    {
+     "dt": 4.566,
+     "side": "near",
+     "tx": 0.46550520673570855,
+     "ty": 0.39238264041614457
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.916,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.466,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.658,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 2.233,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.85,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.35,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.783,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.45,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.05,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.5
+   },
+   "serveSeen": {
+    "pts": 32,
+    "spanS": 0.55,
+    "maxGapS": 1.117
+   },
+   "maxSpeedKmh": 61
+  },
+  {
+   "from": "test_6 seed 1 camera A 68.57-73.17 s",
+   "why": "no_shot",
+   "durS": 4.6,
+   "bounces": [
+    {
+     "dt": 0.25,
+     "side": "near",
+     "tx": 1.1067801899689065,
+     "ty": 1.5850925119066397
+    },
+    {
+     "dt": 2.2,
+     "side": "near",
+     "tx": -0.028016336799251088,
+     "ty": 1.7906466017772045
+    },
+    {
+     "dt": 2.75,
+     "side": "near",
+     "tx": 0.00006726498942228524,
+     "ty": 1.5978263183149803
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.533,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": null,
+   "maxSpeedKmh": null
+  },
+  {
+   "from": "test_6 seed 1 camera A 73.45-82.75 s",
+   "why": "no_bounce",
+   "durS": 9.3,
+   "bounces": [
+    {
+     "dt": 0.35,
+     "side": "near",
+     "tx": 0.3765504972474958,
+     "ty": 1.4445463729503691
+    },
+    {
+     "dt": 0.733,
+     "side": "far",
+     "tx": 1.9686677842383282,
+     "ty": 0.7967043691773993
+    },
+    {
+     "dt": 1.2,
+     "side": "near",
+     "tx": 0.4907832152390181,
+     "ty": 1.041244153297873
+    },
+    {
+     "dt": 1.867,
+     "side": "far",
+     "tx": 2.3657531458759378,
+     "ty": 0.7251038109245259
+    },
+    {
+     "dt": 2.217,
+     "side": "near",
+     "tx": 0.4585229767934148,
+     "ty": 1.3768140571881569
+    },
+    {
+     "dt": 2.617,
+     "side": "far",
+     "tx": 2.2493439807402607,
+     "ty": 1.1570772673981498
+    },
+    {
+     "dt": 3.15,
+     "side": "near",
+     "tx": 0.15920188524144704,
+     "ty": 0.6313810544034135
+    },
+    {
+     "dt": 3.667,
+     "side": "far",
+     "tx": 2.4949748438024777,
+     "ty": 0.6877165033884973
+    },
+    {
+     "dt": 4.217,
+     "side": "near",
+     "tx": 0.4190610378828297,
+     "ty": 1.0738428908633573
+    },
+    {
+     "dt": 4.75,
+     "side": "far",
+     "tx": 2.7194002176815237,
+     "ty": 1.381651839403931
+    },
+    {
+     "dt": 5.433,
+     "side": "near",
+     "tx": 0.6420629133072072,
+     "ty": 0.2483903695919062
+    },
+    {
+     "dt": 5.717,
+     "side": "far",
+     "tx": 1.6850384919043735,
+     "ty": 0.7357153561661112
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.2,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.95,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.55,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.067,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.35,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.85,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.533,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.817,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.483,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.133,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.575,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 7.8,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 11,
+    "spanS": 0.167,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 56
+  },
+  {
+   "from": "test_6 seed 1 camera A 86.42-89.42 s",
+   "why": "no_shot",
+   "durS": 3,
+   "bounces": [
+    {
+     "dt": 0.1,
+     "side": "near",
+     "tx": 0.14259916936472283,
+     "ty": 0.5414676141555831
+    },
+    {
+     "dt": 0.55,
+     "side": "far",
+     "tx": 1.8287740408652136,
+     "ty": 0.7387680413791874
+    },
+    {
+     "dt": 1.283,
+     "side": "near",
+     "tx": 0.5741370902837868,
+     "ty": 0.3351396274460001
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.183,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 10,
+    "spanS": 0.15,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 12
+  },
+  {
+   "from": "test_7 seed 1 camera A 1.57-4.55 s",
+   "why": "no_shot",
+   "durS": 2.983,
+   "bounces": [
+    {
+     "dt": 0.4,
+     "side": "near",
+     "tx": 0.5762671050758017,
+     "ty": 0.6787230412628129
+    },
+    {
+     "dt": 1.016,
+     "side": "far",
+     "tx": 1.9397193010234162,
+     "ty": 0.5236037313424496
+    },
+    {
+     "dt": 1.583,
+     "side": "far",
+     "tx": 2.547464734657559,
+     "ty": 0.6659595536190693
+    },
+    {
+     "dt": 2.05,
+     "side": "far",
+     "tx": 2.715580063377466,
+     "ty": 1.0093996977186361
+    },
+    {
+     "dt": 2.9,
+     "side": "far",
+     "tx": 2.641227185739479,
+     "ty": 1.7008002462147889
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.86
+   },
+   "serveSeen": {
+    "pts": 43,
+    "spanS": 0.7,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 14
+  },
+  {
+   "from": "test_7 seed 1 camera A 4.57-7.35 s",
+   "why": "no_shot",
+   "durS": 2.783,
+   "bounces": [
+    {
+     "dt": 0.25,
+     "side": "far",
+     "tx": 2.674897597137343,
+     "ty": 1.3411038283206178
+    },
+    {
+     "dt": 1.15,
+     "side": "far",
+     "tx": 2.829916758871848,
+     "ty": 1.6299934188618859
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 8,
+    "spanS": 0.117,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": null
+  },
+  {
+   "from": "test_7 seed 1 camera A 7.62-11.82 s",
+   "why": "no_bounce",
+   "durS": 4.2,
+   "bounces": [
+    {
+     "dt": 0.85,
+     "side": "far",
+     "tx": 2.259767187255981,
+     "ty": 1.2711585024891763
+    },
+    {
+     "dt": 1.233,
+     "side": "near",
+     "tx": 0.8765963725761847,
+     "ty": 0.6314897279282677
+    },
+    {
+     "dt": 1.483,
+     "side": "near",
+     "tx": 0.2027994445241044,
+     "ty": 1.013849594906119
+    },
+    {
+     "dt": 1.833,
+     "side": "far",
+     "tx": 2.2521456786711855,
+     "ty": 1.0257333378391602
+    },
+    {
+     "dt": 2.2,
+     "side": "near",
+     "tx": -0.034796814907654,
+     "ty": 0.547587452479875
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.2,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.483,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.658,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 2.016,
+     "side": "far",
+     "inferred": true
+    },
+    {
+     "dt": 2.833,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.99
+   },
+   "serveSeen": {
+    "pts": 26,
+    "spanS": 0.417,
+    "maxGapS": 0.467
+   },
+   "maxSpeedKmh": 40
+  },
+  {
+   "from": "test_7 seed 1 camera A 15.25-18.27 s",
+   "why": "no_shot",
+   "durS": 3.017,
+   "bounces": [
+    {
+     "dt": 0.333,
+     "side": "near",
+     "tx": 0.37763437101899067,
+     "ty": 0.7476741006263823
+    },
+    {
+     "dt": 0.8,
+     "side": "far",
+     "tx": 1.7306130104873707,
+     "ty": 0.9750840266324594
+    },
+    {
+     "dt": 1.233,
+     "side": "far",
+     "tx": 2.3264746840523425,
+     "ty": 1.117801009282673
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.85
+   },
+   "serveSeen": {
+    "pts": 40,
+    "spanS": 0.65,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 12
+  },
+  {
+   "from": "test_7 seed 1 camera A 18.28-28.05 s",
+   "why": "ball_lost",
+   "durS": 9.767,
+   "bounces": [
+    {
+     "dt": 2.317,
+     "side": "near",
+     "tx": 0.7100849077824327,
+     "ty": 0.4893620493130869
+    },
+    {
+     "dt": 2.517,
+     "side": "near",
+     "tx": 0.21449095033769847,
+     "ty": 0.6949609096317839
+    },
+    {
+     "dt": 3,
+     "side": "far",
+     "tx": 2.0630687718458223,
+     "ty": 0.7647706734916246
+    },
+    {
+     "dt": 3.55,
+     "side": "near",
+     "tx": 0.7241615999265375,
+     "ty": 1.3553994537158613
+    },
+    {
+     "dt": 4.117,
+     "side": "far",
+     "tx": 2.1620933373077653,
+     "ty": 1.4443295985578006
+    },
+    {
+     "dt": 4.634,
+     "side": "near",
+     "tx": 0.4609427931738861,
+     "ty": 1.3673313245620458
+    },
+    {
+     "dt": 5.1,
+     "side": "far",
+     "tx": 2.368471062345953,
+     "ty": 0.3481302472386459
+    },
+    {
+     "dt": 5.75,
+     "side": "far",
+     "tx": 1.421324155618401,
+     "ty": 0.6100073526030899
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.817,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.234,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.534,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.25,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.884,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.417,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.867,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 5.934,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 7.067,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 7.25,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 7.584,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 7.8,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 8.6,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 9.4,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 3.61
+   },
+   "serveSeen": {
+    "pts": 42,
+    "spanS": 0.683,
+    "maxGapS": 1.3
+   },
+   "maxSpeedKmh": 47
+  },
+  {
+   "from": "test_7 seed 1 camera A 38.73-43.32 s",
+   "why": "no_bounce",
+   "durS": 4.584,
+   "bounces": [
+    {
+     "dt": 1.667,
+     "side": "near",
+     "tx": 0.6240385675998503,
+     "ty": 1.2899335279640534
+    },
+    {
+     "dt": 2.017,
+     "side": "far",
+     "tx": 2.0987455298552145,
+     "ty": 0.7334004846293295
+    },
+    {
+     "dt": 2.934,
+     "side": "far",
+     "tx": 2.193380172062397,
+     "ty": 1.359891640142339
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.3,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.45,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.234,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.634,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.084,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 1.367
+   },
+   "maxSpeedKmh": 36
+  },
+  {
+   "from": "test_7 seed 1 camera A 43.33-46.40 s",
+   "why": "no_shot",
+   "durS": 3.067,
+   "bounces": [
+    {
+     "dt": 0.984,
+     "side": "far",
+     "tx": 2.7448681827770534,
+     "ty": 0.5704929034493706
+    },
+    {
+     "dt": 1.45,
+     "side": "far",
+     "tx": 2.779921310452483,
+     "ty": 1.0163265519963938
+    },
+    {
+     "dt": 2.584,
+     "side": "near",
+     "tx": 1.3664066723809627,
+     "ty": 1.5668111279966026
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 142,
+    "spanS": 2.55,
+    "maxGapS": 0.117
+   },
+   "maxSpeedKmh": null
+  },
+  {
+   "from": "test_7 seed 1 camera A 54.23-67.33 s",
+   "why": "no_bounce",
+   "durS": 13.1,
+   "bounces": [
+    {
+     "dt": 1.1,
+     "side": "near",
+     "tx": 0.4365237547958378,
+     "ty": 1.4397180029376133
+    },
+    {
+     "dt": 1.467,
+     "side": "far",
+     "tx": 1.8924515811586404,
+     "ty": 0.7990682916978606
+    },
+    {
+     "dt": 1.734,
+     "side": "far",
+     "tx": 2.6025590822384705,
+     "ty": 0.7067587285765162
+    },
+    {
+     "dt": 2.15,
+     "side": "near",
+     "tx": 0.7658824494095329,
+     "ty": 0.7030644000298194
+    },
+    {
+     "dt": 2.75,
+     "side": "far",
+     "tx": 2.003822966064503,
+     "ty": 0.9275167224152444
+    },
+    {
+     "dt": 3.217,
+     "side": "near",
+     "tx": 0.5208655504500104,
+     "ty": 0.5804362639530282
+    },
+    {
+     "dt": 3.734,
+     "side": "far",
+     "tx": 2.1871444523763657,
+     "ty": 0.5111890279668387
+    },
+    {
+     "dt": 4.217,
+     "side": "near",
+     "tx": 0.6228993406412269,
+     "ty": 0.22435094820806034
+    },
+    {
+     "dt": 4.617,
+     "side": "far",
+     "tx": 2.090446701042832,
+     "ty": 0.45116950982848647
+    },
+    {
+     "dt": 5.35,
+     "side": "near",
+     "tx": 0.11918970295092308,
+     "ty": 0.6861734605860496
+    },
+    {
+     "dt": 5.867,
+     "side": "far",
+     "tx": 1.9456172462662762,
+     "ty": 0.9227688697376587
+    },
+    {
+     "dt": 6.65,
+     "side": "near",
+     "tx": 0.9522360548939978,
+     "ty": 0.9965344620845155
+    },
+    {
+     "dt": 7.167,
+     "side": "far",
+     "tx": 2.0032248697234163,
+     "ty": 0.13336446792975282
+    },
+    {
+     "dt": 8.15,
+     "side": "near",
+     "tx": 0.2855893258575543,
+     "ty": 0.7302051649617168
+    },
+    {
+     "dt": 8.667,
+     "side": "far",
+     "tx": 2.125952433851689,
+     "ty": 1.0829344846947608
+    },
+    {
+     "dt": 9.284,
+     "side": "near",
+     "tx": 0.125438789064468,
+     "ty": 0.9410238386982148
+    },
+    {
+     "dt": 9.684,
+     "side": "far",
+     "tx": 2.041463014381397,
+     "ty": 1.1866536073537073
+    },
+    {
+     "dt": 10.034,
+     "side": "near",
+     "tx": 0.37833276093279933,
+     "ty": 1.4932465726607371
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.934,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.734,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.942,
+     "side": "far",
+     "inferred": true
+    },
+    {
+     "dt": 2.45,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 2.984,
+     "side": "far",
+     "inferred": true
+    },
+    {
+     "dt": 3.534,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.984,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.467,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.167,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.6,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 6.35,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 6.95,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 7.717,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 8.267,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 9,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 9.517,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 9.859,
+     "side": "far",
+     "inferred": true
+    },
+    {
+     "dt": 11.6,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.98
+   },
+   "serveSeen": {
+    "pts": 23,
+    "spanS": 0.367,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 52
+  },
+  {
+   "from": "test_7 seed 1 camera A 78.15-83.00 s",
+   "why": "no_shot",
+   "durS": 4.85,
+   "bounces": [
+    {
+     "dt": 2.333,
+     "side": "far",
+     "tx": 2.6607402059841925,
+     "ty": 1.6414321804035776
+    },
+    {
+     "dt": 3,
+     "side": "near",
+     "tx": 0.3375494293975552,
+     "ty": 1.6225240186742818
+    }
+   ],
+   "shots": [
+    {
+     "dt": 2.017,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.87
+   },
+   "serveSeen": {
+    "pts": 38,
+    "spanS": 0.617,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 10
+  },
+  {
+   "from": "test_7 seed 1 camera A 84.82-87.52 s",
+   "why": "no_bounce",
+   "durS": 2.7,
+   "bounces": [
+    {
+     "dt": 0.516,
+     "side": "far",
+     "tx": 2.688813898572241,
+     "ty": 1.303262638847214
+    },
+    {
+     "dt": 0.9,
+     "side": "far",
+     "tx": 2.6508216403825458,
+     "ty": 1.3073547460741637
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.266,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": null,
+   "maxSpeedKmh": null
+  },
+  {
+   "from": "test_7 seed 1 camera A 90.43-96.60 s",
+   "why": "no_shot",
+   "durS": 6.167,
+   "bounces": [
+    {
+     "dt": 0.4,
+     "side": "far",
+     "tx": 2.282203447584124,
+     "ty": 1.3560464515030228
+    },
+    {
+     "dt": 0.85,
+     "side": "near",
+     "tx": 0.6682652066434334,
+     "ty": 0.6125875451936685
+    },
+    {
+     "dt": 1.25,
+     "side": "far",
+     "tx": 1.9007107633709661,
+     "ty": 1.1535268090897155
+    },
+    {
+     "dt": 1.934,
+     "side": "near",
+     "tx": 0.7352382996433389,
+     "ty": 0.5163382104268958
+    },
+    {
+     "dt": 2.467,
+     "side": "far",
+     "tx": 1.887037252554473,
+     "ty": 0.7207052964006913
+    },
+    {
+     "dt": 3.117,
+     "side": "near",
+     "tx": 0.1817590842908762,
+     "ty": 0.9066032017616654
+    },
+    {
+     "dt": 3.534,
+     "side": "far",
+     "tx": 2.2782838157959446,
+     "ty": 1.2742783693688338
+    },
+    {
+     "dt": 3.817,
+     "side": "near",
+     "tx": 1.3465792895519788,
+     "ty": 1.3103867354065217
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.967,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.467,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.184,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.85,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.234,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.675,
+     "side": "far",
+     "inferred": true
+    }
+   ],
+   "serveNet": {
+    "ratio": 1.01
+   },
+   "serveSeen": {
+    "pts": 35,
+    "spanS": 0.617,
+    "maxGapS": 0.067
+   },
+   "maxSpeedKmh": 33
+  },
+  {
+   "from": "test_7 seed 1 camera A 111.45-118.65 s",
+   "why": "no_bounce",
+   "durS": 7.2,
+   "bounces": [
+    {
+     "dt": 0.067,
+     "side": "near",
+     "tx": 0.46270929758440577,
+     "ty": 1.2849749000390325
+    },
+    {
+     "dt": 0.433,
+     "side": "far",
+     "tx": 2.210562985867416,
+     "ty": 0.8810189930826349
+    },
+    {
+     "dt": 0.967,
+     "side": "near",
+     "tx": 0.02282605834146598,
+     "ty": 0.7234427230487414
+    },
+    {
+     "dt": 1.4,
+     "side": "far",
+     "tx": 2.340264932644383,
+     "ty": 1.0440465721692889
+    },
+    {
+     "dt": 1.85,
+     "side": "near",
+     "tx": 0.19788678043893349,
+     "ty": 0.21405049615198096
+    },
+    {
+     "dt": 2.233,
+     "side": "far",
+     "tx": 2.1037606177757446,
+     "ty": 1.1204356490481457
+    },
+    {
+     "dt": 2.617,
+     "side": "near",
+     "tx": 0.3206038250483988,
+     "ty": 0.7980948740505327
+    },
+    {
+     "dt": 3.15,
+     "side": "far",
+     "tx": 2.629558081791612,
+     "ty": 0.6020058421617622
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.733,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.05,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.633,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.017,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.383,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.983,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.5,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.733,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.96
+   },
+   "serveSeen": {
+    "pts": 14,
+    "spanS": 0.217,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 40
+  },
+  {
+   "from": "test_7 seed 1 camera A 118.82-122.03 s",
+   "why": "no_bounce",
+   "durS": 3.216,
+   "bounces": [
+    {
+     "dt": 0.466,
+     "side": "far",
+     "tx": 1.721645000610507,
+     "ty": 1.4581413865499246
+    },
+    {
+     "dt": 0.916,
+     "side": "near",
+     "tx": 1.0896909759628057,
+     "ty": 1.280391711307433
+    },
+    {
+     "dt": 1.333,
+     "side": "near",
+     "tx": 0.5878506413097864,
+     "ty": 1.1389374374582937
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.4,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.716,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 49,
+    "spanS": 0.833,
+    "maxGapS": 0.067
+   },
+   "maxSpeedKmh": 9
+  },
+  {
+   "from": "test_7 seed 1 camera A 125.73-129.98 s",
+   "why": "ball_lost",
+   "durS": 4.25,
+   "bounces": [
+    {
+     "dt": 1.85,
+     "side": "far",
+     "tx": 2.353705426041025,
+     "ty": 1.4415052567115063
+    },
+    {
+     "dt": 2.35,
+     "side": "near",
+     "tx": 0.139001894886922,
+     "ty": 1.418915115119693
+    },
+    {
+     "dt": 2.734,
+     "side": "far",
+     "tx": 2.31520080931553,
+     "ty": 1.5732078174719026
+    },
+    {
+     "dt": 3.1,
+     "side": "far",
+     "tx": 1.3922545840283727,
+     "ty": 0.7396190479956485
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.117,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.85,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.934,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.5,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.85,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.79
+   },
+   "serveSeen": {
+    "pts": 23,
+    "spanS": 2,
+    "maxGapS": 1.533
+   },
+   "maxSpeedKmh": 29
+  },
+  {
+   "from": "test_3 seed 1 camera A 6.35-11.67 s",
+   "why": "no_shot",
+   "durS": 5.317,
+   "bounces": [
+    {
+     "dt": 1.983,
+     "side": "near",
+     "tx": 0.155689280838485,
+     "ty": 1.5570649217769295
+    },
+    {
+     "dt": 2.4,
+     "side": "far",
+     "tx": 1.8533567969856897,
+     "ty": 0.8930822450762572
+    },
+    {
+     "dt": 2.633,
+     "side": "far",
+     "tx": 2.5216108375915405,
+     "ty": 1.2540793163888522
+    },
+    {
+     "dt": 2.967,
+     "side": "near",
+     "tx": 0.9251427792792061,
+     "ty": 0.6837298419772442
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.85,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.65,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.99
+   },
+   "serveSeen": {
+    "pts": 50,
+    "spanS": 1.383,
+    "maxGapS": 0.583
+   },
+   "maxSpeedKmh": 17
+  },
+  {
+   "from": "test_3 seed 1 camera A 16.75-20.22 s",
+   "why": "ball_lost",
+   "durS": 3.467,
+   "bounces": [
+    {
+     "dt": 1.933,
+     "side": "near",
+     "tx": 0.41542050810915304,
+     "ty": 1.449004807992396
+    },
+    {
+     "dt": 2.35,
+     "side": "far",
+     "tx": 2.3330075959970924,
+     "ty": 0.6974519117690184
+    },
+    {
+     "dt": 2.733,
+     "side": "near",
+     "tx": 1.3583556097449043,
+     "ty": 0.7057035247244865
+    }
+   ],
+   "shots": [
+    {
+     "dt": 1.717,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.45,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 1.01
+   },
+   "serveSeen": {
+    "pts": 20,
+    "spanS": 0.383,
+    "maxGapS": 0.083
+   },
+   "maxSpeedKmh": 18
+  },
+  {
+   "from": "test_3 seed 1 camera A 26.32-29.45 s",
+   "why": "no_bounce",
+   "durS": 3.133,
+   "bounces": [
+    {
+     "dt": 1.1,
+     "side": "far",
+     "tx": 2.5400436673278346,
+     "ty": 1.308995437004244
+    },
+    {
+     "dt": 1.416,
+     "side": "near",
+     "tx": 0.3830429584802964,
+     "ty": 0.7200032200345687
+    },
+    {
+     "dt": 1.85,
+     "side": "far",
+     "tx": 2.2007763842583983,
+     "ty": 1.0130391357884878
+    },
+    {
+     "dt": 2.35,
+     "side": "near",
+     "tx": 1.0452387176248479,
+     "ty": 1.3222095100821427
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.283,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.733,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.616,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.066,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.533,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 0.817
+   },
+   "maxSpeedKmh": 47
+  },
+  {
+   "from": "test_3 seed 1 camera A 37.18-46.80 s",
+   "why": "ball_lost",
+   "durS": 9.617,
+   "bounces": [
+    {
+     "dt": 0.334,
+     "side": "near",
+     "tx": -0.02332451927426708,
+     "ty": 0.09474951058283439
+    },
+    {
+     "dt": 1.85,
+     "side": "far",
+     "tx": 2.4986723368303028,
+     "ty": 1.3475057921833067
+    },
+    {
+     "dt": 2.267,
+     "side": "near",
+     "tx": 0.6570023905847087,
+     "ty": 0.6319382480064613
+    },
+    {
+     "dt": 2.767,
+     "side": "far",
+     "tx": 2.345143014931784,
+     "ty": 1.592595229084399
+    },
+    {
+     "dt": 3.234,
+     "side": "near",
+     "tx": -0.015063244415145841,
+     "ty": 0.2666477331558238
+    },
+    {
+     "dt": 3.584,
+     "side": "far",
+     "tx": 2.3526327212275144,
+     "ty": 1.5320075434088047
+    },
+    {
+     "dt": 4.65,
+     "side": "far",
+     "tx": 2.5538714374692493,
+     "ty": 1.3383489630713907
+    },
+    {
+     "dt": 5.284,
+     "side": "near",
+     "tx": 0.7832968674077733,
+     "ty": 1.1049713318182002
+    },
+    {
+     "dt": 5.934,
+     "side": "far",
+     "tx": 1.967993716287619,
+     "ty": 0.9083546538235294
+    },
+    {
+     "dt": 6.734,
+     "side": "near",
+     "tx": 0.8579829727214503,
+     "ty": 1.564748065692887
+    },
+    {
+     "dt": 7.167,
+     "side": "far",
+     "tx": 2.1343419825102505,
+     "ty": 1.264417181180619
+    },
+    {
+     "dt": 8.4,
+     "side": "far",
+     "tx": 2.5164247869152248,
+     "ty": 0.7662652607395999
+    },
+    {
+     "dt": 9.184,
+     "side": "near",
+     "tx": 0.5223377893728519,
+     "ty": 1.8180036459304953
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.434,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.1,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.634,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.85,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.284,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.834,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.4,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.934,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.634,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 6.2,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 6.967,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 7.35,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 7.95,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 8.85,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 9.217,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 1.417
+   },
+   "maxSpeedKmh": 54
+  },
+  {
+   "from": "test_3 seed 1 camera A 59.63-64.93 s",
+   "why": "ball_lost",
+   "durS": 5.3,
+   "bounces": [
+    {
+     "dt": 1.767,
+     "side": "far",
+     "tx": 2.1677960498133606,
+     "ty": 0.634931447478954
+    },
+    {
+     "dt": 1.984,
+     "side": "far",
+     "tx": 2.4764880124029025,
+     "ty": 0.9860604675932707
+    },
+    {
+     "dt": 2.234,
+     "side": "near",
+     "tx": 0.9525628579930997,
+     "ty": 1.0374814865421023
+    },
+    {
+     "dt": 3.05,
+     "side": "far",
+     "tx": 2.377190461752071,
+     "ty": 0.5089791719881803
+    },
+    {
+     "dt": 3.567,
+     "side": "near",
+     "tx": 0.08934747946373975,
+     "ty": 1.097249478159404
+    }
+   ],
+   "shots": [
+    {
+     "dt": 1.467,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.6,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.484,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.917,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.12
+   },
+   "serveSeen": {
+    "pts": 31,
+    "spanS": 0.5,
+    "maxGapS": 0.167
+   },
+   "maxSpeedKmh": 18
+  },
+  {
+   "from": "test_1 seed 1 camera A 0.35-7.08 s",
+   "why": "no_bounce",
+   "durS": 6.733,
+   "bounces": [
+    {
+     "dt": 0.833,
+     "side": "far",
+     "tx": 2.0938060102497147,
+     "ty": 0.48894506478324673
+    },
+    {
+     "dt": 1.233,
+     "side": "near",
+     "tx": 0.39628353619161266,
+     "ty": 1.3601845168969229
+    },
+    {
+     "dt": 1.567,
+     "side": "far",
+     "tx": 2.233494572723145,
+     "ty": 0.5044009588847416
+    },
+    {
+     "dt": 1.95,
+     "side": "near",
+     "tx": 0.46945146496449935,
+     "ty": 1.3462827101641497
+    },
+    {
+     "dt": 2.7,
+     "side": "near",
+     "tx": 0.4594571505448839,
+     "ty": 1.3902744403506488
+    },
+    {
+     "dt": 3.033,
+     "side": "far",
+     "tx": 2.3303681752172305,
+     "ty": 0.6973120612245242
+    },
+    {
+     "dt": 3.45,
+     "side": "near",
+     "tx": 0.317976606117488,
+     "ty": 1.4498476049283822
+    },
+    {
+     "dt": 3.883,
+     "side": "far",
+     "tx": 2.6122131528746007,
+     "ty": 0.3673721025380161
+    },
+    {
+     "dt": 4.25,
+     "side": "near",
+     "tx": 0.7447650363197869,
+     "ty": 1.2375455331578844
+    },
+    {
+     "dt": 4.683,
+     "side": "far",
+     "tx": 2.793260300903675,
+     "ty": 0.42592322210137706
+    },
+    {
+     "dt": 5.05,
+     "side": "near",
+     "tx": 0.47944758263925874,
+     "ty": 1.3481199027559692
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.267,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.4,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.75,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.9,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.05,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.65,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.033,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.483,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.633,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.233,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.72
+   },
+   "serveSeen": {
+    "pts": 36,
+    "spanS": 0.7,
+    "maxGapS": 0.133
+   },
+   "maxSpeedKmh": 36
+  },
+  {
+   "from": "test_1 seed 1 camera A 11.37-26.40 s",
+   "why": "no_shot",
+   "durS": 15.033,
+   "bounces": [
+    {
+     "dt": 0.433,
+     "side": "far",
+     "tx": 2.2232993608323235,
+     "ty": 0.5179752272247349
+    },
+    {
+     "dt": 0.816,
+     "side": "near",
+     "tx": 0.32523028776576796,
+     "ty": 1.2987533042029586
+    },
+    {
+     "dt": 1.166,
+     "side": "far",
+     "tx": 2.156159796765798,
+     "ty": 0.5439544321219765
+    },
+    {
+     "dt": 1.583,
+     "side": "near",
+     "tx": 0.5754601406101779,
+     "ty": 1.3566749832936453
+    },
+    {
+     "dt": 2.333,
+     "side": "near",
+     "tx": 0.6975529731841469,
+     "ty": 1.3921245478229312
+    },
+    {
+     "dt": 2.7,
+     "side": "far",
+     "tx": 2.3547979301409714,
+     "ty": 0.5925158002452533
+    },
+    {
+     "dt": 3.133,
+     "side": "near",
+     "tx": 0.5197706388395591,
+     "ty": 1.36725227253663
+    },
+    {
+     "dt": 3.5,
+     "side": "far",
+     "tx": 2.7317069225508437,
+     "ty": 0.5305822046292412
+    },
+    {
+     "dt": 3.883,
+     "side": "near",
+     "tx": 0.56226756111299,
+     "ty": 1.1856509015369445
+    },
+    {
+     "dt": 4.283,
+     "side": "far",
+     "tx": 2.3255725405796315,
+     "ty": 0.5529966509162455
+    },
+    {
+     "dt": 4.7,
+     "side": "near",
+     "tx": 0.5875866936610663,
+     "ty": 1.1775280516951037
+    },
+    {
+     "dt": 5.533,
+     "side": "near",
+     "tx": 0.30571644025287986,
+     "ty": 1.5138283119025742
+    },
+    {
+     "dt": 5.85,
+     "side": "far",
+     "tx": 2.3154197275955104,
+     "ty": 0.5341746599479409
+    },
+    {
+     "dt": 6.2,
+     "side": "near",
+     "tx": 1.1869579953616984,
+     "ty": 1.772110591755994
+    },
+    {
+     "dt": 6.383,
+     "side": "near",
+     "tx": 0.1496439716043858,
+     "ty": 1.5435446732615368
+    },
+    {
+     "dt": 6.816,
+     "side": "far",
+     "tx": 2.0546481780008654,
+     "ty": 1.256975915431071
+    },
+    {
+     "dt": 7.7,
+     "side": "near",
+     "tx": 0.8223071217259303,
+     "ty": 1.5359972256889727
+    },
+    {
+     "dt": 9.2,
+     "side": "near",
+     "tx": 0.414719301603051,
+     "ty": 1.2770863038794176
+    },
+    {
+     "dt": 10.9,
+     "side": "near",
+     "tx": 0.8696295175863245,
+     "ty": 1.5614403360149574
+    },
+    {
+     "dt": 11.55,
+     "side": "far",
+     "tx": 2.018221178212821,
+     "ty": 0.6476203965613117
+    },
+    {
+     "dt": 12.883,
+     "side": "near",
+     "tx": 0.23335605149528077,
+     "ty": 1.5896864710312142
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.95,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.366,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.783,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.033,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.516,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.8,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.283,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.633,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.116,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.316,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.683,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.916,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 6.483,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 7.35,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 8.116,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 8.816,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 11.3,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 12.35,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.76
+   },
+   "serveSeen": {
+    "pts": 35,
+    "spanS": 0.567,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 37
+  },
+  {
+   "from": "test_1 seed 1 camera A 28.43-33.83 s",
+   "why": "no_bounce",
+   "durS": 5.4,
+   "bounces": [
+    {
+     "dt": 0.7,
+     "side": "far",
+     "tx": 2.3833707802302206,
+     "ty": 0.4459657613445648
+    },
+    {
+     "dt": 1.117,
+     "side": "near",
+     "tx": 0.5437389402402146,
+     "ty": 1.3387931509300854
+    },
+    {
+     "dt": 1.517,
+     "side": "far",
+     "tx": 2.7982390129858676,
+     "ty": 0.42984276998734755
+    },
+    {
+     "dt": 1.884,
+     "side": "near",
+     "tx": 0.24548091033763883,
+     "ty": 1.6534950309992016
+    },
+    {
+     "dt": 2.267,
+     "side": "far",
+     "tx": 2.6067706565430773,
+     "ty": 0.3821210542881889
+    },
+    {
+     "dt": 2.65,
+     "side": "near",
+     "tx": 0.37165226262603623,
+     "ty": 1.1741454147205492
+    },
+    {
+     "dt": 3.067,
+     "side": "far",
+     "tx": 2.385656143070603,
+     "ty": 0.49973817301445356
+    },
+    {
+     "dt": 4.417,
+     "side": "near",
+     "tx": 0.14095266163366865,
+     "ty": 1.7850093679337797
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.25,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.634,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.95,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.417,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.859,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 3.742,
+     "side": "far",
+     "inferred": true
+    },
+    {
+     "dt": 4.534,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.71
+   },
+   "serveSeen": {
+    "pts": 42,
+    "spanS": 0.9,
+    "maxGapS": 0.233
+   },
+   "maxSpeedKmh": 36
+  },
+  {
+   "from": "test_1 seed 1 camera A 56.48-70.25 s",
+   "why": "no_bounce",
+   "durS": 13.767,
+   "bounces": [
+    {
+     "dt": 0.684,
+     "side": "far",
+     "tx": 2.7440615062751736,
+     "ty": 1.6514046630627075
+    },
+    {
+     "dt": 2.7,
+     "side": "near",
+     "tx": 0.39249464984221716,
+     "ty": 1.343821368752839
+    },
+    {
+     "dt": 3.067,
+     "side": "far",
+     "tx": 2.208513604677937,
+     "ty": 0.9831612185622743
+    },
+    {
+     "dt": 3.484,
+     "side": "near",
+     "tx": 0.42132564656044336,
+     "ty": 1.4630538902825763
+    },
+    {
+     "dt": 3.85,
+     "side": "far",
+     "tx": 2.39448901583803,
+     "ty": 0.5293192037076528
+    },
+    {
+     "dt": 4.184,
+     "side": "near",
+     "tx": 0.6609188186210562,
+     "ty": 1.3311363448599252
+    },
+    {
+     "dt": 4.517,
+     "side": "far",
+     "tx": 2.126922927799991,
+     "ty": 0.9752498942081211
+    },
+    {
+     "dt": 5.334,
+     "side": "far",
+     "tx": 2.721217244077515,
+     "ty": 0.48752128744744533
+    },
+    {
+     "dt": 6.1,
+     "side": "far",
+     "tx": 2.4041918508984996,
+     "ty": 0.39890063167824774
+    },
+    {
+     "dt": 6.484,
+     "side": "near",
+     "tx": 0.27916197789469027,
+     "ty": 1.5607169040710343
+    },
+    {
+     "dt": 6.867,
+     "side": "far",
+     "tx": 2.7554158628652723,
+     "ty": 0.4845441139299074
+    },
+    {
+     "dt": 7.284,
+     "side": "near",
+     "tx": 0.2728664990938488,
+     "ty": 1.4825842404201515
+    },
+    {
+     "dt": 7.7,
+     "side": "far",
+     "tx": 2.681733640418783,
+     "ty": 0.4409506077370713
+    },
+    {
+     "dt": 8.45,
+     "side": "far",
+     "tx": 2.539305693852261,
+     "ty": 0.6072648268212131
+    },
+    {
+     "dt": 8.834,
+     "side": "near",
+     "tx": 0.24216480756313263,
+     "ty": 1.4768030841559914
+    },
+    {
+     "dt": 9.184,
+     "side": "far",
+     "tx": 2.294772073662017,
+     "ty": 0.5972612140277533
+    },
+    {
+     "dt": 9.5,
+     "side": "near",
+     "tx": 0.6717755170038262,
+     "ty": 1.241591980868887
+    },
+    {
+     "dt": 9.984,
+     "side": "far",
+     "tx": 2.7568156950696565,
+     "ty": 0.2588303266322487
+    },
+    {
+     "dt": 11.3,
+     "side": "far",
+     "tx": 2.1958339086094276,
+     "ty": 0.8847360992143368
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.1,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.317,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.884,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 3.275,
+     "side": "far",
+     "inferred": true
+    },
+    {
+     "dt": 3.667,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.034,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 4.35,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 5.134,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 5.484,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 5.834,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 6.117,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 6.567,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 7,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 7.484,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 8.534,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 9.017,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 9.25,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 9.742,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 10.5,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 13.167,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 0,
+    "spanS": 0,
+    "maxGapS": 0.583
+   },
+   "maxSpeedKmh": 39
+  },
+  {
+   "from": "test_1 seed 1 camera A 93.62-100.68 s",
+   "why": "no_shot",
+   "durS": 7.066,
+   "bounces": [
+    {
+     "dt": 1.35,
+     "side": "near",
+     "tx": 0.5813618852419528,
+     "ty": 0.897325649104456
+    },
+    {
+     "dt": 2.033,
+     "side": "far",
+     "tx": 2.0309708140518783,
+     "ty": 0.7673409611869539
+    },
+    {
+     "dt": 2.433,
+     "side": "near",
+     "tx": 0.2813055256584459,
+     "ty": 1.0500003766619295
+    },
+    {
+     "dt": 4.066,
+     "side": "far",
+     "tx": 2.743206655983237,
+     "ty": 0.5764241815675165
+    },
+    {
+     "dt": 5.2,
+     "side": "far",
+     "tx": 2.633020859553522,
+     "ty": 1.6589970658955433
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.216,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.1,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.65,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 2.283,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 3.25,
+     "side": "near",
+     "inferred": true
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.11
+   },
+   "serveSeen": {
+    "pts": 54,
+    "spanS": 1.183,
+    "maxGapS": 0.5
+   },
+   "maxSpeedKmh": 35
+  },
+  {
+   "from": "test_1 seed 1 camera A 100.70-103.48 s",
+   "why": "no_shot",
+   "durS": 2.783,
+   "bounces": [
+    {
+     "dt": 1.283,
+     "side": "near",
+     "tx": 0.41927752794122736,
+     "ty": 1.1537197293946084
+    },
+    {
+     "dt": 2.017,
+     "side": "far",
+     "tx": 1.7206976173984732,
+     "ty": 0.6559381130275631
+    },
+    {
+     "dt": 2.667,
+     "side": "far",
+     "tx": 2.657319434202317,
+     "ty": 1.1763735799627053
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.067,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.583,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 20,
+    "spanS": 0.317,
+    "maxGapS": 0.033
+   },
+   "maxSpeedKmh": 7
+  },
+  {
+   "from": "test_1 seed 1 camera A 104.28-109.05 s",
+   "why": "no_bounce",
+   "durS": 4.767,
+   "bounces": [
+    {
+     "dt": 1,
+     "side": "far",
+     "tx": 1.8874071506168926,
+     "ty": 1.255477623946291
+    },
+    {
+     "dt": 1.3,
+     "side": "near",
+     "tx": 0.3500762137007729,
+     "ty": 1.0069012397216652
+    },
+    {
+     "dt": 1.634,
+     "side": "far",
+     "tx": 1.9212510078307719,
+     "ty": 1.6415466373202932
+    },
+    {
+     "dt": 2.1,
+     "side": "near",
+     "tx": 0.45946054516784324,
+     "ty": 1.3444464728935304
+    },
+    {
+     "dt": 2.417,
+     "side": "far",
+     "tx": 2.127414673907381,
+     "ty": 1.5127306065479316
+    },
+    {
+     "dt": 3,
+     "side": "near",
+     "tx": 0.5102828874234883,
+     "ty": 1.729057309003344
+    },
+    {
+     "dt": 3.567,
+     "side": "far",
+     "tx": 2.7317069225508437,
+     "ty": 0.5305822046292412
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.034,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.5,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.867,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.259,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 2.709,
+     "side": "far",
+     "inferred": true
+    },
+    {
+     "dt": 3.284,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 3.934,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 4.084,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.8
+   },
+   "serveSeen": {
+    "pts": 57,
+    "spanS": 1.033,
+    "maxGapS": 0.1
+   },
+   "maxSpeedKmh": 42
+  },
+  {
+   "from": "test_1 seed 1 camera A 115.07-122.45 s",
+   "why": "no_shot",
+   "durS": 7.383,
+   "bounces": [
+    {
+     "dt": 0.8,
+     "side": "near",
+     "tx": 0.3816943032129586,
+     "ty": 1.5478865562681312
+    },
+    {
+     "dt": 1.216,
+     "side": "far",
+     "tx": 2.068020936649065,
+     "ty": 1.4488666597499467
+    },
+    {
+     "dt": 1.683,
+     "side": "near",
+     "tx": 0.6524235950475422,
+     "ty": 0.7045201068713869
+    },
+    {
+     "dt": 2.45,
+     "side": "far",
+     "tx": 2.3443679226037575,
+     "ty": 1.5049635339036138
+    },
+    {
+     "dt": 5.033,
+     "side": "near",
+     "tx": 0.2961808968100788,
+     "ty": 1.6017048684767499
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.65,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.383,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.066,
+     "side": "near",
+     "inferred": true
+    },
+    {
+     "dt": 4.4,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.95
+   },
+   "serveSeen": {
+    "pts": 21,
+    "spanS": 0.333,
+    "maxGapS": 0.017
+   },
+   "maxSpeedKmh": 20
+  },
+  {
+   "from": "test_1 seed 1 camera A 122.48-125.60 s",
+   "why": "no_shot",
+   "durS": 3.117,
+   "bounces": [
+    {
+     "dt": 0.85,
+     "side": "far",
+     "tx": 2.2449153686105814,
+     "ty": 1.5727692550033476
+    },
+    {
+     "dt": 1.334,
+     "side": "near",
+     "tx": 0.939963661323255,
+     "ty": 1.4667015650258368
+    },
+    {
+     "dt": 2.2,
+     "side": "near",
+     "tx": 0.1383497855547902,
+     "ty": 1.4016075130507137
+    },
+    {
+     "dt": 2.484,
+     "side": "near",
+     "tx": 0.128134020427318,
+     "ty": 1.365949743996937
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.2,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": {
+    "ratio": 0.87
+   },
+   "serveSeen": {
+    "pts": 52,
+    "spanS": 0.967,
+    "maxGapS": 0.133
+   },
+   "maxSpeedKmh": 13
+  },
+  {
+   "from": "test_1 seed 1 camera A 126.50-131.68 s",
+   "why": "no_bounce",
+   "durS": 5.183,
+   "bounces": [
+    {
+     "dt": 0.917,
+     "side": "near",
+     "tx": 0.20912126443997897,
+     "ty": 1.4262072344849335
+    },
+    {
+     "dt": 1.283,
+     "side": "far",
+     "tx": 2.198181046273931,
+     "ty": 0.4622530163423514
+    },
+    {
+     "dt": 1.817,
+     "side": "near",
+     "tx": 0.09824994850877428,
+     "ty": 1.3271256721076286
+    },
+    {
+     "dt": 2.233,
+     "side": "far",
+     "tx": 2.680298559250737,
+     "ty": 0.5637661780832381
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 0.45,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 1.55,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 2.017,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 3.683,
+     "side": "far",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 8,
+    "spanS": 0.117,
+    "maxGapS": 0.567
+   },
+   "maxSpeedKmh": 29
+  },
+  {
+   "from": "test_1 seed 1 camera A 131.70-135.93 s",
+   "why": "no_shot",
+   "durS": 4.233,
+   "bounces": [
+    {
+     "dt": 0.083,
+     "side": "far",
+     "tx": 2.7102804443552397,
+     "ty": 0.0168570178748027
+    },
+    {
+     "dt": 1.75,
+     "side": "far",
+     "tx": 2.7424987283013946,
+     "ty": 0.251900098922079
+    },
+    {
+     "dt": 2.35,
+     "side": "near",
+     "tx": 0.36314134140159177,
+     "ty": 1.1186334135981835
+    },
+    {
+     "dt": 3.1,
+     "side": "far",
+     "tx": 2.00841381523095,
+     "ty": 0.6313576457538165
+    },
+    {
+     "dt": 3.767,
+     "side": "far",
+     "tx": 2.7487034430793416,
+     "ty": 1.2692579028557034
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.083,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.767,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": {
+    "pts": 63,
+    "spanS": 1.65,
+    "maxGapS": 0.45
+   },
+   "maxSpeedKmh": 10
+  },
+  {
+   "from": "test_1 seed 1 camera A 136.48-139.83 s",
+   "why": "ball_lost",
+   "durS": 3.35,
+   "bounces": [
+    {
+     "dt": 1.45,
+     "side": "near",
+     "tx": 0.45408560283919014,
+     "ty": 0.7929165140254725
+    },
+    {
+     "dt": 1.734,
+     "side": "near",
+     "tx": 1.217469154966513,
+     "ty": 1.762415875947009
+    },
+    {
+     "dt": 2.467,
+     "side": "near",
+     "tx": 0.8798906049358525,
+     "ty": 0.8387272085652424
+    },
+    {
+     "dt": 2.7,
+     "side": "near",
+     "tx": 0.7161386986183074,
+     "ty": 0.988759250019091
+    }
+   ],
+   "shots": [
+    {
+     "dt": 0.617,
+     "side": "near",
+     "inferred": false
+    },
+    {
+     "dt": 0.8,
+     "side": "far",
+     "inferred": false
+    },
+    {
+     "dt": 1.617,
+     "side": "near",
+     "inferred": false
+    }
+   ],
+   "serveNet": null,
+   "serveSeen": null,
+   "maxSpeedKmh": 21
+  }
+ ]
+}

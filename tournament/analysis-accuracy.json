@@ -1,0 +1,33 @@
+{
+  "_source": "Extended OpenTTGames public stroke annotations (CC BY-NC-SA 4.0), 42 detected shots matched to the answers, phone pose model lite, measured 2026-10-31; see docs/analytics.md",
+  "fore-attack": {
+    "precision": 0.7647058823529411,
+    "recall": 0.5,
+    "n": 26
+  },
+  "fore-defence": {
+    "precision": 0.14285714285714285,
+    "recall": 0.5,
+    "n": 2
+  },
+  "fore-serve": {
+    "precision": null,
+    "recall": 0,
+    "n": 2
+  },
+  "back-attack": {
+    "precision": 0.14285714285714285,
+    "recall": 0.1111111111111111,
+    "n": 9
+  },
+  "back-defence": {
+    "precision": 0,
+    "recall": 0,
+    "n": 3
+  },
+  "back-serve": {
+    "precision": null,
+    "recall": null,
+    "n": 0
+  }
+}

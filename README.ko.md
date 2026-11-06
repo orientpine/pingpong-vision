@@ -32,10 +32,12 @@ PingPong Vision은 **아이폰 Safari**와 모바일 브라우저에서 도는 *
 
 ## 목차
 
+- [1.1에서 달라진 점](#11에서-달라진-점)
 - [기능](#기능)
 - [화면](#화면)
 - [빠른 시작(내 컴퓨터에서 해 보기)](#빠른-시작내-컴퓨터에서-해-보기)
 - [PC 설치 (Tailscale)](#pc-설치-tailscale)
+- [대회와 PIN](#대회와-pin)
 - [탁구장에서 쓰는 법](#탁구장에서-쓰는-법)
 - [정확도와 한계](#정확도와-한계)
 - [선택 기능](#선택-기능)
@@ -44,6 +46,25 @@ PingPong Vision은 **아이폰 Safari**와 모바일 브라우저에서 도는 *
 - [릴리스](#릴리스)
 - [라이선스와 제3자 고지](#라이선스와-제3자-고지)
 
+## 1.1에서 달라진 점
+
+**이제 PingPong Vision으로 대회 하나를 통째로 돌립니다.** PC 한 대, 주소 하나로 심판은 폰으로 점수를 넣고, 삼각대 폰은 포인트를 판정하고, TV는 점수판이 됩니다. 아래는 모두 1.1.35까지 공개 저장소에 들어간 기능이고, 화면은 공개 시험 영상 위에서 도는 실제 앱입니다. 선수 이름은 지어낸 것입니다.
+
+| | |
+|---|---|
+| <img src="docs/img/feature-tv.webp" alt="1920x1080 TV 점수판: 블루 끝 선수2와 레드 끝 선수1의 큰 점수 숫자, 게임 수, 오버레이가 그려진 방금 포인트 영상, 랠리 다시 보기 목록" width="440"> | **대회 진행.** 2~8명 더블·트리플·리그 대진. 심판 폰, 관전 화면, TV 큰 점수판이 같이 움직이고 점수는 PIN으로 지킵니다([대회와 PIN](#대회와-pin)). |
+| <img src="docs/img/feature-call.webp" alt="가로 카메라 폰: 누가 땄나요 막대에 카메라는 블루라고 적혀 있고 블루 득점 버튼이 미리 골라져 있으며 옆에 레드 득점 버튼, 탁구대 위에 뼈대·이름표·끝선" width="440"> | **카메라가 포인트를 판정.** 바운드로 포인트를 판정합니다. 판정은 *누가 땄나요* 막대에 그쪽이 미리 골라진 채 기다리고, 카메라나 심판 화면에서 한 번 누르면 들어가며 3초 안에 취소할 수 있습니다. 확실하지 않은 판정은 글로만 보여 주고 사람에게 맡깁니다. |
+| | **폰 두 대를 하나로.** PIN을 넣은 두 번째 폰이 붙으면 저절로 합쳐집니다. 두 폰의 바운드를 합쳐 한쪽이 공을 놓친 순간을 다른 쪽이 채우고, 포인트는 한 번만 들어갑니다. 각 폰의 끝 색(블루·레드)은 모서리를 찍은 뒤 사람이 고르므로 두 폰이 어긋나지 않습니다. |
+| <img src="docs/img/feature-replay.webp" alt="가로 폰의 전체 화면 다시 보기: 랠리 시간, 백핸드 서브 표시, 공 궤적과 LOCK, 두 선수 뼈대, 선수 패널, 닫기·처음부터·오버레이 끄기 버튼" width="440"> | **오버레이 다시 보기.** 포인트마다 영상을 원본 그대로 내 PC에 저장하고, 랠리 앞 3초를 함께 담습니다. 다시 보기는 서브 1초 전부터 폰 전체 화면으로 재생되고, 이름표·뼈대·공 궤적은 볼 때 그리며 한 번 눌러 접을 수 있습니다. |
+| <img src="docs/img/feature-sheet.webp" alt="폰의 경기 분석 시트: 선수마다 한 줄 리포트와 기술 성공률 표, 포핸드 공격에 추정 표시" width="300"> | **경기 분석 시트.** 경기 뒤 한 줄 리포트, 기술 성공률, 랠리 길이, 서브·리시브 득점, 샷이 떨어진 자리를 봅니다. 포핸드·백핸드와 기술 종류는 **추정**입니다([정확도와 한계](#정확도와-한계)). |
+| <img src="docs/img/feature-judge.webp" alt="판정 비교 화면: 카메라 판정 수, 심판과 같았던 수, 놓친 판정과 가짜 판정, 경기별 표" width="300"> | **카메라 판정과 심판 입력 비교.** 카메라의 판정을 심판이 넣은 것 옆에 모두 남깁니다. 얼마나 같았는지, 약한 판정에서 심판이 어느 쪽을 골랐는지, 놓치거나 취소된 판정을 경기별로, CSV로도 봅니다. 숫자만 남기고 이름과 사진은 남기지 않습니다. |
+| <img src="docs/img/feature-players.webp" alt="폰의 새 대회 만들기: 1번 시드 칸에 홍을 치자 등록된 선수 목록에 홍길동 0712가 뜨고, 이름,네자리 안내 문구" width="300"> | **선수 이름+네 자리.** 선수를 `이름,1234`로 한 번 넣습니다(예: `홍길동,0712`). 네 자리는 같은 이름을 구분하는 용도일 뿐 관전 화면에는 보이지 않고, 대회가 바뀌어도 그 선수의 경기가 이어집니다. |
+| <img src="docs/img/feature-calib.webp" alt="정밀하게를 누른 뒤의 보정 화면: 탁구대 테두리에 맞은 노란 윤곽, 흐린 점선으로 남은 처음 탭, 테두리에 맞췄어요 · 최대 8px 옮김 문구, 되돌리기·다시 하기·색 바꾸기·확인 버튼" width="440"> | **정밀 보정과 자리 안내.** 네 모서리를 대충 누르고 **정밀하게**를 누르면 탁구대 흰 테두리에 맞춰 줍니다. 처음 누른 자리는 흐리게 남아 비교할 수 있습니다(**되돌리기**, **다시 하기**). 설정에서 켜는 자리 안내는 확인 전에 위치·높이·구도·수평·흔들림을 차례로 봐 줍니다. |
+
+리눅스, 맥, 윈도우에서 `bun run.mjs` 하나로 두 앱이 주소 하나에 뜨고, `bun update.mjs`로 업데이트하며, 새 버전이 나오면 설정에 한 줄 뜹니다. 모든 화면은 **한국어** 또는 **English**입니다. 무료, MIT, 계정 없음.
+
+<sub>카메라·다시 보기·보정 그림과 TV의 영상 칸은 OpenTTGames 데이터셋(OSAI, <code>test_2</code>) 프레임에 앱 오버레이를 그린 것으로 CC BY-NC-SA 4.0을 따르며 MIT가 아닙니다. 점수판·시트·비교·입력 화면에는 데이터셋 프레임이 없습니다. 선수 이름은 지어낸 것입니다.</sub>
+
 ## 기능
 
 | | 내용 |
@@ -51,11 +72,13 @@ PingPong Vision은 **아이폰 Safari**와 모바일 브라우저에서 도는 *
 | 🏓 **실시간 오버레이** | 랠리 시간, 샷 수, 속도 추정, 샷 종류(드라이브·스매시·로빙·푸시, 포핸드·백핸드는 규칙으로 판단), 공 궤적과 믿을 만할 때 뜨는 **LOCK** 상자 |
 | 🧍 **선수** | 양쪽 끝 선수의 뼈대, 이동 거리(MOVE), 손목 각도, 탁구대 뒤·옆 어디에 서 있는지 |
 | 🗺️ **코트 지도** | 바운드와 선 자리를 위에서 본 탁구대에 표시 |
-| 📐 **한 번만 하는 보정** | 탁구대 네 모서리를 한 번 누르면 흰 테두리에 맞춰 주고, 윤곽을 보고 확인 |
+| 📐 **한 번만 하는 보정** | 탁구대 네 모서리를 대충 누르고 정밀하게를 누르면 흰 테두리에 맞춰 주고, 윤곽을 보고 확인 |
+| 🌐 **한국어·English** | 처음 화면(모드 고르기)이나 **설정**에서 **한국어** 또는 **English**를 고릅니다. 모든 화면, 영상 위 오버레이, 점수 음성, 오류 문구가 따라 바뀌고 폰이 기억합니다. 선수 이름은 적은 그대로 |
 | 📱 **폰 중심** | 세로·가로 모두 화면을 꽉 채우고 패널은 위에 뜹니다. 태블릿이나 TV(AirPlay 미러링)에서는 큰 화면 배치 |
 | 🎞️ **랠리 기록과 다시 보기** | 랠리마다 시간, 샷 수, 최고 속도, 바운드 지도. 영상은 *내* PC에 추측할 수 없는 공유 링크로 저장(선택) |
 | 🛟 **판정 안정 모드** | 폰이 버거우면(같은 프레임 반복, 초당 12장 미만) 분석이 따라가도록 화면을 줄였다가 돌아옵니다 |
 | 🔒 **개인정보** | 폰 안에서 분석, 서버는 `127.0.0.1`에만 열림, 켜지 않으면 아무것도 올리지 않음 |
+| 🏆 **대회** | 2~8명 더블·트리플·리그 대진, 심판·카메라·관전·TV 화면을 한 주소에서, 점수는 PIN으로 보호([대회와 PIN](#대회와-pin)) |
 | 🧪 **잴 수 있음** | 공개 [OpenTTGames](https://lab.osai.ai/) 정답으로 공·바운드·샷 검출을 채점하는 오프라인 도구 |
 
 ## 화면
@@ -76,10 +99,10 @@ PingPong Vision은 **아이폰 Safari**와 모바일 브라우저에서 도는 *
 
 ```bash
 git clone https://github.com/orientpine/pingpong-vision && cd pingpong-vision
-bash install.sh && bun server.js
+bash install.sh && bun run.mjs     # 윈도우: install.ps1, 3단계 참고
 ```
 
-**http://localhost:8791/vision/** 을 엽니다(끝의 `/`까지). 컴퓨터 브라우저는 `localhost`를 안전한 주소로 보므로 카메라도 됩니다. 카메라가 없으면 **영상 파일로 시험**을 누르고 탁구 영상을 고르세요.
+대회 앱은 **http://localhost:8780/**, 카메라는 **http://localhost:8780/vision/** 을 엽니다(끝의 `/`까지). 컴퓨터 브라우저는 `localhost`를 안전한 주소로 보므로 카메라도 됩니다. 카메라가 없으면 **영상 파일로 시험**을 누르고 탁구 영상을 고르세요.
 
 `install.sh`는 필요한 도구를 확인하고, `bun install`, 자세 모델 받기(sha256 확인, `public/models/`), 설정 파일 만들기, 시험 실행(`/healthz` 200 확인)을 합니다. 여러 번 돌려도 됩니다. 단위 시험은 `bun test`.
 
@@ -88,12 +111,12 @@ bash install.sh && bun server.js
 관리자가 동호회에서 쓰는 방식 그대로입니다. 서버는 집이나 탁구장 PC에서 돌고, 폰은 HTTPS로 엽니다. 폰은 HTTPS에서만 카메라를 허락하는데, Tailscale이 내 PC에 진짜 인증서가 붙은 HTTPS 주소를 무료로, 공유기 포트를 열지 않고 만들어 줍니다.
 
 ```text
- 폰(Safari/Chrome) ──HTTPS──▶ Tailscale ──▶ 내 PC: tailscale serve ──▶ bun server.js (127.0.0.1:8791)
+ 폰(Safari/Chrome) ──HTTPS──▶ Tailscale ──▶ 내 PC: tailscale serve ──▶ bun server.js (비전 127.0.0.1:8791, 대회 127.0.0.1:8792)
 ```
 
 **준비물**
 
-- 켜 둘 PC 한 대: 리눅스, 맥, 또는 윈도우 10/11 + [WSL](https://learn.microsoft.com/ko-kr/windows/wsl/install)(Ubuntu)
+- 켜 둘 PC 한 대: 리눅스, 맥, 또는 윈도우 10/11
 - 폰: 아이폰 Safari(관리자는 iOS 18에서 씀) 또는 안드로이드 Chrome
 - 무료 Tailscale 계정(구글, 마이크로소프트, 깃허브, 애플 계정으로 로그인)
 - 삼각대나 폰 거치대(높이 1.5~2 m)
@@ -109,7 +132,7 @@ bash install.sh && bun server.js
    sudo tailscale set --operator=$USER
    ```
 
-**윈도우(WSL):** Tailscale은 WSL 안이 아니라 **윈도우**에 설치합니다. 앱은 WSL 안에서 돌고, 윈도우가 `localhost`를 WSL로 넘겨 줍니다.
+**맥과 윈도우:** 같은 다운로드 페이지에서 Tailscale 앱을 깔고 로그인합니다. `tailscale` 명령은 맥은 터미널, 윈도우는 PowerShell에서 됩니다.
 
 ### 2. bun 설치
 
@@ -117,7 +140,9 @@ bash install.sh && bun server.js
 curl -fsSL https://bun.sh/install | bash
 ```
 
-설치 뒤 터미널을 새로 열어야 `bun`이 잡힙니다(`bun --version`이 1.1 이상). 리눅스/WSL에서는 먼저 `sudo apt install -y git curl unzip`이 필요할 수 있습니다.
+**윈도우(PowerShell):** `powershell -c "irm bun.sh/install.ps1 | iex"`, git은 `winget install --id Git.Git -e`.
+
+설치 뒤 터미널을 새로 열어야 `bun`이 잡힙니다(`bun --version`이 1.1 이상). 리눅스에서는 먼저 `sudo apt install -y git curl unzip`이 필요할 수 있습니다. 맥은 `xcode-select --install` 뒤에 git이 생깁니다.
 
 ### 3. 코드 받고 설치
 
@@ -127,7 +152,13 @@ cd pingpong-vision
 bash install.sh
 ```
 
-마지막 줄이 다음에 할 일을 알려 줍니다. 잘 되면 `/healthz 200: the server works.`로 끝납니다.
+**윈도우**에서는 `bash install.sh` 대신 PowerShell에서:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+마지막 줄이 다음에 할 일을 알려 줍니다. 잘 되면 `/healthz 200`(리눅스, 맥) 또는 `/ and /vision/ answer 200`(윈도우)으로 끝납니다.
 
 ### 4. 설정 파일
 
@@ -137,10 +168,20 @@ bash install.sh
 PORT=8791                # PC 안 포트. 서버는 127.0.0.1에만 열립니다
 FUNNEL_PORT=443          # Tailscale 주소의 HTTPS 포트(443이면 주소에 포트가 안 붙음)
 PPV_TS_MODE=serve        # serve: 내 tailnet 기기만, funnel: 링크를 아는 누구나
-PPV_TOURNAMENT_URL=off   # "PIN으로 PC 저장"용 점수판 앱 주소. 이 저장소에 없으니 off
+TOURNAMENT_PORT=8792     # 대회 앱의 PC 안 포트
+PPV_TOURNAMENT_URL=http://127.0.0.1:8792   # 카메라 앱이 찾을 대회 앱 주소. off면 카메라만 씀
 ```
 
-Tailscale 없는 친구 폰처럼 tailnet 밖에서 열어야 하는 게 아니면 `serve`를 그대로 두세요. [Funnel](https://tailscale.com/kb/1223/funnel)은 인터넷 전체에 열리고 443, 8443, 10000 포트만 됩니다.
+`serve`로 두세요. 내 tailnet에 로그인한 기기만 열 수 있습니다. Tailscale 없는 폰도 들어오게 하려면 [인터넷에 공개하려면](#인터넷에-공개하려면-선택)을 보세요.
+
+#### 인터넷에 공개하려면 (선택)
+
+**위험: 주소를 아는 사람은 누구나 열 수 있습니다.** 점수를 볼 수 있고, 대회 앱이 있으면 4자리 PIN을 맞혀 보거나 내가 만들기 전에 첫 대회를 만들 수도 있습니다. 꼭 필요할 때만 켜세요.
+
+1. Tailscale [관리 화면](https://login.tailscale.com/admin/acls)에서 이 PC의 Funnel을 허용합니다(처음 `tailscale funnel`을 부르면 링크가 찍힘).
+2. `deploy.env`에 `PPV_TS_MODE=funnel`과 `FUNNEL_PORT`(443, 8443, 10000 중 하나)를 둡니다.
+3. 리눅스 `start.sh`: `./start.sh --restart`를 실행합니다. 되돌리려면 `PPV_TS_MODE=serve`로 바꾸고 다시 실행합니다.
+4. 맥, 윈도우(`bun run.mjs`): `serve` 줄 대신 `tailscale funnel --bg --https=443 http://127.0.0.1:8780`으로 공유합니다. 되돌리려면 `tailscale funnel --https=443 off` 뒤에 `serve` 줄을 다시 실행합니다.
 
 ### 5. 실행
 
@@ -151,38 +192,38 @@ Tailscale 없는 친구 폰처럼 tailnet 밖에서 열어야 하는 게 아니�
 loginctl enable-linger $USER   # 로그아웃해도 계속 돌게(한 번만)
 ```
 
-`URL: https://<내 PC의 MagicDNS 이름>:443/vision/`이 찍힙니다(전체 이름은 `tailscale serve status`에 나옴). `./start.sh --restart`는 지금 체크아웃을 배포하고 다시 켭니다. 서비스는 `~/.local/share/pingpong-vision/releases/`의 사본을 돌리므로, 체크아웃을 고쳐도 다시 켜기 전까지는 바뀌지 않습니다.
+대회 앱도 같이 켜지고 `URL: https://<내 PC의 MagicDNS 이름>:443/`이 찍힙니다(전체 이름은 `tailscale serve status`에 나옴). `./start.sh --restart`는 지금 체크아웃을 배포하고 다시 켭니다. 카메라 서비스는 `~/.local/share/pingpong-vision/releases/`의 사본을 돌리므로, 체크아웃을 고쳐도 다시 켜기 전까지는 바뀌지 않습니다. 분석 데스크 워커가 켜져 있으면 새 릴리스로 함께 다시 켜요(직접 하려면 `systemctl --user restart pingpong-desk-worker`).
 
-**맥, WSL, 직접 띄우기:** 서버를 켜고 Tailscale로 한 번만 공유합니다. `--bg` 설정은 재부팅해도 남습니다.
+**맥, 윈도우, systemd 없는 리눅스:** 명령 하나로 두 앱이 한 주소(`127.0.0.1:8780`)에서 켜집니다. 창은 열어 두고, Ctrl+C로 끕니다. 그 주소를 Tailscale로 한 번만 공유합니다. `--bg` 설정은 재부팅해도 남습니다.
 
 ```bash
-bun server.js                                                         # 터미널 1(열어 둠)
-tailscale serve --bg --https=443 --set-path=/vision http://127.0.0.1:8791/vision   # 터미널 2, 한 번만
-tailscale serve status                                                # https:// 주소 확인
+bun run.mjs                                              # 터미널 1(열어 둠)
+tailscale serve --bg --https=443 http://127.0.0.1:8780   # 터미널 2, 한 번만
+tailscale serve status                                   # https:// 주소 확인
 ```
 
-윈도우에서는 `tailscale serve` 줄을 PowerShell(윈도우용 Tailscale)에서, `bun server.js`는 WSL 안에서 실행합니다.
+윈도우에서는 같은 줄을 PowerShell에 입력합니다. `run.mjs`는 꺼진 앱을 다시 켜고, 폰마다 주소를 앱에 넘겨서 한 폰에서 PIN을 틀리면 그 폰만 잠깁니다.
 
 ### 6. 폰에서 열기
 
 1. 폰의 Tailscale이 **연결됨**인지 확인합니다.
-2. 5단계 주소 `https://<내 PC의 MagicDNS 이름>/vision/`을 엽니다.
+2. 5단계 주소 `https://<내 PC의 MagicDNS 이름>/`을 열고 역할을 고릅니다([대회와 PIN](#대회와-pin)). `/vision/`은 카메라를 바로 엽니다.
 3. 처음 한 번 약 20 MB(자세 모델과 실행 파일)를 받습니다. 로딩 막대는 실제로 받은 양을 세고, 다음부터는 캐시를 씁니다.
 4. 홈 화면에 추가하면 앱처럼 전체 화면으로 열립니다. **Safari**: 공유 → *홈 화면에 추가*. **Chrome**: ⋮ → *홈 화면에 추가* 또는 *앱 설치*.
 5. **카메라 시작**을 누르고 카메라를 허용합니다.
 
-### 7. 자동 시작(맥)
+### 7. 자동 시작(맥, 윈도우)
 
-리눅스는 `start.sh`가 해 줍니다. 맥은 LaunchAgent로 `bun server.js`를 켜 둡니다. 아래를 `~/Library/LaunchAgents/local.pingpong-vision.plist`로 저장하세요(경로 두 곳은 내 것으로).
+리눅스는 `start.sh`가 해 줍니다.
+
+**맥:** LaunchAgent가 `bun run.mjs`를 켜 두고 로그인할 때 켭니다. 아래를 `~/Library/LaunchAgents/local.pingpong-vision.plist`로 저장하세요(두 경로의 `YOU`를 내 이름으로).
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
   <key>Label</key><string>local.pingpong-vision</string>
-  <key>WorkingDirectory</key><string>/Users/YOU/pingpong-vision</string>
-  <key>ProgramArguments</key><array><string>/Users/YOU/.bun/bin/bun</string><string>server.js</string></array>
-  <key>EnvironmentVariables</key><dict><key>PORT</key><string>8791</string></dict>
+  <key>ProgramArguments</key><array><string>/Users/YOU/.bun/bin/bun</string><string>/Users/YOU/pingpong-vision/run.mjs</string></array>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
 </dict></plist>
@@ -192,12 +233,35 @@ tailscale serve status                                                # https://
 launchctl load -w ~/Library/LaunchAgents/local.pingpong-vision.plist
 ```
 
+**윈도우:** 설치 프로그램을 `-AutoStart`를 붙여 한 번 더 실행합니다. 작업 스케줄러에 *PingPong Vision* 작업을 만들어 로그인할 때 `bun run.mjs`를 켭니다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install.ps1 -AutoStart
+```
+
+지우려면 `Unregister-ScheduledTask 'PingPong Vision'`.
+
 ### 8. 업데이트
 
+명령 하나로 올립니다. 리눅스, 맥, 윈도우 모두 같습니다:
+
 ```bash
-cd pingpong-vision && git pull && bash install.sh
-./start.sh --restart        # 리눅스 서비스. 맥이나 직접 띄운 경우는 bun server.js를 다시 켭니다
+cd pingpong-vision && bun update.mjs
 ```
+
+한 단계씩 하면서 무엇을 하는지 알려 줍니다:
+
+1. **이 복사본을 확인합니다.** 폴더 안 파일을 고쳤거나 직접 만든 커밋이 있으면 아무것도 바꾸지 않고 멈춥니다(고친 파일을 보여 줍니다).
+2. **백업합니다.** 설정 폴더(`~/.config/pingpong-vision`), 대회 기록, 랠리 저장을 `~/pingpong-vision-backups/<날짜>_<시각>/`에 복사합니다.
+3. **새 버전을 받고**(`git pull`) `install.sh`(윈도우는 `install.ps1`)를 다시 돌립니다.
+4. **앱을 다시 켭니다.** 리눅스 서비스(`start.sh --restart`)나 7단계의 맥 LaunchAgent로 켭니다. 직접 띄웠다면 직접 껐다 켤 때까지 기다립니다.
+5. **확인합니다.** `/healthz`가 답하고 새 버전이 도는지 봅니다.
+
+백업 뒤의 단계가 실패하면 원래 버전으로 되돌리는 줄을 보여 줍니다. 이름을 끝까지 쳐 주세요. `.mjs` 없는 `bun update`는 bun의 패키지 업데이트 명령입니다.
+
+아직 `update.mjs`가 없는 v1.0.x에서는 한 번만 `git pull && bash install.sh` 후 예전처럼 다시 켭니다. 그다음부터는 `bun update.mjs`입니다.
+
+**새 버전 알림.** 공개 저장소에 더 새 릴리스가 있으면 설정(카메라 화면과 대회 화면)에 *새 버전 있음 · vX.Y.Z* 한 줄이 뜨고, 누르면 릴리스 노트가 열립니다. 이를 위해 앱은 하루 한 번 이하로 GitHub 공개 API에 최신 릴리스만 묻고, 다른 정보는 보내지 않습니다. GitHub에 닿지 않으면 아무것도 띄우지 않습니다. 끄려면 `deploy.env`에 `PPV_UPDATE_CHECK=off`를 넣고 다시 켭니다.
 
 바뀐 점은 [릴리스](https://github.com/orientpine/pingpong-vision/releases)에서 봅니다.
 
@@ -212,17 +276,99 @@ cd pingpong-vision && git pull && bash install.sh
 | Funnel이 안 켜져 있다고 함 | tailnet 정책을 바꿔야 합니다. 찍힌 링크를 따라가거나 `PPV_TS_MODE=serve`를 쓰세요. |
 | 방화벽 | 열 것이 없습니다. Tailscale이 직접 연결을 만들고, 앱은 들어오는 포트가 필요 없습니다. |
 | `install.sh`나 `start.sh`가 8791 포트가 쓰인다고 함 | 리눅스 `ss -ltnp \| grep 8791`, 맥 `lsof -i :8791`로 누가 쓰는지 봅니다. `deploy.env`의 `PORT`를 바꾸고 `bash install.sh`를 다시 돌린 뒤, `tailscale serve` 명령에도 새 포트를 씁니다. |
-| `start.sh`가 *set PPV_TOURNAMENT_URL* 또는 *set FUNNEL_PORT*로 멈춤 | `deploy.env`에 그 줄이 없습니다. `deploy.env.example`에서 복사하세요. |
+| `start.sh`가 *set PPV_TOURNAMENT_URL*, *set FUNNEL_PORT*, *set PPV_TS_MODE*로 멈춤 | `deploy.env`에 그 줄이 없습니다. `deploy.env.example`에서 복사하세요. |
 | 로딩 막대가 멈춤 | 이유와 **다시 받기**가 뜹니다. 모델은 내 PC가 보내 주므로(`install.sh`에서 받아 둠) PC가 켜져 있는지 확인하세요. |
 | `bun: command not found` | bun 설치 뒤 터미널을 새로 열거나 `~/.bun/bin/bun`으로 실행합니다. |
-| 서비스 로그(리눅스) | `journalctl --user -u pingpong-vision -n 50` |
+| 심판 화면에 카메라 PIN 대기가 뜸 | 카메라 폰에서 PIN을 넣으세요. 카메라와 점수판은 같은 주소로 열어야 합니다. |
+| 서비스 로그(리눅스) | `journalctl --user -u pingpong-vision -n 50`, 대회 앱은 `-u pingpong-scoreboard` |
+
+## 대회와 PIN
+
+`tournament/`가 점수판입니다. 카메라 앱과 한 주소에서 돕니다. `https://<내 PC>/`가 입구이고 `/vision/`이 카메라입니다.
+
+### 역할
+
+기기마다 첫 화면에서 역할을 고릅니다. 나중에는 위쪽 모드 버튼으로 바꿉니다.
+
+| 역할 | 누가 | PIN | 하는 일 |
+|---|---|---|---|
+| **심판** | 점수 보는 사람 | 필요 | 점수 넣기, 취소, 고치기. 심판 모드에서는 화면 왼쪽·오른쪽 절반을 누르면 1점, 길게 누르면 취소 |
+| **카메라** | 삼각대의 폰 | 필요 | 탁구대를 찍어 점수를 저절로 넣음(위에서 설명한 그 앱) |
+| **관전** | 누구나 | 필요 없음 | 실시간 점수, 다시 보기, 소리. 여기서는 아무것도 못 바꿈 |
+| **TV** | 큰 화면, 태블릿 | 필요 없음 | **관전**을 고르면 큰 화면에서는 큰 점수판으로 나옴 |
+
+### 대회 만들기
+
+1. `https://<내 PC>/`를 열고 **심판**을 고른 뒤 **새 대회 만들기**로 갑니다.
+2. 대회 이름과 선수 2~8명을 넣습니다. 선수는 `이름,네자리`로 넣습니다(예: `홍길동,0712`). 네 자리는 같은 이름을 구분하는 데만 쓰고 관전 화면에는 보이지 않으며, 한 번 넣은 선수는 다음 대회에서 이름 첫 글자만 쳐도 목록에 뜹니다. 시드 순서를 맞추거나 무작위 추첨을 씁니다.
+3. 방식을 고릅니다. **더블**(2패 탈락), **트리플**(3패 탈락), **리그전**(모두 한 번씩). 경기 길이도 고릅니다.
+4. **대회 만들기**를 누릅니다. 경기가 끝나면 대진은 저절로 채워집니다. 새 대회를 만들면 이전 대회는 **기록** 탭으로 옮겨집니다.
+
+### PIN
+
+PIN은 4자리 숫자입니다. 심판과 카메라가 점수를 쓸 때 필요하고, 보기만 할 때는 필요 없습니다. 첫 대회를 만들기 전에는 PIN이 없어서, 주소를 열 수 있는 사람은 누구나 첫 대회를 만들 수 있습니다. `PPV_TS_MODE=serve`(기본값)로 두거나 설치 후 바로 만드세요.
+
+**처음 설치할 때: 주는 PIN을 쓰거나 직접 정하기**
+
+- 아무것도 안 하면 **새 대회마다 무작위 PIN**이 나옵니다. **대회 만들기** 직후 화면에 한 번 뜨고, 그 기기에 기억됩니다. 그 기기의 **설정**에서 다시 볼 수 있습니다.
+- **직접 정하려면** 파일에 적고 다시 켭니다. 그 뒤로 모든 대회가 이 PIN을 씁니다. `4827` 자리에 원하는 4자리를 넣으세요(따옴표는 그대로).
+
+  ```bash
+  cd pingpong-vision
+  mkdir -p tournament/data
+  echo '{"pin": "4827"}' > tournament/data/settings.json
+  ./start.sh --restart     # 맥, 윈도우: bun run.mjs 창에서 Ctrl+C, 다시 bun run.mjs
+  ```
+
+**대회를 새로 만들 때**
+
+- `settings.json`이 있으면 PIN은 그대로입니다.
+- 없으면 대회를 바꿀 때 지금 PIN이 필요하고, 새 대회는 새 무작위 PIN을 받습니다. 심판에게 알리고 카메라에도 다시 넣으세요.
+
+**PIN 바꾸기**
+
+`tournament/data/settings.json`을 고치고 위처럼 다시 켭니다. 진행 중인 대회도 새 PIN으로 바뀌고 점수는 그대로입니다. 옛 PIN을 가진 기기는 다음에 점수를 쓸 때 새 PIN을 묻습니다. 파일을 지우고 다시 켜면 다음 새 대회부터 무작위 PIN으로 돌아갑니다.
+
+**잊었을 때**
+
+PC의 `pingpong-vision` 폴더에서:
+
+```bash
+grep '"pin"' tournament/data/tournament.json
+```
+
+처음 나오는 값이 지금 PIN입니다. 이 파일은 내 PC에만 있고 `tournament/data/`는 커밋되지 않습니다.
+
+**너무 많이 틀렸을 때.** 5번 틀리면 그 기기가 1분 잠깁니다. 모든 기기를 합쳐 1분에 20번 틀리면 최근에 PIN을 맞힌 적 없는 기기는 잠시 막힙니다. 점수를 넣고 있던 폰은 그대로 됩니다. 앱을 다시 켜면 잠금이 풀립니다.
+
+**안전하게.** 4자리는 추측을 늦출 뿐이라 `serve`가 더 안전합니다. `tournament/data/`에는 선수 이름, 점수, PIN이 있으니 절대 커밋하지 마세요.
+
+### 카메라 잇기
+
+`PPV_TOURNAMENT_URL`은 카메라 앱에 점수판 위치를 알려 줍니다. PC 저장용 PIN을 확인할 때 씁니다. `install.sh`가 `deploy.env`에 넣어 줍니다.
+
+```bash
+TOURNAMENT_PORT=8792
+PPV_TOURNAMENT_URL=http://127.0.0.1:8792   # 위와 같은 포트. off면 카메라만 씀
+```
+
+`PPV_TOURNAMENT_DATA`는 PIN이 든 파일입니다. `start.sh`가 `tournament/data/tournament.json`으로 맞춰 줍니다. `DATA_DIR`로 데이터를 옮겼을 때만 직접 정합니다.
+
+그다음 삼각대 폰에서:
+
+1. `https://<내 PC>/`를 열고 **카메라**를 고른 뒤 PIN을 한 번 넣습니다.
+2. 탁구대 네 모서리를 누릅니다([탁구장에서 쓰는 법](#탁구장에서-쓰는-법)).
+3. 심판 화면에 **카메라 연결됨**이 뜹니다. 이제 점수가 저절로 들어가고, 카메라에 3초 취소 막대가 뜹니다.
+
+카메라와 점수판은 같은 주소여야 합니다. 다른 호스트나 포트로 열면 이어지지 않습니다.
 
 ## 탁구장에서 쓰는 법
 
 1. **폰 놓기**: 네트 연장선 위, 탁구대 옆면에서 2~3 m, 높이 1.5~2 m에서 살짝 내려다보게 삼각대에 세워 탁구대 전체와 두 선수가 다 들어오게 합니다. 수평을 맞추세요. 카메라가 탁구대 높이에 있으면 탁구대 윗면이 선처럼 보여 바운드와 속도를 계산할 수 없습니다. 자세한 위치: [docs/system-design.md](docs/system-design.md).
-2. **카메라 시작**을 누릅니다. 녹화한 영상으로 해 보려면 **영상 파일로 시험**.
-3. **코트 보정**을 한 번 합니다. 화면 안내 순서대로 네 모서리를 누릅니다: ① 내 쪽 왼쪽, ② 내 쪽 오른쪽, ③ 건너편 오른쪽, ④ 건너편 왼쪽. 누른 점이 흰 테두리에 맞춰지고, 점을 끌어 고친 뒤 **확인**. 삼각대가 그대로면 보정도 그대로입니다. 보정 전이거나 네 점 안이 탁구대 윗면처럼 보이지 않으면 공을 찾지 않고, 폰이 흔들리는 동안에도 쉽니다.
+2. 앱은 한국어로 열립니다. 영어로 쓰려면 모드 고르기나 **설정**에서 **English**를 누르세요. **카메라 시작**을 누릅니다. 녹화한 영상으로 해 보려면 **영상 파일로 시험**.
+3. **코트 보정**을 한 번 합니다. 화면 안내 순서대로 네 모서리를 누릅니다: ① 내 쪽 왼쪽, ② 내 쪽 오른쪽, ③ 건너편 오른쪽, ④ 건너편 왼쪽. 대충 눌러도 **정밀하게**를 누르면 약 1초 동안 흰 테두리에 맞추고 누른 점을 흐리게 같이 보여 줍니다(**되돌리기**·**다시 하기**). 점을 끌어 고친 뒤 **확인**. 삼각대가 그대로면 보정도 그대로입니다. 보정 전이거나 네 점 안이 탁구대 윗면처럼 보이지 않으면 공을 찾지 않고, 폰이 흔들리는 동안에도 쉽니다.
 4. 두 끝은 **레드 사이드 / 블루 사이드**입니다. 선수가 엔드를 바꾸면 **자리 교체**. 왼손잡이는 **설정**에서 라켓 손을 바꾸면 포핸드·백핸드 판정에 씁니다.
+   필요할 때 설정의 **카메라 자리 안내**(기본 꺼짐)를 켜면 자리·각도·크기·수평·흔들림 확인에서 정밀하게로 이어지며, 센서가 없어도 권장 배치를 읽고 각 단계를 건너뛸 수 있습니다.
 5. 경기합니다. 끝나면 **정지**, **기록**에서 랠리마다 시간, 샷 수, 최고 속도, 바운드 지도를 봅니다.
 6. 아이패드 가로나 TV 미러링이면 큰 화면 배치가 됩니다. 설정에서 직접 고를 수도 있습니다.
 
@@ -257,7 +403,7 @@ bun qa/score.mjs /tmp/test_2.offline.json data/videos/test_2 /tmp/test_2.score.j
 ## 선택 기능
 
 - **내 PC에 랠리 저장.** 끝난 랠리의 기록과 영상을 내 PC의 `save-server.js`로 보냅니다(폴더 권한 `0700`, 크기·개수 상한). 랠리마다 길고 추측할 수 없는 공유 링크와 지우기 버튼이 생깁니다. 업로드 열쇠는 1회용 설정 링크로 폰에 넘깁니다. 자세한 것은 [docs/save-to-pc.md](docs/save-to-pc.md). `~/.config/pingpong-vision/`의 열쇠는 절대 커밋하지 마세요.
-- **점수판 연동.** `public/js/point.js`가 바운드 순서(두 번 바운드, 아웃, 놓침)로 포인트 승패를 판정하고, `public/js/tournament.js`가 같은 주소 `/`의 점수판 앱에 넣습니다. 3초 취소, 한국어 점수 음성, 렛?/폴트? 한 번 눌러 확정이 있습니다. **점수판 앱은 이 저장소에 없습니다.** 점수판이 갖춰야 할 API는 [docs/tournament-link.md](docs/tournament-link.md)에 있습니다. 점수판이 없어도 나머지는 모두 혼자 됩니다.
+- **점수판 연동.** `public/js/point.js`가 바운드 순서(두 번 바운드, 아웃, 놓침)로 포인트 승패를 판정하고, `public/js/tournament.js`가 같은 주소 `/`의 점수판 앱에 넣습니다. 3초 취소, 고른 언어(한국어·영어)의 점수 음성, 렛?/폴트? 한 번 눌러 확정이 있습니다. 점수판은 `tournament/`에 있고([대회와 PIN](#대회와-pin)), API는 [docs/tournament-link.md](docs/tournament-link.md)에 있습니다. `PPV_TOURNAMENT_URL=off`면 카메라만 혼자 씁니다.
 
 `server.js` 환경 변수:
 
@@ -269,6 +415,7 @@ bun qa/score.mjs /tmp/test_2.offline.json data/videos/test_2 /tmp/test_2.score.j
 | `PPV_KEY_FILE` | `~/.config/pingpong-vision/upload-key` | 업로드 열쇠 파일(처음 켤 때 만듦) |
 | `PPV_SETUP_FILE` | `~/.config/pingpong-vision/setup-tokens.json` | 1회용 설정 링크 토큰 |
 | `PPV_TOURNAMENT_URL` | 없음 | PC 저장 PIN을 확인할 점수판 앱. 없으면 그 기능은 꺼짐 |
+| `PPV_TOURNAMENT_DATA` | `tournament/data/tournament.json` | 대회 PIN이 든 파일 |
 
 ## 다른 종목으로 바꾸기
 
@@ -303,11 +450,11 @@ bun qa/score.mjs /tmp/test_2.offline.json data/videos/test_2 /tmp/test_2.score.j
 
 ## 릴리스
 
-버전은 [유의적 버전](https://semver.org/lang/ko/)을 따릅니다. 버전마다 바뀐 점은 [CHANGELOG.ko.md](CHANGELOG.ko.md)(English [CHANGELOG.md](CHANGELOG.md))에 쉬운 말로 적습니다. 내려받기(소스 zip)는 [릴리스](https://github.com/orientpine/pingpong-vision/releases) 페이지에 있습니다. 릴리스를 만드는 방법은 [RELEASING.md](RELEASING.md)에 있습니다.
+버전은 하나입니다. 시작 화면의 `V x.y.z`, `package.json`, 릴리스 태그가 같습니다. 태그는 번호를 건너뛸 수 있습니다. 버전마다 바뀐 점은 [CHANGELOG.ko.md](CHANGELOG.ko.md)(English [CHANGELOG.md](CHANGELOG.md))에 쉬운 말로 적습니다. 내려받기(소스 zip)는 [릴리스](https://github.com/orientpine/pingpong-vision/releases) 페이지에 있습니다. 릴리스를 만드는 방법은 [RELEASING.md](RELEASING.md)에 있습니다.
 
 ## 라이선스와 제3자 고지
 
-MIT © orientpine, [LICENSE](LICENSE). 상업적 용도를 포함해 무료로 쓰고 고치고 나눌 수 있습니다. 저작권 표시는 남겨 주세요.
+MIT © orientpine, [LICENSE](LICENSE). `tournament/`의 대회 앱도 같습니다. 상업적 용도를 포함해 무료로 쓰고 고치고 나눌 수 있습니다. 저작권 표시는 남겨 주세요.
 
 제3자 구성 요소(자세한 것은 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)):
 

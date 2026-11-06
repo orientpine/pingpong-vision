@@ -1,13 +1,19 @@
 import { apply, insidePolygon, TABLE_LENGTH } from "./geom.js";
+import { EN, L } from "./i18n.js";
+
+// Shot kinds and strokes are stored (and sent) in Korean; this is how a screen shows one.
+const KIND_EN = { 스매시: "smash", 로빙: "lob", 드라이브: "drive", 푸시: "push", 서브: "serve", 포핸드: "forehand", 백핸드: "backhand" }; // i18n-data: stored shot kind, the tournament server checks the Korean
+export const kindText = (k) => (EN && KIND_EN[k]) || k;
 
 const KMH = 3.6;
+const CAMERA_OFF_S = 1.5;
 
 export function classifyKind(speedKmh, arcRatio) {
   if (speedKmh == null) return null;
-  if (speedKmh >= 45) return "스매시";
-  if (arcRatio > 0.25 && speedKmh < 35) return "로빙";
-  if (speedKmh >= 22) return "드라이브";
-  return "푸시";
+  if (speedKmh >= 45) return "스매시"; // i18n-data: stored shot kind, the tournament server checks the Korean
+  if (arcRatio > 0.25 && speedKmh < 35) return "로빙"; // i18n-data: stored shot kind, the tournament server checks the Korean
+  if (speedKmh >= 22) return "드라이브"; // i18n-data: stored shot kind, the tournament server checks the Korean
+  return "푸시"; // i18n-data: stored shot kind, the tournament server checks the Korean
 }
 
 export function strokeSide(landmarks, hand) {
@@ -21,7 +27,7 @@ export function strokeSide(landmarks, hand) {
   const wx = wrist.x - (ls.x + rs.x) / 2;
   const wy = wrist.y - (ls.y + rs.y) / 2;
   const toRight = sx * wx + sy * wy > 0;
-  return toRight === (hand !== "L") ? "포핸드" : "백핸드";
+  return toRight === (hand !== "L") ? "포핸드" : "백핸드"; // i18n-data: stored shot kind, the tournament server checks the Korean
 }
 
 function slope(pts, key) {
@@ -51,6 +57,21 @@ export class RallyEngine {
     this.onEvent = onEvent;
     this.rally = null;
     this.lastBallT = -Infinity;
+    this.lastT = null;
+    this.dt = null;
+    this.missT = 0;
+    this.clock = 0; // seconds the camera looked (missedTime steps): no_bounce / no_shot read it too
+  }
+
+  // Time the camera looked without seeing the ball. A phone pauses its analysis after a heavy
+  // frame (0.5 s and more): during that pause no frame was looked at, so the pause counts as one
+  // frame interval, not as time the ball was missing. A gap over CAMERA_OFF_S (the camera off or
+  // the page hidden) counts in full.
+  missedTime(t) {
+    if (this.lastT == null || !(t > this.lastT)) return 0;
+    const step = t - this.lastT;
+    if (step < 0.5) this.dt = this.dt ? 0.9 * this.dt + 0.1 * step : step;
+    return step > CAMERA_OFF_S ? step : Math.min(step, Math.max(0.1, 2 * (this.dt || step)));
   }
 
   setCalibration(cal) {
@@ -73,21 +94,26 @@ export class RallyEngine {
   }
 
   update(t, ball, players) {
+    const step = this.missedTime(t);
+    this.clock += step;
+    this.missT += step;
+    if (this.lastT == null || t > this.lastT) this.lastT = t;
     if (this.rally) {
       const r = this.rally;
       const lastShot = r.shots[r.shots.length - 1];
       const lastBounce = r.bounces[r.bounces.length - 1];
-      const unanswered = lastShot && t - lastShot.t > this.noBounceEnd && (!lastBounce || lastBounce.t < lastShot.t);
-      const why = t - this.lastBallT > this.gapEnd ? "ball_lost" : t - r.lastShotT > this.shotGapEnd ? "no_shot" : unanswered ? "no_bounce" : null;
+      const unanswered = lastShot && this.clock - lastShot.clk > this.noBounceEnd && (!lastBounce || lastBounce.t < lastShot.t);
+      const why = this.missT > this.gapEnd ? "ball_lost" : this.clock - r.lastShotClk > this.shotGapEnd ? "no_shot" : unanswered ? "no_bounce" : null;
       if (why) this.endRally(why);
     }
     if (!ball) return;
     this.lastBallT = t;
+    this.missT = 0;
     if (!this.rally) this.startRally(t);
     const r = this.rally;
     const tp = this.cal ? apply(this.cal.toTable, ball) : null;
     const u = this.axisPos(ball);
-    const pt = { t, id: ball.id, x: ball.x, y: ball.y, u, along: this.cal ? u * TABLE_LENGTH : null, tx: tp ? tp.x : null, ty: tp ? tp.y : null };
+    const pt = { t, clk: this.clock, id: ball.id, x: ball.x, y: ball.y, u, along: this.cal ? u * TABLE_LENGTH : null, tx: tp ? tp.x : null, ty: tp ? tp.y : null };
     r.pts.push(pt);
     if (r.pts.length > 400) r.pts.shift();
     this.trackDirection(pt, players);
@@ -97,7 +123,7 @@ export class RallyEngine {
   }
 
   startRally(t) {
-    this.rally = { startT: t, lastT: t, lastShotT: t, pts: [], shots: [], bounces: [], dir: 0, pending: 0, pendingPt: null, maxSpeed: null };
+    this.rally = { startT: t, lastT: t, lastShotT: t, lastShotClk: this.clock, pts: [], shots: [], bounces: [], dir: 0, pending: 0, pendingPt: null, maxSpeed: null };
     this.onEvent({ type: "rallyStart", t });
   }
 
@@ -148,18 +174,42 @@ export class RallyEngine {
       r.pending = 0;
       return;
     }
+    // A rally's first hit cannot start past the other player's end: a far server's toss or
+    // backswing moving away from the table read as a "near serve" at u 1.06 (2026-11-01 04:05).
+    if (this.cal && r.dir === 0 && (d > 0 ? hitPt.u > 0.9 : hitPt.u < 0.1)) {
+      r.pending = 0;
+      return;
+    }
+    // Serve rule: the receiver can only hit a serve that has crossed the net and bounced on their
+    // side. A turn before that is the served ball rising off the server's own half or the tracker
+    // hopping, not a return (a far "hit" 0.22 s after a serve, 45 px from it). A receiver's bounce
+    // the tracker missed (common at 30 fps) is let through when the turn is in the receiver's last
+    // quarter of the table or beyond.
+    const serve = r.shots[0];
+    const receiver = d > 0 ? "near" : "far";
+    if (this.cal && serve && r.shots.length === 1 && receiver !== serve.side) {
+      const crossed = r.pts.some((q) => q.t > serve.t && q.t <= hitPt.t && (receiver === "far" ? q.u > 0.5 : q.u < 0.5));
+      const landed = r.bounces.some((b) => b.t > serve.t && b.side === receiver);
+      const deep = receiver === "far" ? hitPt.u > 0.75 : hitPt.u < 0.25;
+      if (!crossed || !(landed || deep)) {
+        r.pending = 0;
+        return;
+      }
+    }
     r.dir = d;
     r.pending = 0;
     r.lastShotT = pt.t;
+    r.lastShotClk = pt.clk;
     const side = d > 0 ? "near" : "far";
     const player = players && players[side];
     const shot = {
       index: r.shots.length + 1,
       side,
       t: hitPt.t,
+      clk: hitPt.clk,
       at: { x: hitPt.x, y: hitPt.y },
       stroke: player ? strokeSide(player.landmarksAtHit ? player.landmarksAtHit(hitPt.t) : player.landmarks, player.hand) : null,
-      kind: r.shots.length === 0 ? "서브" : null,
+      kind: r.shots.length === 0 ? "서브" : null, // i18n-data: stored shot kind, the tournament server checks the Korean
       speedKmh: null,
       arc: 0,
     };
@@ -208,13 +258,18 @@ export class RallyEngine {
     if (!(ymax >= p[k - 1].y && ymax > p[k + 1].y)) return;
     if (ymax - Math.min(p[k - 2].y, p[k - 1].y) < thr && ymax - p[k - 2].y < thr) return;
     if (ymax - p[k + 2].y < thr) return;
-    if (p[k + 2].t - p[k - 2].t > 0.25) return;
+    // The V's lowest point must belong to the track on at least one side of it: the lock hopping
+    // to a still spot low on the table and back to the ball high draws a V no ball flew (2026-11-01
+    // 04:05 near "bounce"). The ball handed to a new track id on one side still bounces.
+    if (p[k].id !== p[k - 1].id && p[k].id !== p[k + 1].id) return;
+    // five points at 15 or 12 fps span more than 0.25 s
+    if (p[k + 2].t - p[k - 2].t > Math.max(0.25, 4.5 * (this.dt || 0))) return;
     const shot = r.shots[r.shots.length - 1];
     if (shot && shot.t >= p[k - 2].t) return;
     const last = r.bounces[r.bounces.length - 1];
     if (last && p[k].t - last.t < 0.12) return;
     if (this.cal && !insidePolygon(p[k], this.cal.quad, this.cal.lengthPx * 0.02)) return;
-    const b = { t: p[k].t, x: p[k].x, y: p[k].y, tx: p[k].tx, ty: p[k].ty };
+    const b = { t: p[k].t, clk: p[k].clk, x: p[k].x, y: p[k].y, tx: p[k].tx, ty: p[k].ty };
     b.side = b.tx == null ? (p[k].u < 0.5 ? "near" : "far") : b.tx < TABLE_LENGTH / 2 ? "near" : "far";
     r.bounces.push(b);
     this.onEvent({ type: "bounce", t: b.t, bounce: b });
@@ -250,9 +305,10 @@ export class RallyEngine {
       index: 0,
       side: from.side,
       t: (from.t + to.t) / 2,
+      clk: (from.clk + to.clk) / 2,
       at: { x: from.x, y: from.y },
       stroke: null,
-      kind: r.shots.length === 0 ? "서브" : null,
+      kind: r.shots.length === 0 ? "서브" : null, // i18n-data: stored shot kind, the tournament server checks the Korean
       speedKmh: null,
       arc: 0,
       inferred: true,
@@ -262,6 +318,7 @@ export class RallyEngine {
     r.shots.sort((a, b) => a.t - b.t);
     r.shots.forEach((s, i) => (s.index = i + 1));
     r.lastShotT = Math.max(r.lastShotT, to.t);
+    r.lastShotClk = Math.max(r.lastShotClk, to.clk);
     this.onEvent({ type: "shot", t: shot.t, shot });
   }
 
@@ -298,7 +355,7 @@ export function netKink(pts) {
 }
 
 function labelOf(shot) {
-  const parts = [shot.stroke, shot.kind].filter(Boolean);
-  const name = parts.length ? parts.join(" ") : "샷";
+  const parts = [shot.stroke, shot.kind].filter(Boolean).map(kindText);
+  const name = parts.length ? parts.join(" ") : L("샷", "Shot");
   return shot.speedKmh != null ? `${name} ~${shot.speedKmh}km` : name;
 }

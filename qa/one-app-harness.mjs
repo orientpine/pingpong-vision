@@ -1,3 +1,4 @@
+import { createServer } from "node:net";
 // Both real apps behind one origin, as on the Funnel host (tournament at "/", camera at "/vision/"),
 // with isolated data and a seeded tournament: a finished one in the archive, then a live one where
 // blue took game 1 and game 2 stands at 7:5, the last point carrying a real clip. reset() puts the
@@ -8,6 +9,9 @@ import { spawn } from "node:child_process";
 import { cpSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { withCodes } from "./player-names.mjs";
+import { assertPortsFree } from "./ports.mjs";
+import { tx } from "./qa-lang.mjs";
 
 const up = async (port, path) => {
   for (let i = 0; i < 100; i++) {
@@ -17,12 +21,17 @@ const up = async (port, path) => {
   throw new Error(`server ${port} did not start`);
 };
 
-export async function startOneApp({ vision, tournament, clip, port = 8960 }) {
+
+// ascii: the seeded tournaments and players get Latin names, so an English-mode census can count every
+// Hangul character on screen as an untranslated string (qa/i18n-census.mjs).
+// files: more test clips served the same way, { "/__qa/shaky.webm": "<path>" }.
+export async function startOneApp({ vision, tournament, clip, port = 8960, ascii = false, files = {} }) {
   const tmp = mkdtempSync(join(process.env.TMPDIR || tmpdir(), "ppv-oneapp-"));
   const ports = { proxy: port, tour: port + 1, vision: port + 2 };
+  await assertPortsFree(ports);
   const tourDir = join(tmp, "tour");
   const seedDir = join(tmp, "tour-seed");
-  const startTour = () => spawn("bun", [join(tournament, "server.js")], { cwd: tournament, env: { ...process.env, PORT: String(ports.tour), DATA_DIR: tourDir }, stdio: ["ignore", "ignore", "inherit"] });
+  const startTour = () => spawn("bun", [join(tournament, "server.js")], { cwd: tournament, env: { ...process.env, PORT: String(ports.tour), DATA_DIR: tourDir, PPV_SAVE_DIR: join(tmp, "saves") }, stdio: ["ignore", "ignore", "inherit"] });
   let tour = startTour();
   const startVision = () => spawn("bun", [join(vision, "server.js")], { cwd: vision, env: { ...process.env, PORT: String(ports.vision), PPV_SAVE_DIR: join(tmp, "saves"), PPV_TOURNAMENT_URL: `http://127.0.0.1:${ports.tour}`, PPV_TOURNAMENT_DATA: join(tourDir, "tournament.json"), PPV_KEY_FILE: join(tmp, "upload-key"), PPV_SETUP_FILE: join(tmp, "setup.json") }, stdio: ["ignore", "ignore", "inherit"] });
   let vis = startVision();
@@ -36,6 +45,7 @@ export async function startOneApp({ vision, tournament, clip, port = 8960 }) {
     async fetch(req, server) {
       const url = new URL(req.url);
       if (url.pathname === "/__qa/cam.webm") return new Response(Bun.file(clip), { headers: { "content-type": "video/webm" } });
+      if (files[url.pathname]) return new Response(Bun.file(files[url.pathname]), { headers: { "content-type": "video/webm" } });
       if (req.headers.get("upgrade") === "websocket") return server.upgrade(req, { data: { path: url.pathname + url.search } }) ? undefined : new Response("no", { status: 400 });
       const headers = new Headers(req.headers);
       headers.delete("host");
@@ -67,8 +77,8 @@ export async function startOneApp({ vision, tournament, clip, port = 8960 }) {
     return res.json();
   };
 
-  const first = await api("/api/tournament", { name: "지난 대회", players: ["가", "나", "다", "라"], format: "double", bestOf: 3 });
-  const created = await api("/api/tournament", { name: "탁구장 시험", players: ["김블루", "박레드", "셋째", "넷째"], format: "double", bestOf: 3 }, { "x-pin": first.pin });
+  const first = await api("/api/tournament", { name: ascii ? "Last Cup" : "지난 대회", players: await withCodes(origin, ascii ? ["Ann", "Ben", "Cal", "Dee"] : ["가", "나", "다", "라"]), format: "double", bestOf: 3 });
+  const created = await api("/api/tournament", { name: ascii ? "Club Test" : "탁구장 시험", players: await withCodes(origin, ascii ? ["Kim Blue", "Park Red", "Third", "Fourth"] : ["김블루", "박레드", "셋째", "넷째"]), format: "double", bestOf: 3 }, { "x-pin": first.pin });
   const pin = created.pin;
   const matchId = created.state.derived.matches.find((m) => m.status === "ready").id;
   const seq = [...Array(11).fill(0).flatMap((_, i) => (i < 7 ? [0, 1] : [0])), ...[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0]];
@@ -149,11 +159,37 @@ export function fakeCamera(src) {
     v.style.cssText = "position:fixed;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none";
     document.documentElement.append(v);
     await v.play();
+    // the harness can hold the clip (paused, the canvas keeps sending its picture) and start it over later
+    window.__qaCamVideo = v;
+    // WPE can leave a looped clip stuck at its end (currentTime = duration, not paused, not ended), which
+    // freezes the fake camera: rewind 0.2 s before the end, and resume, from where it stopped, a clip whose time stood still
+    // over 1 s while playing. The harness's own pauses (people fixing the score) are left alone.
+    window.__qaClip = { rewinds: 0, stalls: 0, maxT: 0, newFrames: 0, dur: 0 };
+    let lastT = -1, sameSince = performance.now(), stallWait = 1000; // doubles after a restart: a seek slower than the wait must not restart forever
+    setInterval(() => {
+      const now = performance.now();
+      if (v.paused && !v.ended) { sameSince = now; return; }
+      if (v.currentTime !== lastT) { lastT = v.currentTime; sameSince = now; if (lastT > 1) stallWait = 1000; }
+      const d = v.duration || 0;
+      if (d && v.currentTime >= d - 0.2) { window.__qaClip.rewinds++; v.currentTime = 0; }
+      else if (v.ended || now - sameSince > stallWait) { stallWait = Math.min(stallWait * 2, 16000); window.__qaClip.stalls++; v.currentTime = v.ended ? 0 : v.currentTime; v.play().catch(() => {}); sameSince = now; }
+    }, 100);
     const c = document.createElement("canvas");
     const tall = v.videoHeight > v.videoWidth;
-    c.width = tall ? 540 : 960; c.height = tall ? 960 : 540;
+    const [cw, ch] = (window.__qaCamSize || (tall ? "540x960" : "960x540")).split("x").map(Number);
+    c.width = cw; c.height = ch;
     const g = c.getContext("2d");
-    const draw = () => g.drawImage(v, 0, 0, c.width, c.height);
+    let drawnT = -1;
+    const draw = () => {
+      // how far the clip really got, and how many different pictures reached the camera
+      if (v.currentTime !== drawnT) {
+        drawnT = v.currentTime;
+        window.__qaClip.newFrames++;
+        window.__qaClip.maxT = Math.max(window.__qaClip.maxT, Math.round(drawnT * 10) / 10);
+        window.__qaClip.dur = Math.round((v.duration || 0) * 10) / 10;
+      }
+      g.drawImage(v, 0, 0, c.width, c.height);
+    };
     draw();
     setInterval(draw, 1000 / 30);
     const stream = c.captureStream(30);
@@ -165,12 +201,14 @@ export function fakeCamera(src) {
 
 export const CORNERS = [{ x: 355, y: 634 }, { x: 557, y: 519 }, { x: 1339, y: 535 }, { x: 1486, y: 659 }];
 
-// Camera on, four corner taps, running.
-export async function startCamera(page) {
-  await page.getByRole("button", { name: /카메라 시작/ }).click();
+// Camera on, four corner taps, running. holdClip: the fake camera's clip is paused while the corners are set
+// (the camera keeps sending that picture), so no rally can start until the caller plays it (playClip).
+export async function startCamera(page, { holdClip = false } = {}) {
+  await page.getByRole("button", { name: tx(/카메라 시작/, /Start camera/) }).click();
   await page.waitForFunction(() => ["calibrating", "running", "error"].includes(window.__ppv?.state.mode), null, { timeout: 180000 });
   const s = await page.evaluate(() => ({ mode: window.__ppv.state.mode, w: window.__ppv.state.video?.width, h: window.__ppv.state.video?.height }));
   if (s.mode === "error") throw new Error("camera error");
+  if (holdClip) await page.evaluate(() => window.__qaCamVideo && window.__qaCamVideo.pause());
   if (s.mode === "calibrating") {
     for (const c of CORNERS) {
       const pt = await page.evaluate(([x, y]) => {
@@ -182,7 +220,12 @@ export async function startCamera(page) {
       await page.mouse.click(pt.x, pt.y);
       await page.waitForTimeout(250);
     }
-    await page.getByRole("button", { name: /^확인/ }).click();
+    await page.getByRole("button", { name: tx(/^확인/, /^OK/) }).click();
     await page.waitForFunction(() => window.__ppv.state.mode === "running", null, { timeout: 20000 });
   }
+}
+
+// Plays a clip held by startCamera({ holdClip: true }) from its start.
+export async function playClip(page) {
+  await page.evaluate(() => { const v = window.__qaCamVideo; if (!v) return; v.currentTime = 0; return v.play(); });
 }

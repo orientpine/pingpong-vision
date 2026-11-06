@@ -11,10 +11,14 @@
 //   bun qa/venue-e2e.mjs --flow=after --vision=<checkout> --tournament=<checkout> --clip=<webm>
 //     [--corners='<json, 1920x1080>'] [--out=evidence/r6/after] [--phone-engine=webkit|chromium]
 import { chromium, devices, webkit } from "playwright";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
 import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { withCodes } from "./player-names.mjs";
+import { assertPortsFree } from "./ports.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
 const flow = args.flow || "after";
@@ -24,6 +28,7 @@ const corners = JSON.parse(args.corners || '[{"x":355,"y":634},{"x":557,"y":519}
 const tmp = mkdtempSync(join(process.env.TMPDIR || tmpdir(), "ppv-venue-"));
 const P = Number(args.port || 8880);
 const ports = { proxy: P, tour: P + 1, vision: P + 2 };
+await assertPortsFree(ports);
 
 const procs = [
   spawn("bun", [join(args.tournament, "server.js")], { cwd: args.tournament, env: { ...process.env, PORT: String(ports.tour), DATA_DIR: join(tmp, "tour") }, stdio: ["ignore", "ignore", "inherit"] }),
@@ -116,6 +121,55 @@ const steps = [];
 const taps = { phone: 0, tv: 0, pad: 0, phone2: 0 };
 let current = null;
 const shots = {};
+// Page load at a check (the 5 s before it): CPU of this run's WebKit web processes, main-thread stalls
+// (a 100 ms tick arriving over 50 ms late), and what the page keeps open (timers, intervals, listeners,
+// animation-frame requests). Same code for the branch and main runs.
+const loadProbe = () => {
+  const W = window;
+  if (W.__qaLoad) return;
+  const st = (W.__qaLoad = { timers: new Set(), intervals: new Set(), listeners: 0, raf: 0, stalls: [] });
+  const sT = W.setTimeout, cT = W.clearTimeout, sI = W.setInterval, cI = W.clearInterval;
+  W.setTimeout = function (f, ms, ...a) { const id = sT.call(W, function (...x) { st.timers.delete(id); return typeof f === "function" ? f.apply(this, x) : undefined; }, ms, ...a); st.timers.add(id); return id; };
+  W.clearTimeout = function (id) { st.timers.delete(id); return cT.call(W, id); };
+  W.setInterval = function (...a) { const id = sI.apply(W, a); st.intervals.add(id); return id; };
+  W.clearInterval = function (id) { st.intervals.delete(id); return cI.call(W, id); };
+  const aE = EventTarget.prototype.addEventListener, rE = EventTarget.prototype.removeEventListener;
+  EventTarget.prototype.addEventListener = function (...a) { st.listeners++; return aE.apply(this, a); };
+  EventTarget.prototype.removeEventListener = function (...a) { st.listeners--; return rE.apply(this, a); };
+  const rAF = W.requestAnimationFrame;
+  W.requestAnimationFrame = function (cb) { st.raf++; return rAF.call(W, cb); };
+  let last = performance.now();
+  sI.call(W, () => { const n = performance.now(); const late = n - last - 100; if (late > 50) st.stalls.push([n, late]); if (st.stalls.length > 300) st.stalls.shift(); last = n; }, 100);
+};
+const pageLoad = (page) => page.evaluate(() => {
+  const st = window.__qaLoad;
+  if (!st) return null;
+  const now = performance.now();
+  const recent = st.stalls.filter(([t]) => now - t <= 5000);
+  return { timers: st.timers.size, intervals: st.intervals.size, listeners: st.listeners, rafTotal: st.raf, stalls5s: recent.length, worstStallMs: Math.round(Math.max(0, ...recent.map(([, l]) => l))) };
+}).catch(() => null);
+// CPU of this run's WPE web processes (children of this test), sampled every second
+const cpuRing = [];
+const procCpu = () => {
+  const { readdirSync, readFileSync } = require("node:fs");
+  const kids = new Map();
+  for (const p of readdirSync("/proc")) {
+    if (!/^\d+$/.test(p)) continue;
+    try { const s = readFileSync(`/proc/${p}/stat`, "utf8"); const r = s.slice(s.lastIndexOf(")") + 2).split(" "); kids.set(Number(p), { ppid: Number(r[1]), cpu: Number(r[11]) + Number(r[12]), name: s.slice(s.indexOf("(") + 1, s.lastIndexOf(")")) }); } catch {}
+  }
+  const mine = new Set([process.pid]);
+  let grew = true;
+  while (grew) { grew = false; for (const [pid, k] of kids) if (!mine.has(pid) && mine.has(k.ppid)) { mine.add(pid); grew = true; } }
+  let web = 0;
+  for (const pid of mine) { const k = kids.get(pid); if (k && /WPEWebProcess|WebKitWebProces/.test(k.name)) web += k.cpu; }
+  return web;
+};
+setInterval(() => { cpuRing.push([Date.now(), procCpu()]); if (cpuRing.length > 30) cpuRing.shift(); }, 1000).unref();
+const cpu5s = () => {
+  const now = Date.now(), cur = procCpu();
+  const old = cpuRing.find(([t]) => now - t <= 5500) || cpuRing[0];
+  return old ? Math.round(((cur - old[1]) / 100) / ((now - old[0]) / 1000) * 100) : null; // percent of one core
+};
 const step = async (name, fn, { device = "phone", shoot = () => null } = {}) => {
   const t0 = Date.now();
   const tapsBefore = { ...taps };
@@ -131,7 +185,11 @@ const step = async (name, fn, { device = "phone", shoot = () => null } = {}) => 
   steps.push(rec);
   const p = shoot();
   if (p) await p.screenshot({ path: `${out}/${String(steps.length).padStart(2, "0")}-${name}.png` }).catch(() => {});
-  console.log(`STEP ${name} ${rec.pass ? "PASS" : "FAIL"} ${rec.seconds}s taps=${JSON.stringify(rec.taps)}${rec.pass ? "" : " " + rec.detail}`);
+  let clip = null;
+  try { clip = phone ? await phone.evaluate(() => (window.__qaClip ? { ...window.__qaClip, fps: window.__ppv?.state?.perf?.fps ?? null } : null)) : null; } catch {}
+  console.log(`STEP ${name} ${rec.pass ? "PASS" : "FAIL"} ${rec.seconds}s taps=${JSON.stringify(rec.taps)} clip=${JSON.stringify(clip)}${rec.pass ? "" : " " + rec.detail}`);
+  // the camera page's load over the step's last 5 s (same probe as back-nav)
+  if (phone) console.log(`LOAD ${name} ${JSON.stringify({ ...(await pageLoad(phone)), cpu5sPct: cpu5s() })}`);
   return rec.pass;
 };
 const tap = async (who, locator) => {
@@ -180,11 +238,34 @@ const fakeCamera = (src) => {
     v.style.cssText = "position:fixed;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none";
     document.documentElement.append(v);
     await v.play();
+    // WPE can leave a looped clip stuck at its end (currentTime = duration, not paused, not ended), which
+    // freezes the fake camera: rewind 0.2 s before the end, and resume, from where it stopped, a clip whose time stood still
+    // over 1 s while playing. The harness's own pauses (people fixing the score) are left alone.
+    window.__qaClip = { rewinds: 0, stalls: 0, maxT: 0, newFrames: 0, dur: 0 };
+    let lastT = -1, sameSince = performance.now(), stallWait = 1000; // doubles after a restart: a seek slower than the wait must not restart forever
+    setInterval(() => {
+      const now = performance.now();
+      if (v.paused && !v.ended) { sameSince = now; return; }
+      if (v.currentTime !== lastT) { lastT = v.currentTime; sameSince = now; if (lastT > 1) stallWait = 1000; }
+      const d = v.duration || 0;
+      if (d && v.currentTime >= d - 0.2) { window.__qaClip.rewinds++; v.currentTime = 0; }
+      else if (v.ended || now - sameSince > stallWait) { stallWait = Math.min(stallWait * 2, 16000); window.__qaClip.stalls++; v.currentTime = v.ended ? 0 : v.currentTime; v.play().catch(() => {}); sameSince = now; }
+    }, 100);
     const c = document.createElement("canvas");
     c.width = 960;
     c.height = 540;
     const g = c.getContext("2d");
-    const draw = () => g.drawImage(v, 0, 0, c.width, c.height);
+    let drawnT = -1;
+    const draw = () => {
+      // how far the clip really got, and how many different pictures reached the camera
+      if (v.currentTime !== drawnT) {
+        drawnT = v.currentTime;
+        window.__qaClip.newFrames++;
+        window.__qaClip.maxT = Math.max(window.__qaClip.maxT, Math.round(drawnT * 10) / 10);
+        window.__qaClip.dur = Math.round((v.duration || 0) * 10) / 10;
+      }
+      g.drawImage(v, 0, 0, c.width, c.height);
+    };
     draw();
     setInterval(draw, 1000 / 30);
     return c.captureStream(30);
@@ -206,6 +287,7 @@ const phoneCtx = async (preset = {}) => {
   await ctx.addInitScript(() => { if (location.origin !== "null") sessionStorage.setItem("pp-started", "1"); });
   await ctx.addInitScript(recordSpeech);
   await ctx.addInitScript(fakeCamera, `${origin}/__qa/cam.webm`);
+  await ctx.addInitScript(loadProbe);
   await ctx.addInitScript((kv) => {
     if (sessionStorage.getItem("__preset")) return;
     sessionStorage.setItem("__preset", "1");
@@ -221,7 +303,7 @@ let tv = null;
 const report = { flow, steps, taps, errors, said: {} };
 try {
   await step("create-tournament", async () => {
-    const r = await api("/api/tournament", { name: "탁구장 시험", players: ["블루선수", "레드선수", "셋째", "넷째"], format: "double", bestOf: 3 });
+    const r = await api("/api/tournament", { name: "탁구장 시험", players: await withCodes(origin, ["블루선수", "레드선수", "셋째", "넷째"]), format: "double", bestOf: 3 });
     if (r.status !== 200) throw new Error(`create ${r.status}`);
     pin = r.body.pin;
     matchId = r.body.state.derived.matches.find((m) => m.status === "ready").id;
@@ -452,7 +534,7 @@ try {
       r.rename = (await api("/api/action", { type: "rename", index: 2, name: "해킹" }, tk)).status;
       r.setup = (await api("/api/action", { type: "setup", players: ["a", "b", "c"], format: "double", bestOf: 3 }, tk)).status;
       r.firstServer = (await api("/api/action", { type: "firstServer", matchId: "m2", side: 1 }, tk)).status;
-      r.newTournament = (await api("/api/tournament", { name: "x", players: ["a", "b", "c"] }, tk)).status;
+      r.newTournament = (await api("/api/tournament", { name: "x", players: await withCodes(origin, ["a", "b", "c"]) }, tk)).status;
       r.approveWithPin = (await api("/api/vision/approve", { id: "a".repeat(64) }, { "x-pin": pin })).status;
       r.claim = (await api("/api/vision/claim", { secret: "a".repeat(43) })).status;
       r.pointWithToken = (await api("/api/action", { type: "point", matchId: "m2", side: 0, seq: 0 }, tk)).status;

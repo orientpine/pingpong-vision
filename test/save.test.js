@@ -21,10 +21,11 @@ beforeEach(async () => {
 });
 afterEach(() => rmSync(root, { recursive: true, force: true }));
 
-const upload = (k, { record = { shots: 4, durationMs: 3200, bounces: [{ tx: 1, ty: 0.5, side: "far" }] }, video = mp4() } = {}) => {
+const upload = (k, { record = { shots: 4, durationMs: 3200, bounces: [{ tx: 1, ty: 0.5, side: "far" }] }, video = mp4(), overlay = null } = {}) => {
   const form = new FormData();
   form.set("record", typeof record === "string" ? record : JSON.stringify(record));
   if (video) form.set("video", video, "rally");
+  if (overlay) form.set("overlay", overlay, "overlay.json.gz");
   return store.handle(new Request("http://x/api/rallies", { method: "POST", headers: k ? { "x-ppv-key": k } : {}, body: form }), "/api/rallies");
 };
 const get = (path, headers = {}) => store.handle(new Request(`http://x${path}`, { headers }), path);
@@ -69,6 +70,49 @@ test("no key, a wrong key, or a bad body is refused; nothing is listed", async (
   expect((await get("/api/key-check", { "x-ppv-key": key })).status).toBe(204);
   expect((await get("/api/key-check", { "x-ppv-key": "nope" })).status).toBe(401);
   expect(readdirSync(store.dir)).toEqual([]);
+});
+
+test("the overlay track is kept beside the clip, served by the link, played in the replay page, and deleted with the clip", async () => {
+  const track = new Blob([Bun.gzipSync(JSON.stringify({ v: 1, meta: {}, frames: [{ t: 0 }], notices: [] }))]);
+  const res = await upload(key, { overlay: track });
+  expect(res.status).toBe(201);
+  const { id } = await res.json();
+  const d = join(store.dir, id);
+  expect(readdirSync(d).sort()).toEqual(["overlay.json.gz", "record.json", "video.mp4"]);
+  expect(statSync(join(d, "overlay.json.gz")).mode & 0o777).toBe(0o600);
+  expect(JSON.parse(readFileSync(join(d, "record.json"), "utf8")).overlayBytes).toBe(track.size);
+
+  const got = await get(`/s/${id}/overlay`);
+  expect(got.status).toBe(200);
+  expect(got.headers.get("content-type")).toBe("application/json; charset=utf-8");
+  expect(got.headers.get("content-encoding")).toBe(null);
+  expect((await got.json()).v).toBe(1);
+  const page = await (await get(`/s/${id}`)).text();
+  expect(page).toContain(`../replay.html?clip=s/${id}`);
+  expect(page).not.toContain("<video");
+
+  expect((await del(id, key)).status).toBe(204);
+  expect(existsSync(d)).toBe(false);
+  expect((await get(`/s/${id}/overlay`)).status).toBe(404);
+});
+
+test("a clip without a track keeps the plain player and has no overlay; a bad or oversized track is refused", async () => {
+  const { id } = await (await upload(key)).json();
+  expect((await get(`/s/${id}/overlay`)).status).toBe(404);
+  expect(await (await get(`/s/${id}`)).text()).toContain(`<video src="${id}/video"`);
+  expect((await upload(key, { overlay: new Blob(["{\"v\":1} not gzip at all"]) })).status).toBe(415);
+  // a browser without CompressionStream sends the JSON itself; the PC keeps it gzipped and serves it back
+  const plain = await (await upload(key, { overlay: new Blob(['{"v":1,"meta":{},"frames":[{"t":0}],"notices":[]}']) })).json();
+  expect(readFileSync(join(store.dir, plain.id, "overlay.json.gz"))[0]).toBe(0x1f);
+  expect((await (await get(`/s/${plain.id}/overlay`)).json()).frames).toEqual([{ t: 0 }]);
+  const small = createSaveStore({ dir: join(root, "saves2"), keyFile: join(root, "cfg/upload-key"), maxOverlayBytes: 20 });
+  const form = new FormData();
+  form.set("record", "{}");
+  form.set("video", mp4(), "rally");
+  form.set("overlay", new Blob([Bun.gzipSync("x".repeat(5000) + Math.random())]), "o");
+  const big = await small.handle(new Request("http://x/api/rallies", { method: "POST", headers: { "x-ppv-key": key }, body: form }), "/api/rallies");
+  expect(big.status).toBe(413);
+  expect(readdirSync(join(root, "saves2"))).toEqual([]);
 });
 
 test("the saved-rally count is capped", async () => {

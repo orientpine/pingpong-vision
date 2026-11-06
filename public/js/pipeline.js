@@ -1,3 +1,4 @@
+import { L } from "./i18n.js";
 import { BallDetector, BallTracker } from "./ball.js";
 import { apply, makeCalibration, TABLE_LENGTH, TABLE_WIDTH } from "./geom.js";
 import { Players } from "./players.js";
@@ -40,9 +41,9 @@ const TABLE_CHECK_EVERY = 15;
 const SHAKE_MAX_CANDS = 120;
 const SHAKE_MAX_CHANGED = 0.04;
 const SHAKE_CALM_FRAMES = 10;
-export const ISSUE_NO_TABLE = "탁구대가 안 보여요. 코트 보정으로 탁구대 네 모서리를 맞춰 주세요";
-export const ISSUE_SHAKY = "폰이 흔들려요. 폰을 고정해 주세요";
-export const HINT_WHITE_BALL = "공 색이 흰색 같아요";
+export const ISSUE_NO_TABLE = L("탁구대가 안 보여요. 코트 보정으로 탁구대 네 모서리를 맞춰 주세요", "The table is not visible. Use Calibrate court to match its four corners");
+export const ISSUE_SHAKY = L("폰이 흔들려요. 폰을 고정해 주세요", "The phone is shaking. Please hold it steady");
+export const HINT_WHITE_BALL = L("공 색이 흰색 같아요", "The ball looks white");
 // Orange mode keeps a white-ball tracker running beside it. A white lock on a neutral blob (red
 // minus blue under WHITE_WARM_MAX) is a white ball; when such locks are at least WHITE_HINT_SHARE
 // of the frames of the last WHITE_HINT_S (a share, so a phone at 16 fps and a file at 60 fps

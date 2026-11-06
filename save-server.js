@@ -1,9 +1,11 @@
 // Owner-only rally saves on this PC (docs/save-to-pc.md). The phone uploads a finished rally's
-// record and a highlight clip (that rally only, HUD drawn in) with a secret upload key; each saved
+// record, a highlight clip (that rally only, the camera's picture) and the clip's overlay track (the
+// HUD as data, drawn again on replay: public/js/replay-track.js) with a secret upload key; each saved
 // rally gets an unguessable share link. There is no listing endpoint: a rally can be reached only
 // through its own link, and deleted only with the upload key.
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { chmodSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { retimeClip } from "./clip-retime.js";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
@@ -26,6 +28,9 @@ export function sniffVideo(b) {
   if (b.length >= 4 && b[0] === 0x1a && b[1] === 0x45 && b[2] === 0xdf && b[3] === 0xa3) return "video/webm";
   return null;
 }
+
+// The overlay track is gzip (public/js/replay-track.js): magic 1F 8B.
+export const isGzip = (b) => b.length >= 18 && b[0] === 0x1f && b[1] === 0x8b;
 
 // One-time setup links: https://<host>/vision/#setup=<token>. The token rides in the URL
 // fragment, which browsers never send in the page request, so it reaches no access log; the
@@ -91,6 +96,11 @@ function json(status, body) {
   return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json; charset=utf-8" } });
 }
 
+// A line for the share page in both languages: Korean shows without JavaScript, the page script (same origin
+// as the apps, so it reads their pp-lang choice) switches to English.
+const both = (ko, en) => ({ ko, en });
+const bi = (p) => `<span data-l="ko">${escapeHtml(p.ko)}</span><span data-l="en">${escapeHtml(p.en)}</span>`;
+
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 }
@@ -100,15 +110,36 @@ function fmtDuration(ms) {
   return `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toFixed(2).padStart(5, "0")}`;
 }
 
+// Retime one saved clip in place (clip-retime.js): the video is replaced only after the new one read back.
+// track: the gzipped track bytes. Answers { gz, pictures, shiftMs } or { skip }.
+export async function retimeSaved(d, videoPath, type, track) {
+  let doc;
+  try {
+    doc = JSON.parse(new TextDecoder().decode(Bun.gunzipSync(track)));
+  } catch {
+    return { skip: "track-json" };
+  }
+  const tmp = join(d, `retime.tmp.${VIDEO_TYPES[type]}`);
+  const r = await retimeClip({ src: videoPath, dst: tmp, type, track: doc });
+  if (r.skip) {
+    rmSync(tmp, { force: true });
+    return r;
+  }
+  chmodSync(tmp, 0o600);
+  renameSync(tmp, videoPath);
+  return { gz: Bun.gzipSync(new TextEncoder().encode(JSON.stringify(r.track))), pictures: r.pictures, shiftMs: r.shiftMs };
+}
+
 export function createSaveStore({
   dir = process.env.PPV_SAVE_DIR || join(homedir(), "pingpong-vision-saves"),
   keyFile = process.env.PPV_KEY_FILE || join(homedir(), ".config/pingpong-vision/upload-key"),
   setupFile = process.env.PPV_SETUP_FILE || join(homedir(), ".config/pingpong-vision/setup-tokens.json"),
   grantFile = join(dirname(keyFile), "save-grants.json"),
   tournamentUrl = process.env.PPV_TOURNAMENT_URL || "",
-  tournamentData = process.env.PPV_TOURNAMENT_DATA || join(homedir(), "Documents/pingpong-tournament/data/tournament.json"),
+  tournamentData = process.env.PPV_TOURNAMENT_DATA || join(import.meta.dir, "tournament/data/tournament.json"),
   maxVideoBytes = 200 * 1024 * 1024,
   maxRecordBytes = 1024 * 1024,
+  maxOverlayBytes = 4 * 1024 * 1024,
   maxItems = 300,
   maxTotalBytes = 5 * 1024 * 1024 * 1024,
   maxPerHour = 60,
@@ -182,7 +213,7 @@ export function createSaveStore({
     if (recent.length >= maxPerHour) return json(429, { error: "too many uploads this hour" });
     if (items().length >= maxItems) return json(507, { error: "too many saved rallies; delete some" });
     const length = Number(req.headers.get("content-length") || 0);
-    if (length > maxVideoBytes + maxRecordBytes + 64 * 1024) return json(413, { error: "too large" });
+    if (length > maxVideoBytes + maxRecordBytes + maxOverlayBytes + 64 * 1024) return json(413, { error: "too large" });
     let form;
     try {
       form = await req.formData();
@@ -191,6 +222,7 @@ export function createSaveStore({
     }
     const recordText = form.get("record");
     const video = form.get("video");
+    const overlay = form.get("overlay");
     if (typeof recordText !== "string" || recordText.length > maxRecordBytes) return json(400, { error: "record" });
     let record;
     try {
@@ -204,14 +236,41 @@ export function createSaveStore({
     const bytes = new Uint8Array(await video.arrayBuffer());
     const type = sniffVideo(bytes);
     if (!type) return json(415, { error: "video must be video/mp4 or video/webm" });
-    if (usage() + video.size > maxTotalBytes) return json(507, { error: "storage full; delete some" });
+    let track = null;
+    if (overlay != null) {
+      if (typeof overlay === "string") return json(415, { error: "overlay must be gzip or JSON" });
+      if (overlay.size > maxOverlayBytes) return json(413, { error: "overlay size" });
+      track = new Uint8Array(await overlay.arrayBuffer());
+      // a browser without CompressionStream sends the track as JSON; it is kept gzipped like the rest
+      if (!isGzip(track)) {
+        try {
+          JSON.parse(new TextDecoder().decode(track));
+        } catch {
+          return json(415, { error: "overlay must be gzip or JSON" });
+        }
+        track = Bun.gzipSync(track);
+      }
+    }
+    if (usage() + video.size + (track ? track.length : 0) > maxTotalBytes) return json(507, { error: "storage full; delete some" });
     const id = randomBytes(32).toString("base64url");
     const d = join(dir, id);
     mkdirSync(d, { mode: 0o700 });
     chmodSync(d, 0o700);
-    const saved = { ...record, savedAt: new Date(t).toISOString(), videoType: type, videoBytes: video.size };
+    const videoPath = join(d, `video.${VIDEO_TYPES[type]}`);
+    writeFileSync(videoPath, bytes, { mode: 0o600 });
+    // pictures onto the camera's own times (clip-retime.js); a clip that cannot be moved stays as it came
+    let retime = null;
+    if (track) {
+      const moved = await retimeSaved(d, videoPath, type, track);
+      if (moved.skip) retime = { skipped: moved.skip };
+      else {
+        track = moved.gz;
+        retime = { pictures: moved.pictures, shiftMs: moved.shiftMs };
+      }
+    }
+    const saved = { ...record, savedAt: new Date(t).toISOString(), videoType: type, videoBytes: statSync(videoPath).size, overlayBytes: track ? track.length : 0, ...(retime ? { retime } : {}) };
     writeFileSync(join(d, "record.json"), JSON.stringify(saved), { mode: 0o600 });
-    writeFileSync(join(d, `video.${VIDEO_TYPES[type]}`), bytes, { mode: 0o600 });
+    if (track) writeFileSync(join(d, "overlay.json.gz"), track, { mode: 0o600 });
     recent.push(t);
     return json(201, { id, share: `s/${id}` });
   }
@@ -228,17 +287,25 @@ export function createSaveStore({
     const d = join(dir, id);
     if (!existsSync(join(d, "record.json"))) return null;
     const r = JSON.parse(readFileSync(join(d, "record.json"), "utf8"));
+    // a clip with its overlay track plays in the replay page, which draws the HUD over the picture
+    const replayTitle = both("랠리 다시 보기", "Rally replay");
+    const pageTitle = both("PINGPONG VISION · 랠리", "PINGPONG VISION · Rally");
+    const note = both("속도·거리는 화면 기반 추정치예요. 이 링크를 아는 사람만 볼 수 있어요.", "Speed and distance are estimates from the picture. Only people with this link can see it.");
+    const when = r.startedAt || r.savedAt;
+    const player = existsSync(join(d, "overlay.json.gz"))
+      ? `<iframe class="replay" src="../replay.html?clip=s/${id}" title="${replayTitle.ko}" data-en="${replayTitle.en}" allow="autoplay; fullscreen"></iframe>`
+      : `<video src="${id}/video" controls playsinline preload="metadata"></video>`;
     const stat = (k, v) => `<div class="s"><span>${k}</span><b>${escapeHtml(v)}</b></div>`;
     const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex"><title>PINGPONG VISION · 랠리</title><link rel="preload" href="../../fonts/Galmuri11.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="robots" content="noindex"><title data-en="${pageTitle.en}">${pageTitle.ko}</title><link rel="preload" href="../../fonts/Galmuri11.woff2" as="font" type="font/woff2" crossorigin>
 <style>@font-face{font-family:G;src:url(../../fonts/Galmuri11.woff2) format("woff2")}body{margin:0;background:#0b1634;color:#f2f6ff;font:16px G,monospace}
-main{max-width:960px;margin:0 auto;padding:16px}video{width:100%;background:#000;border:3px solid #000;box-shadow:4px 4px 0 #000}
+main{max-width:960px;margin:0 auto;padding:16px}video,.replay{display:block;width:100%;background:#000;border:3px solid #000;box-shadow:4px 4px 0 #000}.replay{height:min(80vh,1100px)}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.s{background:#13224d;border:2px solid #000;box-shadow:3px 3px 0 #000;padding:8px 12px}
-@media(max-width:600px){video{width:calc(100% + 32px);margin-inline:-16px;border-inline:0;box-shadow:none}}.s span{display:block;color:#a3afcb;font-size:11px}.s b{font-size:22px}h1{font-size:22px;margin:4px 0 12px}p{color:#a3afcb;font-size:11px}</style></head>
-<body><main><h1>RALLY ${escapeHtml(new Date(r.startedAt || r.savedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }))}</h1>
-<video src="${id}/video" controls playsinline preload="metadata"></video>
+@media(max-width:600px){video,.replay{width:calc(100% + 32px);margin-inline:-16px;border-inline:0;box-shadow:none}}.s span{display:block;color:#a3afcb;font-size:11px}.s b{font-size:22px}h1{font-size:22px;margin:4px 0 12px}p{color:#a3afcb;font-size:11px}html:not([lang=en]) [data-l=en],html[lang=en] [data-l=ko]{display:none}</style></head>
+<body><main><h1>RALLY ${bi(both(new Date(when).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }), new Date(when).toLocaleString("en-US", { timeZone: "Asia/Seoul" })))}</h1>
+${player}
 <div class="row">${stat("RALLY TIME", fmtDuration(r.durationMs))}${stat("SHOTS", r.shots ?? "--")}${stat("MAX SPEED", r.maxSpeedKmh == null ? "--" : `~${r.maxSpeedKmh} km/h`)}${stat("BOUNCES", (r.bounces || []).length)}</div>
-<p>속도·거리는 화면 기반 추정치예요. 이 링크를 아는 사람만 볼 수 있어요.</p></main></body></html>`;
+<p>${bi(note)}</p></main><script src="../js/page-lang.js"></script></body></html>`;
     return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" } });
   }
 
@@ -258,6 +325,14 @@ main{max-width:960px;margin:0 auto;padding:16px}video{width:100%;background:#000
     return new Response(file, { headers: { "content-type": type, "accept-ranges": "bytes", "cache-control": "no-store" } });
   }
 
+  // the track as plain JSON (a few tens of KB): the replay page reads it with res.json(), so no browser
+  // needs DecompressionStream and no proxy has to keep a Content-Encoding intact
+  function overlayResponse(id) {
+    const f = join(dir, id, "overlay.json.gz");
+    if (!existsSync(f)) return null;
+    return new Response(Bun.gunzipSync(readFileSync(f)), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" } });
+  }
+
   // path is the request path without the /vision mount; peer is the socket address that sent req.
   // Returns null when the path is not ours.
   async function handle(req, path, peer) {
@@ -271,9 +346,9 @@ main{max-width:960px;margin:0 auto;padding:16px}video{width:100%;background:#000
     if (path === "/api/rallies" && req.method === "POST") return upload(req);
     let m = /^\/api\/rallies\/([^/]+)$/.exec(path);
     if (m && req.method === "DELETE") return ID_RE.test(m[1]) ? remove(req, m[1]) : json(404, { error: "not found" });
-    m = /^\/s\/([^/]+)(\/video)?$/.exec(path);
+    m = /^\/s\/([^/]+)(\/video|\/overlay)?$/.exec(path);
     if (m && (req.method === "GET" || req.method === "HEAD")) {
-      const res = ID_RE.test(m[1]) ? (m[2] ? videoResponse(req, m[1]) : sharePage(m[1])) : null;
+      const res = !ID_RE.test(m[1]) ? null : m[2] === "/video" ? videoResponse(req, m[1]) : m[2] === "/overlay" ? overlayResponse(m[1]) : sharePage(m[1]);
       return res || new Response("not found\n", { status: 404 });
     }
     if (path.startsWith("/api/") || path.startsWith("/s/")) return new Response("not found\n", { status: 404 });

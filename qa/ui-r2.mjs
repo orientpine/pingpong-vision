@@ -246,8 +246,8 @@ async function runViewport(vp) {
       return 1 / Math.min(r.width / v.videoWidth, r.height / v.videoHeight);
     });
     const errCss = err / videoPxPerCssPx;
-    // The fourth tap snaps the corners onto the table's white border, so the saved corners sit a
-    // few px from the taps; more than 8 px (1080p scale) means a wrong snap, not a refinement.
+    // The corners stay where they were tapped (the white-border fit runs only from the 정밀하게 button);
+    // more than 8 px (1080p scale) means a wrong conversion.
     if (err > 8 * k) throw new Error(`corner error ${err.toFixed(2)} video px = ${errCss.toFixed(2)} CSS px`);
     return { maxCornerErrorVideoPx: Math.round(err * 100) / 100, maxCornerErrorCssPx: Math.round(errCss * 100) / 100, calibrating: before };
   });

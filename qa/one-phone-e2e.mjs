@@ -2,8 +2,8 @@
 // wrong point has to be fixed by hand on that same phone while the camera keeps filming.
 // Both real servers (tournament app at "/", vision at "/vision/") run behind one small proxy (one
 // origin with WebSocket, as on the Funnel host); isolated data in a temp dir. The phone is WebKit
-// (Safari engine) at iPhone 15 size (393x852) with a fake camera (a looping test clip drawn into a
-// canvas stream). A sampler reads the camera screen every 200 ms: "filming" = the camera screen is
+// (Safari engine) at iPhone 15 size (393x852) with a fake camera (a looping test clip, decoded to
+// pictures before it starts, drawn into a canvas stream on a wall-time clock). A sampler reads the camera screen every 200 ms: "filming" = the camera screen is
 // up, running, its camera track is live and the video clock moves.
 //   --flow=before   today: on the camera screen tap the role chip -> 심판 -> fix on the referee
 //                   screen -> role 카메라 -> back on the camera screen (start / calibrate if asked)
@@ -14,9 +14,11 @@
 //     --clip=<webm> [--out=evidence/r7/<flow>]
 import { chromium, devices, webkit } from "playwright";
 import { spawn } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { withCodes } from "./player-names.mjs";
+import { assertPortsFree } from "./ports.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
 const flow = args.flow || "before";
@@ -26,6 +28,18 @@ const corners = JSON.parse(args.corners || '[{"x":355,"y":634},{"x":557,"y":519}
 const tmp = mkdtempSync(join(process.env.TMPDIR || tmpdir(), "ppv-venue-"));
 const P = Number(args.port || 8890);
 const ports = { proxy: P, tour: P + 1, vision: P + 2 };
+await assertPortsFree(ports);
+
+// the fake camera's pictures: the clip cut once to 30 fps 960x540 JPEG (the size the old canvas pump drew)
+const FRAME_FPS = 30;
+const framesDir = join(tmp, "frames");
+mkdirSync(framesDir);
+{
+  const ff = Bun.spawn(["ffmpeg", "-v", "error", "-i", args.clip, "-vf", `scale=960:540,fps=${FRAME_FPS}`, "-q:v", "2", join(framesDir, "%04d.jpg")], { stderr: "pipe" });
+  if ((await ff.exited) !== 0) throw new Error(`ffmpeg could not cut ${args.clip} into pictures: ${await new Response(ff.stderr).text()}`);
+}
+const frameCount = readdirSync(framesDir).length;
+if (!frameCount) throw new Error(`no pictures cut from ${args.clip}`);
 
 const procs = [
   spawn("bun", [join(args.tournament, "server.js")], { cwd: args.tournament, env: { ...process.env, PORT: String(ports.tour), DATA_DIR: join(tmp, "tour") }, stdio: ["ignore", "ignore", "inherit"] }),
@@ -51,11 +65,12 @@ try {
   throw err;
 }
 
-// Proxy with two test switches: /__qa/cam.webm (the fake camera's clip) and /__qa/cut?who=camera|all&ms=N
+// Proxy with two test switches: /__qa/frames/* (the fake camera's pictures, below) and /__qa/cut?who=camera|all&ms=N
 // (close those WebSockets and refuse new ones for N ms, to see both apps show it and reconnect).
 const sockets = new Set();
 const blocked = { camera: 0, all: 0 };
 // The camera is the phone: the only iPhone user agent here (WebKit sends no Referer on a WebSocket).
+const uploads = [];
 const isCamera = (ws) => /iPhone/.test(ws.data.ua || "");
 const target = (path) => (path === "/vision" || path.startsWith("/vision/") ? ports.vision : ports.tour);
 const proxy = Bun.serve({
@@ -63,7 +78,8 @@ const proxy = Bun.serve({
   hostname: "127.0.0.1",
   async fetch(req, server) {
     const url = new URL(req.url);
-    if (url.pathname === "/__qa/cam.webm") return new Response(Bun.file(args.clip), { headers: { "content-type": "video/webm" } });
+    if (url.pathname === "/__qa/frames/frames.json") return Response.json({ n: frameCount, fps: FRAME_FPS });
+    if (/^\/__qa\/frames\/\d{4}\.jpg$/.test(url.pathname)) return new Response(Bun.file(join(framesDir, url.pathname.slice("/__qa/frames/".length))), { headers: { "content-type": "image/jpeg" } });
     if (url.pathname === "/__qa/cut") {
       const who = url.searchParams.get("who") === "all" ? "all" : "camera";
       blocked[who] = Date.now() + Number(url.searchParams.get("ms") || 5000);
@@ -85,6 +101,8 @@ const proxy = Bun.serve({
       body: req.method === "GET" || req.method === "HEAD" ? undefined : await req.arrayBuffer(),
       redirect: "manual",
     });
+    // every save upload the phone makes, with the server's answer (the saved files are summarised at the end)
+    if (req.method === "POST" && url.pathname.startsWith("/vision/api/")) uploads.push({ at: new Date().toISOString(), path: url.pathname, status: res.status });
     return new Response(res.body, { status: res.status, headers: res.headers });
   },
   websocket: {
@@ -133,7 +151,9 @@ const step = async (name, fn, { device = "phone", shoot = () => null } = {}) => 
   steps.push(rec);
   const p = shoot();
   if (p) await p.screenshot({ path: `${out}/${String(steps.length).padStart(2, "0")}-${name}.png` }).catch(() => {});
-  console.log(`STEP ${name} ${rec.pass ? "PASS" : "FAIL"} ${rec.seconds}s taps=${JSON.stringify(rec.taps)}${rec.pass ? "" : " " + rec.detail}`);
+  let clip = null;
+  try { clip = phone ? await phone.evaluate(() => (window.__qaClip ? { ...window.__qaClip, fps: window.__ppv?.state?.perf?.fps ?? null } : null)) : null; } catch {}
+  console.log(`STEP ${name} ${rec.pass ? "PASS" : "FAIL"} ${rec.seconds}s taps=${JSON.stringify(rec.taps)} clip=${JSON.stringify(clip)}${rec.pass ? "" : " " + rec.detail}`);
   return rec.pass;
 };
 const tap = async (who, locator) => {
@@ -165,7 +185,13 @@ const recordSpeech = () => {
 };
 // WPE WebKit (the test Safari engine) does not start a MediaStream in a visibility:hidden video,
 // and the app keeps its video hidden under the intro screen; iPhone Safari plays it. Test-only style.
-const fakeCamera = (src) => {
+// The fake camera does not play a <video>: WPE's loop never wraps, and the harness's own rewind to 0,
+// made while decoding lags under load, left playback waiting (readyState 2, not paused) for minutes;
+// a seek in place plus play() did not wake it. The clip's pictures (30 fps, 960x540 JPEG, cut once
+// by the harness with ffmpeg) are decoded before the camera starts, and a play clock that runs at wall
+// time picks the picture, so the camera keeps real time as a phone camera does; a late pump skips
+// pictures instead of slowing the clip down.
+const fakeCamera = (base) => {
   document.addEventListener("DOMContentLoaded", () => {
     const st = document.createElement("style");
     st.textContent = ".stage__video { visibility: visible !important; }";
@@ -174,19 +200,67 @@ const fakeCamera = (src) => {
   // On the prototype, as with speech: WPE can drop an own-property patch on navigator.mediaDevices.
   const target = window.MediaDevices ? window.MediaDevices.prototype : navigator.mediaDevices;
   target.getUserMedia = async () => {
-    const v = document.createElement("video");
-    v.src = src;
-    v.muted = true;
-    v.loop = true;
-    v.playsInline = true;
-    v.style.cssText = "position:fixed;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none";
-    document.documentElement.append(v);
-    await v.play();
+    const meta = await (await fetch(`${base}/frames.json`)).json();
+    const load = async (i) => {
+      for (let tries = 0; ; tries++) {
+        const im = new Image();
+        im.src = `${base}/${String(i + 1).padStart(4, "0")}.jpg`;
+        try {
+          await im.decode();
+          return im;
+        } catch (err) {
+          if (tries >= 2) throw new Error(`fake camera picture ${i + 1} did not decode: ${err}`);
+        }
+      }
+    };
+    const pics = await Promise.all(Array.from({ length: meta.n }, (_, i) => load(i)));
+    // the clip's clock: wall time while playing; the harness pauses it while people fix the score
+    // (no new rally) and the stream stays live with the same picture
+    const cam = (window.__qaCam = { paused: false, acc: 0, since: performance.now() });
+    const clipT = () => cam.acc + (cam.paused ? 0 : (performance.now() - cam.since) / 1000);
+    cam.pause = () => { if (!cam.paused) { cam.acc = clipT(); cam.paused = true; } };
+    cam.play = () => { if (cam.paused) { cam.since = performance.now(); cam.paused = false; } };
+    // rewinds = times the clip wrapped to its start; stalls stays 0 (the clock cannot stand still);
+    // skipped = pictures the pump passed over because it ran late (a starved page shows here)
+    window.__qaClip = { rewinds: 0, stalls: 0, maxT: 0, newFrames: 0, dur: Math.round((meta.n / meta.fps) * 10) / 10, skipped: 0, pictures: meta.n };
     const c = document.createElement("canvas");
     c.width = 960;
     c.height = 540;
     const g = c.getContext("2d");
-    const draw = () => g.drawImage(v, 0, 0, c.width, c.height);
+    // the pump is page JS: how late its 33 ms timer runs (gaps over 100 / 250 ms, worst) and how often a
+    // 50 ms heartbeat is held up over 50 ms (a long task on the main thread), so a starved pump shows
+    Object.assign(window.__qaClip, { pumpGaps100: 0, pumpGaps250: 0, pumpMaxGap: 0, beats: 0, beatsLate50: 0, beatMaxLate: 0 });
+    let lastDraw = null, lastBeat = performance.now(), lastIdx = -1;
+    setInterval(() => {
+      const now = performance.now(), late = now - lastBeat - 50;
+      lastBeat = now;
+      const q = window.__qaClip;
+      q.beats++;
+      if (late > 50) q.beatsLate50++;
+      if (late > q.beatMaxLate) q.beatMaxLate = Math.round(late);
+    }, 50);
+    // once a second: the clip clock, paused, picture shown, pictures drawn and skipped (bounded), for a run that stalls
+    const t00 = performance.now(), tl = (window.__qaClipTimeline = { s: [] });
+    setInterval(() => { if (tl.s.length < 3000) tl.s.push([Math.round(performance.now() - t00), Math.round(clipT() * 100) / 100, cam.paused ? 1 : 0, lastIdx % meta.n, window.__qaClip.newFrames, window.__qaClip.skipped]); }, 1000);
+    const draw = () => {
+      const now = performance.now(), q = window.__qaClip;
+      if (lastDraw != null) {
+        const gap = now - lastDraw;
+        if (gap > 100) q.pumpGaps100++;
+        if (gap > 250) q.pumpGaps250++;
+        if (gap > q.pumpMaxGap) q.pumpMaxGap = Math.round(gap);
+      }
+      lastDraw = now;
+      const t = clipT(), idx = Math.floor(t * meta.fps);
+      if (idx !== lastIdx) {
+        if (lastIdx >= 0 && idx > lastIdx + 1) q.skipped += idx - lastIdx - 1;
+        if (lastIdx >= 0 && Math.floor(idx / meta.n) > Math.floor(lastIdx / meta.n)) q.rewinds++;
+        lastIdx = idx;
+        q.newFrames++;
+        q.maxT = Math.max(q.maxT, Math.round(((idx % meta.n) / meta.fps) * 10) / 10);
+      }
+      g.drawImage(pics[idx % meta.n], 0, 0, c.width, c.height);
+    };
     draw();
     setInterval(draw, 1000 / 30);
     return c.captureStream(30);
@@ -209,7 +283,7 @@ const phoneCtx = async (preset = {}) => {
   const ctx = await phoneBrowser.newContext(engine === webkit ? base : { viewport: vp, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   await ctx.addInitScript(() => { if (location.origin !== "null") sessionStorage.setItem("pp-started", "1"); });
   await ctx.addInitScript(recordSpeech);
-  await ctx.addInitScript(fakeCamera, `${origin}/__qa/cam.webm`);
+  await ctx.addInitScript(fakeCamera, `${origin}/__qa/frames`);
   await ctx.addInitScript((kv) => {
     if (sessionStorage.getItem("__preset")) return;
     sessionStorage.setItem("__preset", "1");
@@ -246,7 +320,7 @@ const seed = async (want) => {
   throw new Error(`could not seed ${JSON.stringify(want)}`);
 };
 // the fake camera's clip: paused while people stop to fix the score (no new rally), the stream stays live
-const clip = (play) => phone.evaluate((on) => { const v = [...document.querySelectorAll("video")].find((x) => x.src.includes("/__qa/cam.webm")); if (v) on ? v.play() : v.pause(); return !!v; }, play).catch(() => false);
+const clip = (play) => phone.evaluate((on) => { const c = window.__qaCam; if (c) on ? c.play() : c.pause(); return !!c; }, play).catch(() => false);
 
 // ---------- camera sampler ----------
 const samples = [];
@@ -298,7 +372,7 @@ const synced = async () => {
 
 try {
   await step("create-tournament", async () => {
-    const r = await api("/api/tournament", { name: "폰 1대 시험", players: ["블루선수", "레드선수", "셋째", "넷째"], format: "double", bestOf: 3 });
+    const r = await api("/api/tournament", { name: "폰 1대 시험", players: await withCodes(origin, ["블루선수", "레드선수", "셋째", "넷째"]), format: "double", bestOf: 3 });
     if (r.status !== 200) throw new Error(`create ${r.status}`);
     pin = r.body.pin;
     matchId = r.body.state.derived.matches.find((m) => m.status === "ready").id;
@@ -494,6 +568,25 @@ try {
             if (Date.now() - t0 > 300000) return reject(new Error("no point in 300 s"));
             const p = window.__ppv.state.tour.pending;
             const btn = document.querySelector(".pointbar__cancel");
+            // 확인 후 입력 (POINT_ENTRY "confirm"): every point first waits on 누가 땄나요 with the camera's call
+            // pre-chosen; a person taps it about 1.5 s later and the point goes in with its 3 s cancel. A weak
+            // call (nothing pre-chosen, the camera's guess in words) is tapped on the guessed side the same way.
+            // Every choice seen is counted (pre-chosen vs weak) so main and a branch can be compared.
+            const pre = p && p.choice ? document.querySelector(".pointbar__pick--pre") : null;
+            const guess = p && p.choice && !pre && (p.guess === 0 || p.guess === 1) ? document.querySelector(p.guess === 0 ? ".pointbar__pick--blue" : ".pointbar__pick--red") : null;
+            const pick = pre || guess;
+            if (p && p.choice && !p.__counted) {
+              p.__counted = true;
+              const c = (window.__qaChoices = window.__qaChoices || { pre: 0, weak: 0, other: 0 });
+              c[pre ? "pre" : guess ? "weak" : "other"]++;
+            }
+            if (pick && !pick.closest("[hidden]")) {
+              p.__seenAt = p.__seenAt || Date.now();
+              if (Date.now() - p.__seenAt >= 1500 && !p.__tapped) {
+                p.__tapped = true;
+                pick.click();
+              }
+            }
             if (p && !p.choice && btn && !btn.hidden) {
               seenAt = seenAt || Date.now();
               // a person reads it first: tap about 1.5 s after the bar shows
@@ -501,7 +594,7 @@ try {
                 const snap = JSON.parse(JSON.stringify(p));
                 const label = btn.textContent;
                 btn.click();
-                return resolve({ snap, label, shownForMs: Date.now() - seenAt, windowMs: p.until - seenAt });
+                return resolve({ snap, label, shownForMs: Date.now() - seenAt, windowMs: p.until - seenAt, choices: window.__qaChoices || null });
               }
             }
             setTimeout(tick, 50);
@@ -514,7 +607,7 @@ try {
     await waitFor("undo", async () => (await match()).points.length === got.snap.seq - 1, 8000);
     const undoMs = Date.now() - t0;
     await shotPhone("auto-point-cancelled");
-    return { side: got.snap.side, reason: got.snap.reason, score: got.snap.score, cancelLabel: got.label, tappedAfterMs: got.shownForMs, cancelWindowMs: got.windowMs, undoLandedMs: undoMs };
+    return { side: got.snap.side, reason: got.snap.reason, score: got.snap.score, cancelLabel: got.label, tappedAfterMs: got.shownForMs, cancelWindowMs: got.windowMs, undoLandedMs: undoMs, choices: got.choices };
   }, { shoot: () => phone });
 
   // ---- B: the last point went to the wrong side; fix it on this phone and keep filming ----
@@ -611,11 +704,34 @@ try {
     }, { shoot: () => phone });
   }
 
+  // rallies the camera closed (state.history keeps a linked judged rally, or 2+ shots with a bounce) and the bars seen
+  const rallyDiag = () => phone.evaluate((h0) => ({ seen: window.__qaSeen || [], stable: window.__ppv.state.stable?.compact ?? null, rallies: window.__ppv.state.history.filter((r) => r.id > h0).slice(0, 12).map((r) => ({ ms: r.durationMs, shots: r.shots, bounces: r.bounces.length, point: r.point || null, fps: r.analysisFps })) }), h0).catch((x) => String(x));
+  let h0 = 0;
   await step("camera-keeps-judging-after-fix", async () => {
+    h0 = await phone.evaluate(() => Date.now());
+    await phone.evaluate(() => { window.__qaSeen = []; });
     await clip(true);
     const n = (await log()).length;
-    await waitFor("next auto point", async () => (await log()).length > n, 240000);
-    return { before: n, after: (await log()).length, mode: await phone.evaluate(() => window.__ppv.state.mode) };
+    // 확인 후 입력: the next point goes in once a person taps the pre-chosen side on the bar. A weak call
+    // (nothing pre-chosen, the camera's guess in words) still proves the camera kept judging: tap the guess.
+    const confirm = () => phone.evaluate(() => {
+      const p = window.__ppv.state.tour.pending;
+      // every bar seen while waiting, for the report (a step that times out says what the camera asked)
+      const seen = (window.__qaSeen = window.__qaSeen || []);
+      const key = p ? JSON.stringify({ choice: !!p.choice, pre: p.pre ?? null, guess: p.guess ?? null, hold: !!p.hold, reason: p.reason ?? null, seq: p.seq ?? null }) : null;
+      if (key && seen[seen.length - 1] !== key) seen.push(key);
+      if (!p || !p.choice) return;
+      const pre = document.querySelector(".pointbar__pick--pre");
+      const pick = pre || (p.guess === 0 || p.guess === 1 ? document.querySelector(p.guess === 0 ? ".pointbar__pick--blue" : ".pointbar__pick--red") : null);
+      if (pick && !pick.closest("[hidden]")) pick.click();
+    });
+    try {
+      await waitFor("next auto point", async () => (await confirm(), (await log()).length > n), 240000);
+    } catch (e) {
+      const diag = await rallyDiag();
+      throw new Error(`${e.message} ${JSON.stringify(diag).slice(0, 3000)}`);
+    }
+    return { before: n, after: (await log()).length, mode: await phone.evaluate(() => window.__ppv.state.mode), diag: await rallyDiag() };
   }, { shoot: () => phone });
 
   }
@@ -648,9 +764,20 @@ try {
   sampling = false;
   await sampler.catch(() => {});
   if (phone) report.said.phone = await said(phone).catch(() => null);
+  if (phone) report.clipTimeline = await phone.evaluate(() => window.__qaClipTimeline || null).catch((e) => String(e));
   report.tournament = await state().then((s) => ({ rev: s.rev, points: s.derived.matches.map((m) => [m.id, m.points.length]) })).catch(() => null);
   report.totals = { taps: Object.values(taps).reduce((a, b) => a + b, 0) };
   report.samples = samples.length;
+  // what the vision server actually kept for each saved rally: record keys, analysisFps, screen, the
+  // video's first bytes (an MP4 starts "ftyp" at byte 4)
+  const sd = join(tmp, "saves");
+  report.uploads = uploads;
+  report.saved = existsSync(sd) ? readdirSync(sd).filter((d) => existsSync(join(sd, d, "record.json"))).map((d) => {
+    const r = JSON.parse(readFileSync(join(sd, d, "record.json"), "utf8"));
+    const v = readdirSync(join(sd, d)).find((f) => f.startsWith("video"));
+    const head = v ? [...readFileSync(join(sd, d, v)).subarray(0, 8)].map((b) => b.toString(16).padStart(2, "0")).join(" ") : null;
+    return { dir: d, keys: Object.keys(r), analysisFps: r.analysisFps, screen: r.screen, cameras: r.cameras ?? null, durationMs: r.durationMs, shots: r.shots, bounces: (r.bounces || []).length, players: r.players ? Object.keys(r.players) : null, point: r.point || null, videoType: r.videoType, videoBytes: r.videoBytes, file: v, head };
+  }) : [];
   writeFileSync(`${out}/report.json`, JSON.stringify(report, null, 2));
   writeFileSync(`${out}/samples.json`, JSON.stringify(samples));
   await phoneBrowser.close().catch(() => {});

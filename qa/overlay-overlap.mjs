@@ -61,14 +61,18 @@ const sweep = () => import("/vision/js/hud.js").then(({ drawHud }) => {
   };
   // the same limits ui.js gives drawHud: under the top rows, above what floats on the bottom edge
   const shown = (n) => n && !n.closest("[hidden]") && n.offsetParent !== null && n.getBoundingClientRect().height > 0;
-  const top = Math.max(4, ...[".strip", ".glance", ".peek", ".banner", ".stage__chips", ".toast.show"].map((q) => document.querySelector(q)).filter(shown)
+  const top = Math.max(4, ...[".strip", ".glance", ".peek", ".banner", ".stage__chips"].map((q) => document.querySelector(q)).filter(shown)
     .map((n) => n.getBoundingClientRect().bottom - sr.top).filter((b) => b > 0 && b < sr.height).map((b) => b + 4));
-  const bottom = Math.min(sr.height, ...[".dock", ".bottom", ".bar", ".fix"].map((q) => document.querySelector(q)).filter(shown)
+  const bottom = Math.min(sr.height, ...[".dock", ".players", ".court", ".bar", ".fix"].map((q) => document.querySelector(q)).filter(shown)
     .map((n) => n.getBoundingClientRect().top - sr.top).filter((y) => y > sr.height / 2)) - 4;
   const avoid = [".players", ".court", ".bar", ".stage__fit", ".dock", ".pointbar"].map((q) => document.querySelector(q)).filter((n) => n && !n.closest("[hidden]") && document.documentElement.dataset).map((n) => {
     const r = n.getBoundingClientRect();
     return { x: r.left - sr.left, y: r.top - sr.top, w: r.width, h: r.height };
   }).filter((r) => r.w > 0 && r.x < sr.width && r.y < sr.height && r.x + r.w > 0 && r.y + r.h > 0);
+  // ui.js also hands drawHud the notice while one shows (labels keep off it); without it here the sweep
+  // drew labels over a notice the app would have kept them off
+  const shownToast = document.querySelector(".toast.show");
+  if (shownToast) { const t = shownToast.getBoundingClientRect(); avoid.push({ x: t.left - sr.left, y: t.top - sr.top, w: t.width, h: t.height, id: "toast" }); }
   const body = (cx, y0, y1) => Array.from({ length: 33 }, (_, i) => ({ x: cx * vw + (i % 2 ? 4 : -4), y: (y0 + ((y1 - y0) * i) / 32) * vh, v: 1 }));
   const shapes = [[0.15, 0.35, 0.9, 0.85, 0.25, 0.6], [0.4, 0.3, 0.8, 0.6, 0.25, 0.6], [0.3, 0.4, 0.95, 0.75, 0.15, 0.5]];
   // buttons and chips over the picture: no label may touch one

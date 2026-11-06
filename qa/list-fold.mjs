@@ -4,6 +4,7 @@
 import { chromium, devices, webkit } from "playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { startCamera, startOneApp, fakeCamera } from "./one-app-harness.mjs";
+import { withCodes } from "./player-names.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
 const out = args.out || "evidence/list-fold";
@@ -11,7 +12,7 @@ mkdirSync(out, { recursive: true });
 const app = await startOneApp({ vision: args.vision, tournament: args.tournament, clip: args.clip, port: Number(args.port || 9990) });
 const players = Array.from({ length: 8 }, (_, i) => `선수${i + 1}`);
 let pin = app.pin;
-const create = async (body) => { const r = await app.api("/api/tournament", body, { "x-pin": pin }); if (!r.state) throw new Error(JSON.stringify(r)); pin = r.pin || pin; };
+const create = async (body) => { const r = await app.api("/api/tournament", { ...body, players: await withCodes(app.origin, body.players) }, { "x-pin": pin }); if (!r.state) throw new Error(JSON.stringify(r)); pin = r.pin || pin; };
 const state = () => app.api("/api/state");
 const playMatches = async (count) => {
   for (let k = 0; k < count; k++) {

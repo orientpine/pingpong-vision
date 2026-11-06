@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import { TournamentLink, sideLabel } from "../public/js/tournament.js";
+import { CONFIRMED, POINT_ENTRY, TournamentLink, sideLabel } from "../public/js/tournament.js";
+
+// The tests below the 확인 후 입력 block are the automatic entry (POINT_ENTRY "auto"), kept to switch back to.
+const AUTO = { entry: "auto" };
 
 // A stand-in for the tournament server's /api: one live match, PIN 1234, the same seq rule.
 let points;
@@ -45,7 +48,7 @@ beforeEach(() => {
   calls = [];
   globalThis.fetch = async (url, opts = {}) => {
     const body = opts.body ? JSON.parse(opts.body) : null;
-    calls.push({ url, body });
+    calls.push({ url, body, headers: opts.headers });
     const reply = (data, status = 200) => new Response(JSON.stringify(data), { status });
     if (url === "/api/state") return reply(state());
     if (url === "/api/pin/verify") return body.pin === "1234" ? reply({ ok: true }) : reply({ error: "PIN이 맞지 않습니다." }, 403);
@@ -71,8 +74,76 @@ const memStore = () => {
   return { get: (k, d) => (m.has(k) ? m.get(k) : d), set: (k, v) => m.set(k, v) };
 };
 
-test("a sure call is entered for the near player's colour and can be cancelled", async () => {
+test("확인 후 입력 is the default: every point waits with the camera's call chosen; one tap enters it as the camera's", async () => {
+  expect(POINT_ENTRY).toBe("confirm");
   const link = new TournamentLink(memStore());
+  await link.connect("1234");
+  link.setNear(1);
+  const p = link.score({ winner: "near", label: "두 번 튐", sure: true });
+  await Bun.sleep(0);
+  expect(points).toEqual([]);
+  expect(link.view().pending).toMatchObject({ choice: true, pre: 1, hold: false, seq: 0, matchId: "m1" });
+  const entry = await link.pick(1);
+  expect(points).toEqual([1]);
+  expect(entry).toMatchObject({ index: 0, side: 1, reason: CONFIRMED });
+  expect(await p).toBe(entry);
+  // the other colour is a hand pick
+  const q = link.score({ winner: "far", label: "네트", sure: false });
+  await Bun.sleep(0);
+  expect(link.view().pending).toMatchObject({ pre: 0, sure: false });
+  expect((await link.pick(1)).reason).toBe("직접 고름");
+  await q;
+});
+
+test("judge log: each call is sent with an id the tournament takes (64 characters at most, a camera id is 64), a replaced call is dropped, and points say the camera wrote them", async () => {
+  const link = new TournamentLink(memStore());
+  link.cameraId = "f".repeat(64);
+  await link.connect("1234");
+  const first = link.score({ winner: "near", label: "못 받음", reason: "no_return", sure: true, ask: false, shots: 3, bounces: 3 }, null, { rally: { why: "no_bounce", startMs: 1000, endMs: 4000 } });
+  await Bun.sleep(0);
+  const second = link.score({ winner: "far", label: "못 받음", reason: "no_return", sure: false, ask: true, shots: 1, bounces: 1 });
+  await Bun.sleep(0);
+  const judge = calls.filter((c) => c.url === "/api/judge").map((c) => c.body);
+  expect(judge.map((b) => b.t)).toEqual(["call", "drop", "call"]);
+  for (const b of judge) expect(b.id).toMatch(/^[A-Za-z0-9_.:-]{1,64}$/);
+  expect(judge[0]).toMatchObject({ matchId: "m1", index: 0, call: { end: 0, slot: 0, sure: true, weak: false, why: "no_bounce", reason: "no_return", shots: 3, bounces: 3 }, pre: 0, guess: null, hold: false, rally: { startMs: 1000, endMs: 4000 }, camera: "f".repeat(64), mode: "confirm" });
+  expect(judge[1]).toEqual({ t: "drop", id: judge[0].id, why: "replaced" });
+  expect(judge[2]).toMatchObject({ index: 0, call: { end: 1, slot: 1, sure: false, weak: true }, pre: null, guess: 1 });
+  expect(await first).toBe(null);
+  await link.pick(1);
+  expect(await second).toMatchObject({ index: 0, side: 1 });
+  expect(calls.find((c) => c.body && c.body.type === "point").headers["x-ppv-by"]).toBe("camera");
+});
+
+test("확인 후 입력: held or two cameras apart, nothing is chosen; the question stays until the next judged point replaces it", async () => {
+  const link = new TournamentLink(memStore());
+  await link.connect("1234");
+  const held = link.score({ winner: "near", label: "두 번 튐", sure: true }, null, { ask: true, reason: "점수 보류 · 끝 색 확인", hold: true });
+  await Bun.sleep(0);
+  expect(link.view().pending).toMatchObject({ pre: null, hold: true });
+  const apart = link.score({ winner: "near", label: "두 번 튐", sure: true }, null, { ask: true, reason: "카메라 2대 판정이 달라요" });
+  expect(await held).toBe(null);
+  expect(link.view().notice).toMatch(/앞 포인트는 입력하지 않았어요/);
+  expect(link.view().pending).toMatchObject({ pre: null, hold: false });
+  link.dropChoice();
+  expect(await apart).toBe(null);
+});
+
+test("확인 후 입력: a point entered on the referee screen answers the camera's question with that point (its clip goes there)", async () => {
+  const link = new TournamentLink(memStore());
+  await link.connect("1234");
+  const p = link.score({ winner: "near", label: "두 번 튐", sure: true });
+  await Bun.sleep(0);
+  link.seen(state()); // nothing entered yet: still waiting
+  expect(link.view().pending).toMatchObject({ choice: true });
+  points.push(1); // the referee tapped the red player's card
+  link.seen(state());
+  expect(link.view().pending).toBe(null);
+  expect(await p).toMatchObject({ matchId: "m1", index: 0, side: 1, reason: "심판 입력" });
+});
+
+test("a sure call is entered for the near player's colour and can be cancelled", async () => {
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   link.setNear(1);
   const entry = await link.score({ winner: "near", label: "두 번 튐", sure: true });
@@ -85,7 +156,7 @@ test("a sure call is entered for the near player's colour and can be cancelled",
 });
 
 test("an unsure call in sure mode waits for the referee's tap; the tapped side gets the clip", async () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   const scored = link.score({ winner: "far", label: "못 받음", sure: false });
   await Bun.sleep(0);
@@ -99,7 +170,7 @@ test("an unsure call in sure mode waits for the referee's tap; the tapped side g
 });
 
 test("an unsure call that nobody taps is dropped when the next rally starts", async () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   const scored = link.score({ winner: "far", label: "못 받음", sure: false });
   link.dropChoice();
@@ -108,16 +179,40 @@ test("an unsure call that nobody taps is dropped when the next rally starts", as
 });
 
 test("all-points mode enters an unsure call at once", async () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   link.setMode("all");
   await link.score({ winner: "far", label: "못 받음", sure: false });
   expect(points).toEqual([1]);
 });
 
+test("a call point.js marks ask (one bounce, a short fragment) waits for the tap in all-points mode too", async () => {
+  const link = new TournamentLink(memStore());
+  await link.connect("1234");
+  link.setMode("all");
+  const scored = link.score({ winner: "far", label: "못 받음", sure: false, ask: true });
+  await Bun.sleep(0);
+  expect(points).toEqual([]);
+  expect(link.view().pending).toMatchObject({ choice: true });
+  link.dropChoice();
+  expect(await scored).toBeNull();
+  expect(points).toEqual([]);
+});
+
+test("a weak call (ask) waits on the bar with nothing pre-chosen, its side kept as the camera's guess", async () => {
+  const link = new TournamentLink(memStore());
+  await link.connect("1234");
+  link.score({ winner: "far", label: "못 받음", sure: false, ask: true });
+  await Bun.sleep(0);
+  expect(points).toEqual([]);
+  expect(link.view().pending).toMatchObject({ choice: true, pre: null });
+  expect([0, 1]).toContain(link.view().pending.guess);
+  link.dropChoice();
+});
+
 test("a wrong PIN is refused and nothing is stored", async () => {
   const store = memStore();
-  const link = new TournamentLink(store);
+  const link = new TournamentLink(store, () => {}, AUTO);
   await link.connect("9999");
   expect(link.view()).toMatchObject({ connected: false });
   expect(link.view().error).toContain("PIN");
@@ -126,7 +221,7 @@ test("a wrong PIN is refused and nothing is stored", async () => {
 
 test("the score is called out after each point, and 취소 is said on cancel", async () => {
   const said = [];
-  const link = new TournamentLink(memStore(), () => {}, { say: (t) => said.push(t) });
+  const link = new TournamentLink(memStore(), () => {}, { ...AUTO, say: (t) => said.push(t.ko) });
   await link.connect("1234");
   await link.score({ winner: "near", label: "못 받음", sure: true });
   await link.score({ winner: "far", label: "못 받음", sure: true });
@@ -140,7 +235,7 @@ test("the score is called out after each point, and 취소 is said on cancel", a
 
 test("ends change after a game and at 5 in the deciding game; undo changes them back", async () => {
   const said = [];
-  const link = new TournamentLink(memStore(), () => {}, { say: (t) => said.push(t) });
+  const link = new TournamentLink(memStore(), () => {}, { ...AUTO, say: (t) => said.push(t.ko) });
   await link.connect("1234");
   points = Array(10).fill(0);
   link.setNear(0);
@@ -162,7 +257,7 @@ test("ends change after a game and at 5 in the deciding game; undo changes them 
 
 test("렛? confirmed: the auto-entered point is undone and nothing else is entered", async () => {
   const said = [];
-  const link = new TournamentLink(memStore(), () => {}, { say: (t) => said.push(t) });
+  const link = new TournamentLink(memStore(), () => {}, { ...AUTO, say: (t) => said.push(t.ko) });
   await link.connect("1234");
   const entry = await link.score({ winner: "near", label: "못 받음", sure: true }, { fault: true, let: true, server: "near" });
   expect(link.view().pending.suspect).toMatchObject({ let: true, fault: true, server: 0 });
@@ -175,7 +270,7 @@ test("렛? confirmed: the auto-entered point is undone and nothing else is enter
 
 test("폴트? confirmed: the receiver gets the point and the clip follows the new entry", async () => {
   const said = [];
-  const link = new TournamentLink(memStore(), () => {}, { say: (t) => said.push(t) });
+  const link = new TournamentLink(memStore(), () => {}, { ...AUTO, say: (t) => said.push(t.ko) });
   await link.connect("1234");
   const entry = await link.score({ winner: "near", label: "못 받음", sure: true }, { fault: true, let: false, server: "near" });
   expect(points).toEqual([0]);
@@ -187,7 +282,7 @@ test("폴트? confirmed: the receiver gets the point and the clip follows the ne
 });
 
 test("no suspicion buttons unless a signal fired", async () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   await link.score({ winner: "near", label: "못 받음", sure: true }, { fault: false, let: false, server: "near" });
   expect(link.view().pending.suspect).toBeNull();
@@ -195,7 +290,7 @@ test("no suspicion buttons unless a signal fired", async () => {
 
 // The owner's one-phone scene: the camera phone (holding the PIN) fixes the score without leaving the camera screen.
 test("a point two back goes to the other side in one fix; later points and their clips stay", async () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   points.push(0, 1, 0, 1);
   clips = { 2: "/vision/s/a", 3: "/vision/s/b" };
@@ -209,7 +304,7 @@ test("a point two back goes to the other side in one fix; later points and their
 
 test("+1 and 되돌리기 from the camera screen", async () => {
   const said = [];
-  const link = new TournamentLink(memStore(), () => {}, { say: (t) => said.push(t) });
+  const link = new TournamentLink(memStore(), () => {}, { ...AUTO, say: (t) => said.push(t.ko) });
   await link.connect("1234");
   await link.fix("plus", 1);
   expect(points).toEqual([1]);
@@ -219,7 +314,7 @@ test("+1 and 되돌리기 from the camera screen", async () => {
 });
 
 test("a game ended by a wrong point is fixed in one tap and the ends change back", async () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   points.push(...Array(9).fill(0), ...Array(9).fill(1), 0, 0);
   await link.refresh();
@@ -233,7 +328,7 @@ test("a game ended by a wrong point is fixed in one tap and the ends change back
 test("a phone without the PIN writes nothing, and a camera token left from the old referee approval is forgotten", async () => {
   const store = memStore();
   store.set("tourToken", "camera-token");
-  const link = new TournamentLink(store);
+  const link = new TournamentLink(store, () => {}, AUTO);
   expect(store.get("tourToken", null)).toBeNull();
   expect(link.view()).toMatchObject({ connected: false, approval: null, fix: { can: false } });
   expect(await link.fix("plus", 0)).toBeNull();
@@ -246,7 +341,7 @@ test("the PIN typed on the camera is the same device memory as 심판 (pp-pin); 
   const was = globalThis.localStorage;
   globalThis.localStorage = { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k) };
   try {
-    const link = new TournamentLink(memStore());
+    const link = new TournamentLink(memStore(), () => {}, AUTO);
     await link.connect("1234");
     expect(mem.get("pp-pin")).toBe("1234");
     link.pin = "9999";
@@ -261,7 +356,7 @@ test("the PIN typed on the camera is the same device memory as 심판 (pp-pin); 
 });
 
 test("an auto point judged during a hand fix waits for it, so neither write is lost", async () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   link.setMode("all");
   points.push(0, 1, 0);
@@ -274,7 +369,7 @@ test("an auto point judged during a hand fix waits for it, so neither write is l
 });
 
 test("a recent-point tap that no longer matches the score (it moved since the screen drew) changes nothing", async () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   points.push(0, 1);
   await link.fix("flip", 1, 0);
@@ -284,7 +379,7 @@ test("a recent-point tap that no longer matches the score (it moved since the sc
 
 test("a PIN changed on the tournament app drops the stale one after the first refusal, so a camera does not lock the venue out", async () => {
   const store = memStore();
-  const link = new TournamentLink(store);
+  const link = new TournamentLink(store, () => {}, AUTO);
   await link.connect("1234");
   const inner = globalThis.fetch;
   let refused = 0;
@@ -308,14 +403,14 @@ test("a PIN changed on the tournament app drops the stale one after the first re
 
 // Owner (2026-10-30): red / blue are the table's two ends and stay put; 자리 교체 and the rules move the players.
 test("not linked: the camera names the ends 블루 사이드 / 레드 사이드, never 나 / 상대", () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   expect([sideLabel(link.view(), "near"), sideLabel(link.view(), "far")]).toEqual(["블루 사이드", "레드 사이드"]);
   link.setNear(1);
   expect([sideLabel(link.view(), "near"), sideLabel(link.view(), "far")]).toEqual(["레드 사이드", "블루 사이드"]);
 });
 
 test("linked: each end shows the match player standing there", async () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   link.setNear(1);
   expect([sideLabel(link.view(), "near"), sideLabel(link.view(), "far")]).toEqual(["레드 · 나", "블루 · 가"]);
@@ -323,7 +418,7 @@ test("linked: each end shows the match player standing there", async () => {
 
 test("자리 교체 trades the players' ends for every screen; the end colours and the near end stay", async () => {
   const told = [];
-  const link = new TournamentLink(memStore(), () => {}, { onEnds: (m) => told.push(m.ends) });
+  const link = new TournamentLink(memStore(), () => {}, { ...AUTO, onEnds: (m) => told.push(m.ends) });
   await link.connect("1234");
   expect(await link.swapEnds()).toBe(true);
   expect(endsFlip).toBe(true);
@@ -337,7 +432,7 @@ test("자리 교체 trades the players' ends for every screen; the end colours a
 
 test("the rules change ends by themselves: after a game and at 5 in the deciding game, with an 엔드 교체 signal", async () => {
   const told = [];
-  const link = new TournamentLink(memStore(), () => {}, { onEnds: (m) => told.push(m.ends) });
+  const link = new TournamentLink(memStore(), () => {}, { ...AUTO, onEnds: (m) => told.push(m.ends) });
   await link.connect("1234");
   points = Array(10).fill(0);
   await link.score({ winner: "near", label: "못 받음", sure: true });
@@ -353,7 +448,7 @@ test("the rules change ends by themselves: after a game and at 5 in the deciding
 });
 
 test("a hand fix made on another screen (referee, TV) reaches the camera with the next state", async () => {
-  const link = new TournamentLink(memStore());
+  const link = new TournamentLink(memStore(), () => {}, AUTO);
   await link.connect("1234");
   endsFlip = true;
   await link.refresh();

@@ -14,7 +14,9 @@ const KNOWN = {
 // onProgress({ phase: "download", received, total }) while the files arrive, then { phase: "init" }.
 // The model goes to MediaPipe as a buffer; the wasm loader and binary were just fetched with the same
 // URLs, so MediaPipe's own requests come from the HTTP cache (immutable) or the service worker.
-export async function createPose({ model = "lite", numPoses = 2, delegate = "GPU", onProgress = () => {} } = {}) {
+// world: each pose from detect() also carries .world, MediaPipe's world landmarks for that pose. Only
+// the analysis desk asks for it (desk/page/analyze.js); without it detect() does what it always did.
+export async function createPose({ model = "lite", numPoses = 2, delegate = "GPU", onProgress = () => {}, world = false } = {}) {
   const base = new URL("../", import.meta.url);
   const fileset = await FilesetResolver.forVisionTasks(new URL("vendor/mediapipe/wasm", base).href);
   const modelUrl = new URL(`models/pose_landmarker_${model}.task`, base).href;
@@ -55,9 +57,11 @@ export async function createPose({ model = "lite", numPoses = 2, delegate = "GPU
       const ts = Math.max(lastTs + 1, Math.round(tMs));
       lastTs = ts;
       const res = landmarker.detectForVideo(source, ts);
-      return (res.landmarks || []).map((pose) =>
+      const poses = (res.landmarks || []).map((pose) =>
         pose.map((p) => ({ x: p.x * width, y: p.y * height, v: p.visibility ?? 1 })),
       );
+      if (world) poses.forEach((pose, i) => (pose.world = res.worldLandmarks?.[i] ?? null));
+      return poses;
     },
     close() {
       landmarker.close();

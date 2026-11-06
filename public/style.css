@@ -270,6 +270,8 @@ canvas, img { image-rendering: pixelated; }
 .chip--live .chip__dot { background: var(--c-rec); }
 .chip--lock { color: var(--c-speed); border-color: var(--c-speed); text-shadow: 1px 1px 0 var(--c-shadow); }
 .chip--warn { color: var(--c-accent); border-color: var(--c-accent); }
+.chip--cams.chip--warn { position: relative; pointer-events: auto; cursor: pointer; } /* opens settings (ui.js); the strip itself takes no taps */
+.screen__note.screen__note--warn { color: var(--c-accent); }
 .chip--perf { font-weight: 400; border-color: transparent; background: transparent; padding: 0; margin-left: auto; }
 
 /* calibration issue banner (guideline 25): the sentence from the engine plus the fix */
@@ -297,7 +299,7 @@ canvas, img { image-rendering: pixelated; }
 }
 
 /* players panel: name plate + MOVE / 손목 / SHOT rows per player, VS between the two blocks */
-.players { display: grid; gap: var(--sp-1); align-content: start; }
+.players { position: relative; display: grid; gap: var(--sp-1); align-content: start; }
 .pblock { display: grid; gap: var(--sp-1); }
 .prow {
   display: flex;
@@ -376,10 +378,18 @@ canvas, img { image-rendering: pixelated; }
 .meter--opp { --meter-c: var(--c-opp); }
 
 /* court map */
-.court { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--sp-1); min-width: 0; }
+.court { position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--sp-1); min-width: 0; }
 .court__head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-2); flex-wrap: wrap; }
 .court__title { font: 700 var(--fs-label) / var(--lh-label) var(--font-11); letter-spacing: 1px; white-space: nowrap; }
 .court__sub { font: 400 var(--fs-label) / var(--lh-label) var(--font-11); color: var(--c-ink-2); white-space: nowrap; }
+/* a panel over an end line: thin end-colour border on one edge (ui.js markPanelEnds; its label is on the HUD canvas just outside) */
+.panel__end { position: absolute; pointer-events: none; opacity: 0.85; border: 0 solid var(--c-end); }
+.panel__end[data-end="blue"] { --c-end: #2f7dff; }
+.panel__end[data-end="red"] { --c-end: #ff3020; }
+.panel__end[data-edge="left"] { left: 0; top: 0; bottom: 0; border-left-width: 2px; }
+.panel__end[data-edge="right"] { right: 0; top: 0; bottom: 0; border-right-width: 2px; }
+.panel__end[data-edge="top"] { left: 0; right: 0; top: 0; border-top-width: 2px; }
+.panel__end[data-edge="bottom"] { left: 0; right: 0; bottom: 0; border-bottom-width: 2px; }
 .court__box { position: relative; min-height: 0; display: grid; }
 .court__svgwrap { min-height: 0; display: grid; }
 .court__svg { width: 100%; height: 100%; display: block; }
@@ -407,6 +417,11 @@ canvas, img { image-rendering: pixelated; }
 .cm-table { fill: rgb(var(--c-navy-rgb) / 0.6); stroke: var(--c-ink-2); stroke-width: 2; }
 .cm-net { stroke: var(--c-ink); stroke-width: 2; stroke-dasharray: 4 4; }
 .cm-mid { stroke: var(--c-line); stroke-width: 1.5; }
+/* the two ends (short edges) in their end colour, over the table border: blue end blue, red end red; 3 screen px
+   at every map size (the live map's viewBox takes in the floor, so a viewBox width would shrink below 1 px) */
+.cm-end { stroke-width: 3px; vector-effect: non-scaling-stroke; stroke-linecap: square; }
+.cm-end--near { stroke: var(--c-me); }
+.cm-end--far { stroke: var(--c-opp); }
 .cm-path { fill: none; stroke: var(--c-ink-2); stroke-width: 1.5; stroke-dasharray: 2 3; }
 .cm-dot--near { fill: var(--c-me); }
 .cm-dot--far { fill: var(--c-opp); }
@@ -582,6 +597,15 @@ canvas, img { image-rendering: pixelated; }
 .calib { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
 .calib__svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .calib__poly { fill: rgb(var(--c-navy-rgb) / 0.25); stroke: var(--c-speed); stroke-width: 2; stroke-dasharray: 6 4; }
+/* the taps before 정밀하게: faint white dots and a thin dotted outline under the fitted one */
+.calib__ghost { fill: none; stroke: #fff; stroke-opacity: 0.7; stroke-width: 1.5; stroke-dasharray: 2 4; }
+.calib__ghost-pt { fill: #fff; fill-opacity: 0.75; stroke: #000; stroke-opacity: 0.6; stroke-width: 1; }
+/* the two end lines while the corners go in: thin see-through dots over a faint dark dot (owner,
+   2026-10-31), the same look as the camera screen's end lines (hud.js END_LINE) */
+.calib__end-halo, .calib__end { fill: none; stroke-dasharray: 3 4; stroke-linecap: round; }
+.calib__end-halo { stroke: #000; stroke-opacity: 0.75; stroke-width: 4; }
+.calib__end { stroke-opacity: 0.85; stroke-width: 2; }
+.calib__end-label { font: 700 var(--fs-label) var(--font-11); text-anchor: middle; paint-order: stroke; stroke: rgb(0 0 0 / 0.8); stroke-width: 3px; stroke-linejoin: round; }
 .calib__pt {
   position: absolute;
   width: var(--tap); height: var(--tap);
@@ -632,19 +656,33 @@ canvas, img { image-rendering: pixelated; }
 }
 .calibbar__step { font: 700 var(--fs-label) / var(--lh-label) var(--font-11); color: var(--c-speed); white-space: nowrap; text-shadow: 1px 1px 0 var(--c-shadow); }
 .calibbar__text { margin: 0; flex: 1; min-width: 0; }
+/* portrait: the guide keeps two lines' height whatever the message. It sits above the picture there, and a
+   message that changed its height (a third line: the snap's "테두리를 못 찾았어요…" and the off-screen notice)
+   moved the picture while the four taps were converted (the corners landed ~25 video px low). Every message
+   fits in two lines at 393 px (ui.js CALIB_*, qa/calib-guide-lines.mjs); a shorter one no longer shrinks it. */
+.app[data-fit="stack"] .calibbar__text { min-height: calc(var(--lh-ui) * 2); }
 .calibbar__dots { display: flex; gap: var(--sp-1); }
 .calibbar__dots i { width: 10px; height: 10px; background: var(--c-frame-lo); }
 .calibbar__dots i.on { background: var(--c-speed); }
 .calibbar__hint { margin: 0; flex: 1 1 100%; font: 400 var(--fs-label) / var(--lh-label) var(--font-11); color: var(--c-ink-2); }
-.calibbar__actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-2); }
-.calibbar__actions .btn { min-height: var(--tap-primary); padding: 0 var(--sp-2); }
+.calibbar__swap { font-size: 1.25em; line-height: 1; }
+.calibbar__actions { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-2); }
+/* five actions to a row: a label may take two lines (모서리 취소) or one (되돌리기). Every label keeps room for two,
+   so swapping one never changes the row's height: a taller row moved the picture under the taps (about
+   4 CSS px, 10 camera px on a 393 px portrait phone) */
+.calibbar__actions .btn > span:last-child { min-height: calc(var(--lh-label) * 2); display: flex; align-items: center; justify-content: center; }
+/* 정밀하게 is the next step once four corners are in: lit in the marker yellow until it has been used */
+.calibbar__actions .btn--next { box-shadow: inset 0 0 0 2px var(--c-speed); color: var(--c-speed); }
+/* icon over a short label in every layout, so each action fits its quarter in both languages (on a TV
+   or a 1280 screen 모서리 취소 and 색 바꾸기 ran past their buttons side by side with the icon) */
+.calibbar__actions .btn { min-height: var(--tap-primary); padding: var(--sp-1); flex-direction: column; gap: var(--sp-1); text-align: center; white-space: normal; word-break: keep-all; }
 
 /* ---------- popover (settings, guideline 31/32) ---------- */
 /* above the stage's live chips and fit button (z 3), which painted over the open settings (2026-10-31);
    below the toast (30), strip (40), leave dialog (60) and notice (70) */
 .popover {
   position: absolute;
-  z-index: 20;
+  z-index: 31; /* above the 누가 땄나요 / cancel bar (30) while a person has settings open */
   right: calc(var(--safe-r) + var(--sp-2) + var(--px-shadow));
   bottom: calc(var(--safe-b) + var(--bar-h) + var(--sp-2) + var(--px-shadow));
   width: min(360px, calc(100% - var(--safe-l) - var(--safe-r) - var(--sp-2) * 2 - var(--px-shadow)));
@@ -657,10 +695,13 @@ canvas, img { image-rendering: pixelated; }
   gap: var(--sp-3);
 }
 .popover__title { margin: 0; font: 700 var(--fs-title) / var(--lh-title) var(--font-11); display: flex; justify-content: space-between; align-items: center; }
+/* the title and its ✕ stay in view while the sheet scrolls (opened from the warning chip it scrolls to the warning) */
+.popover__title { position: sticky; top: calc(-1 * var(--sp-4)); z-index: 1; margin: calc(-1 * var(--sp-4)) calc(-1 * var(--sp-4)) 0; padding: var(--sp-4) var(--sp-4) var(--sp-2); background: var(--c-panel-solid); }
 .field { display: grid; gap: var(--sp-1); }
 .field__label { font: 400 var(--fs-ui) / var(--lh-ui) var(--font-9); display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-2); }
 .field__label .plate { font-size: var(--fs-label); }
 .popover .screen__note { font: 400 var(--fs-label) / 16px var(--font-11); }
+.popover .update-line { color: var(--c-accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; justify-self: start; display: inline-flex; align-items: center; min-height: 44px; }
 
 /* ---------- sheet (history, guideline 31) ---------- */
 .backdrop { position: absolute; inset: 0; z-index: 19; background: rgb(0 0 0 / 0.5); }
@@ -868,7 +909,8 @@ canvas, img { image-rendering: pixelated; }
     right: calc(var(--safe-r) + var(--bar-w) + var(--sp-2) * 2 + var(--px-shadow));
     bottom: calc(var(--safe-b) + var(--sp-2) + var(--px-shadow));
     width: min(520px, calc(100% - var(--safe-l) - var(--safe-r) - var(--bar-w) - var(--sp-2) * 3 - var(--px-shadow)));
-    max-height: calc(100% - var(--safe-t) - var(--safe-b) - var(--sp-2) * 2 - var(--px-shadow));
+    /* starts under the top chip row: reaching to the top it slid under the chips, its title and ✕ with it */
+    max-height: calc(100% - var(--safe-t) - var(--safe-b) - var(--strip-h) - var(--sp-2) * 3 - var(--px-shadow));
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--sp-4);
   }
@@ -891,7 +933,7 @@ canvas, img { image-rendering: pixelated; }
     right: calc(var(--safe-r) + var(--sp-2) + var(--px-shadow));
     width: var(--bar-w);
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(5, minmax(0, 1fr));
     gap: var(--sp-2);
   }
   .app[data-layout="phone"] .calibbar__actions .btn {
@@ -973,6 +1015,42 @@ canvas, img { image-rendering: pixelated; }
 .app[data-layout="tv"] .rally { grid-template-columns: minmax(0, 1fr) 200px; }
 .app[data-layout="tv"] .rally__map { width: 200px; }
 .app[data-layout="tv"] .calibbar { left: 25%; right: 25%; }
+
+/* ---------- overlay fit: ui.js placePanels puts the players panel and the court map each on a free spot
+   (off the calibrated table, the air above it, the players and the ball's trail); data-size l = full, s = small.
+   .bottom shrinks to a 0 x 0 anchor at the top left, so it is no block of its own ---------- */
+.app[data-fit="overlay"][data-place="js"] .hud .bottom { display: block; position: absolute; left: 0; top: 0; right: auto; bottom: auto; width: 0; height: 0; }
+.app[data-fit="overlay"][data-place="js"] .bottom > .panel { position: absolute; left: 0; top: 0; }
+.app[data-place="js"] .players:is([data-size="m"], [data-size="s"]) .meter { display: none; }
+/* landscape phone: the two players side by side as before; small = numbers without the meters, a narrower map */
+.app[data-place="js"][data-layout="phone"] .players { width: 500px; }
+.app[data-place="js"][data-layout="phone"] .players[data-size="s"] { width: 300px; }
+.app[data-place="js"][data-layout="phone"] .court { width: 236px; }
+.app[data-place="js"][data-layout="phone"] .court[data-size="s"] { width: 168px; }
+/* tv: full = the tv sizes; middle = the tv type, the two players side by side without meters, a narrower
+   map (still read from across the hall); small = the phone type grid */
+.app[data-place="js"][data-layout="tv"] .players { width: 600px; }
+.app[data-place="js"][data-layout="tv"] .court { width: 520px; }
+.app[data-place="js"][data-layout="tv"] .players[data-size="m"] { width: 640px; }
+.app[data-place="js"][data-layout="tv"] .court[data-size="m"] { width: 400px; }
+.app[data-place="js"][data-layout="tv"] .panel[data-size="s"] {
+  --fs-label: 12px; --lh-label: 12px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px;
+  --px: 2px; --px-shadow: 3px;
+  --meter-h: 12px; --meter-seg: 4px; --meter-gap: 2px;
+}
+.app[data-place="js"][data-layout="tv"] .panel[data-size="s"] .prow { min-height: 14px; }
+.app[data-place="js"][data-layout="tv"] .panel[data-size="s"] .prow--name { min-height: 18px; }
+.app[data-place="js"][data-layout="tv"] .panel[data-size="s"] .prow__k { width: auto; }
+.app[data-place="js"][data-layout="tv"] .panel[data-size="s"] .plate { padding: 2px 6px 1px; }
+.app[data-place="js"][data-layout="tv"] .players[data-size="s"] { width: 500px; }
+.app[data-place="js"][data-layout="tv"] .players:is([data-size="m"], [data-size="s"]) { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); column-gap: var(--sp-3); align-items: start; }
+.app[data-place="js"][data-layout="tv"] .players:is([data-size="m"], [data-size="s"]) .vs { flex-direction: column; align-self: stretch; }
+.app[data-place="js"][data-layout="tv"] .players:is([data-size="m"], [data-size="s"]) .vs::before,
+.app[data-place="js"][data-layout="tv"] .players:is([data-size="m"], [data-size="s"]) .vs::after { width: var(--px); height: auto; }
+.app[data-place="js"][data-layout="tv"] .court[data-size="s"] { width: 236px; }
+/* a panel folded by itself (no free spot): a dot on the fold chip */
+.dock[data-auto="off"]::after { content: ""; position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; background: var(--c-speed); }
 .app[data-layout="tv"] .calibbar__hint { display: none; }
 .app[data-layout="tv"] .calib__pt-x { width: 36px; height: 36px; margin: -18px 0 0 -18px; }
 .app[data-layout="tv"] .calib__pt-n { left: calc(50% + 14px); top: calc(50% - 32px); min-width: 28px; height: 28px; line-height: 28px; }
@@ -1025,7 +1103,16 @@ canvas, img { image-rendering: pixelated; }
 .pointbar__pick small { font-size: var(--fs-label); line-height: var(--lh-label); }
 .pointbar__pick--blue { background: #2f6fe0; }
 .pointbar__pick--red { background: #d64545; }
+/* 확인 후 입력: the camera's call, already chosen: one tap enters it */
+.pointbar__pick--pre { box-shadow: inset 0 0 0 3px #fff, 0 0 0 2px var(--c-frame, #111); font-weight: 700; }
 .pointbar__ask { flex: 1 1 0; min-width: 0; min-height: var(--tap-primary); background: var(--c-speed); color: var(--c-accent-ink); }
+/* landscape and TV (ui.js placePointbar): one low row on a free spot off the table and the players; the
+   text beside the buttons, each button a finger high (44 px) instead of 60 */
+.pointbar[data-spot] { flex-wrap: nowrap; padding: var(--sp-1) var(--sp-2); }
+.pointbar[data-spot] .pointbar__text { flex: 1 1 auto; font-size: 14px; line-height: 18px; }
+.pointbar[data-spot] .pointbar__picks { flex: 0 0 auto; }
+.pointbar[data-spot] .pointbar__pick, .pointbar[data-spot] .pointbar__ask { flex: 0 0 auto; min-height: var(--tap); padding: 2px var(--sp-2); white-space: nowrap; font-size: 18px; line-height: 22px; }
+.pointbar[data-spot] .pointbar__pick small { font-size: 12px; line-height: 14px; }
 .rally__upload { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-top: var(--sp-2); }
 .upchip { font: 400 var(--fs-label) / 1 var(--font-11); padding: 4px 8px; border: var(--px) solid var(--c-frame-lo); color: var(--c-ink-2); }
 .upchip--uploading { color: var(--c-speed); border-color: var(--c-speed); }
@@ -1123,9 +1210,69 @@ a.chip { text-decoration: none; }
   transition: opacity var(--t-base) var(--ease);
 }
 .toast.show { opacity: 1; }
+.toast.toast--nospot { visibility: hidden; } /* ui.js placeToast: no free spot over the picture */
 /* leaving while recording: one confirm over everything */
 .leave { position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; padding: var(--sp-4); background: rgb(0 0 0 / 0.7); }
 .leave[hidden] { display: none; }
 .leave__card { display: grid; gap: var(--sp-3); width: min(420px, 100%); padding: var(--sp-4); background: var(--c-panel-solid); border: var(--px) solid var(--c-frame); box-shadow: var(--px-shadow) var(--px-shadow) 0 var(--c-shadow); }
 .leave__title { margin: 0; font: 400 var(--fs-ui) / var(--lh-body) var(--font-9); }
 .leave__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
+
+/* ---------- 다시 보기 (replay.html): the camera screen over a recorded clip ----------
+   Buttons, chips and bars keep their place in the layout (visibility, not display), so the overlay and
+   panels land where the camera screen had them; only 선수·코트 and the overlay switch are pressed here. */
+.replay-page { overscroll-behavior: none; }
+.app[data-replay] .strip,
+.app[data-replay] .peek,
+.app[data-replay] .bar,
+.app[data-replay] .pointbar,
+.app[data-replay] .calibbar,
+.app[data-replay] .popover,
+.app[data-replay] .fix { visibility: hidden !important; pointer-events: none !important; }
+.app[data-replay][data-overlay="off"] .stage__overlay,
+.app[data-replay][data-overlay="off"] .glance,
+.app[data-replay][data-overlay="off"] .banner,
+.app[data-replay][data-overlay="off"] .dock,
+.app[data-replay][data-overlay="off"] .bottom,
+.app[data-replay][data-overlay="off"] .toast { visibility: hidden !important; }
+/* no track yet (it loads after the picture starts) or none at all: the picture alone */
+.app[data-replay]:is([data-overlay="pending"], [data-overlay="none"]) :is(.stage__overlay, .glance, .banner, .dock, .bottom, .toast) { visibility: hidden !important; }
+/* no control bar in a replay, so no column is kept for it: the picture takes the whole page, black around it */
+.app[data-replay] { background: #000; }
+@media (orientation: landscape) and (max-height: 500px) {
+  .app[data-replay][data-layout="phone"] .stage { right: 0; }
+  .app[data-replay][data-layout="phone"] :is(.glance, .strip, .bottom) { right: calc(var(--safe-r) + var(--sp-2) + var(--px-shadow)); }
+}
+/* the replay's own chips: 처음부터, the overlay switch and (embedded, at the end) 다시 보기 in the bottom row, right end,
+   level with 선수·코트 at the left end; embedded, ‹ and ✕ 닫기 in the top row where the camera's strip is */
+.replay__chip { height: var(--tap); min-width: var(--tap); padding: 0 var(--sp-3); justify-content: center; pointer-events: auto; cursor: pointer; flex: none; }
+.replay__chip[hidden] { display: none; }
+.replay__overlay[aria-pressed="true"] { border-color: var(--c-speed); }
+.replay__again { background: var(--c-panel-solid); border-color: var(--c-speed); color: var(--c-speed); }
+.replay__bar { position: absolute; z-index: 40; display: flex; gap: var(--sp-2); right: calc(var(--safe-r) + var(--sp-2) + var(--px-shadow)); pointer-events: none; }
+.app[data-fit="overlay"] .replay__bar { bottom: calc(var(--safe-b) + var(--sp-2) + var(--px-shadow)); }
+.app:not([data-embed]) .replay__back, .app:not([data-embed]) .replay__close { display: none; }
+.replay__back, .replay__close { position: absolute; z-index: 40; top: calc(var(--safe-t) + var(--sp-2)); }
+.replay__back { left: calc(var(--safe-l) + var(--sp-2)); }
+.replay__back .icon { width: 20px; height: 20px; }
+.replay__close { right: calc(var(--safe-r) + var(--sp-2) + var(--px-shadow)); }
+/* upright: the picture edge to edge right under the top rows, then 선수·코트 and the panels, then the chips; no empty band
+   above and below a picture centred on the whole screen */
+.app[data-replay][data-fit="stack"] { grid-template-rows: auto auto auto auto auto auto auto auto minmax(0, 1fr); }
+.app[data-replay][data-fit="stack"]:not([data-mode="calibrating"]) .stage { grid-area: auto; grid-row: 5; position: relative; inset: auto; z-index: auto; margin: var(--sp-2) calc(-1 * (var(--safe-r) + var(--sp-2) + var(--px-shadow))) 0 calc(-1 * (var(--safe-l) + var(--sp-2))); aspect-ratio: var(--vid-ar, 16 / 9); max-height: 70vh; }
+/* the live-chip row (camera status, fill/fit) has nothing to show in a replay; it would leave a band over the picture */
+.app[data-replay][data-fit="stack"] .peek { display: none; }
+/* upright the court map is narrow, and so is the small map on a turned phone: its foot keeps blue at the left and
+   red at the right on one row, the bounce count under them, instead of wrapping into ragged lines */
+.app[data-replay][data-fit="stack"] .court__foot, .app[data-replay][data-place="js"] .court[data-size="s"] .court__foot { display: grid; grid-template-columns: auto auto; justify-content: space-between; column-gap: var(--sp-1); row-gap: 0; }
+.app[data-replay][data-fit="stack"] .court__foot .court__key, .app[data-replay][data-place="js"] .court[data-size="s"] .court__foot .court__key { gap: 2px; }
+/* the map gets a little more of the row so both keys with their distances ("■ 블루 0.6m  2.0m 레드 ■") fit on one line */
+.app[data-replay][data-fit="stack"] .bottom { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+.app[data-replay][data-fit="stack"] .court__foot > .c-me, .app[data-replay][data-place="js"] .court[data-size="s"] .court__foot > .c-me { grid-column: 1; grid-row: 1; }
+.app[data-replay][data-fit="stack"] .court__foot > .c-opp, .app[data-replay][data-place="js"] .court[data-size="s"] .court__foot > .c-opp { grid-column: 2; grid-row: 1; justify-self: end; }
+.app[data-replay][data-fit="stack"] .court__foot > .court__count, .app[data-replay][data-place="js"] .court[data-size="s"] .court__foot > .court__count { grid-column: 1 / -1; grid-row: 2; }
+/* the map keeps its own shape (as on a turned phone), so the two-row foot stays inside the panel */
+.app[data-replay][data-fit="stack"] .court__svg { height: auto; }
+/* the chips share the hidden control bar's cell; both name the column, or the bar is pushed into a second one */
+.app[data-replay][data-fit="stack"] .bar { grid-column: 1; }
+.app[data-replay][data-fit="stack"] .replay__bar { position: static; grid-row: 8; grid-column: 1; justify-self: end; align-self: start; margin-top: var(--sp-2); }

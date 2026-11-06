@@ -8,6 +8,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { withCodes } from "./player-names.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
 const tag = args.tag || "after";
@@ -65,8 +66,8 @@ const api = async (path, body, headers = {}) => {
 };
 
 // One finished tournament in the archive, then a live one: blue took game 1, game 2 is at 7:5.
-const first = await api("/api/tournament", { name: "지난 대회", players: ["가", "나", "다", "라"], format: "double", bestOf: 3 });
-const created = await api("/api/tournament", { name: "탁구장 시험", players: ["김블루", "박레드", "셋째", "넷째"], format: "double", bestOf: 3 }, { "x-pin": first.pin });
+const first = await api("/api/tournament", { name: "지난 대회", players: await withCodes(origin, ["가", "나", "다", "라"]), format: "double", bestOf: 3 });
+const created = await api("/api/tournament", { name: "탁구장 시험", players: await withCodes(origin, ["김블루", "박레드", "셋째", "넷째"]), format: "double", bestOf: 3 }, { "x-pin": first.pin });
 const pin = created.pin;
 let pinNow = pin;
 const matchId = created.state.derived.matches.find((m) => m.status === "ready").id;
@@ -371,7 +372,7 @@ try {
   }
   // The owner's capture: referee with a stored PIN on a tournament that has not started yet, so the
   // settings screen also carries 시드·방식 변경 and the rename fields.
-  const fresh = await api("/api/tournament", { name: "시작 전 대회", players: ["3", "박레드", "셋째", "넷째"], format: "double", bestOf: 3 }, { "x-pin": pin });
+  const fresh = await api("/api/tournament", { name: "시작 전 대회", players: await withCodes(origin, ["3", "박레드", "셋째", "넷째"]), format: "double", bestOf: 3 }, { "x-pin": pin });
   pinNow = fresh.pin || pin;
   for (const dev of (args.devices || "phone,land,pad,tv").split(",")) {
     const { ctx, page } = await open(dev, "referee", true);

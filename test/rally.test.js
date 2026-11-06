@@ -150,6 +150,61 @@ test("the HUD keeps showing the last measured shot while a new shot is still unm
   expect(sawGap).toBe(true);
 });
 
+// A ball flying along the table's centre line at a constant height (m): no bounce V of its own.
+function flight(cal, legs, { fps = 30, height = 0.3, id = 1, t0 = 0 } = {}) {
+  const pxPerM = cal.lengthPx / TABLE_LENGTH;
+  const out = [];
+  let t = t0;
+  for (const [from, to, duration] of legs) {
+    const n = Math.round(duration * fps);
+    for (let i = 0; i < n; i++) {
+      const p = apply(cal.toImage, { x: from + ((to - from) * i) / n, y: TABLE_WIDTH / 2 });
+      out.push({ t, ball: { x: p.x, y: p.y - height * pxPerM, id } });
+      t += 1 / fps;
+    }
+  }
+  return out;
+}
+const run = (cal, frames, tail = 2, opts = {}) => {
+  const events = [];
+  const eng = new RallyEngine({ calibration: cal, onEvent: (e) => events.push(e), ...opts });
+  for (const f of frames) eng.update(f.t, f.ball, null);
+  eng.update(frames[frames.length - 1].t + tail, null, null);
+  return events;
+};
+
+test("no bounce from two tracks the lock hops between (the ball high, a still spot on the table)", () => {
+  const cal = makeCalibration(CORNERS);
+  const spot = apply(cal.toImage, { x: 0.3, y: TABLE_WIDTH / 2 });
+  const frames = flight(cal, [[1.0, 1.6, 0.6]]).flatMap((f, i) => (i % 3 === 2 ? [f, { t: f.t + 1 / 120, ball: { x: spot.x, y: spot.y, id: 2 } }] : [f]));
+  expect(run(cal, frames).filter((e) => e.type === "bounce")).toEqual([]);
+});
+
+test("serve rule: a turn before the serve bounced on the receiver's side is no return; past the end line it is", () => {
+  const cal = makeCalibration(CORNERS);
+  const shots = (turnAt) => run(cal, flight(cal, [[0.05, turnAt, 0.4], [turnAt, 1.0, 0.3]])).filter((e) => e.type === "shot").map((e) => e.shot.side);
+  expect(shots(1.9)).toEqual(["near"]);
+  expect(shots(2.65)).toEqual(["near", "far"]);
+});
+
+test("a rally's first hit cannot start past the other player's end (a far server's toss read as a near serve)", () => {
+  const cal = makeCalibration(CORNERS);
+  const shots = run(cal, flight(cal, [[2.9, 3.2, 0.2], [3.2, 1.5, 0.4]])).filter((e) => e.type === "shot").map((e) => e.shot.side);
+  expect(shots).toEqual(["far"]);
+});
+
+test("an analysis pause with no frames is neither the ball lost nor an unanswered shot; frames without the ball are lost", () => {
+  const cal = makeCalibration(CORNERS);
+  const [a, b] = [flight(cal, [[0.05, 1.5, 0.5]]), flight(cal, [[1.5, 2.6, 0.4]], { t0: 0.5 + 1.2 })];
+  // no bounce in these flights: counting the 1.2 s pause, the serve would also go unanswered past 1.5 s
+  const paused = run(cal, [...a, ...b]);
+  expect(paused.filter((e) => e.type === "rallyStart")).toHaveLength(1);
+  expect(paused.filter((e) => e.type === "rallyEnd")).toHaveLength(1);
+  const blind = Array.from({ length: 36 }, (_, i) => ({ t: 0.5 + i / 30, ball: null }));
+  const lost = run(cal, [...a, ...blind, ...b]);
+  expect(lost.filter((e) => e.type === "rallyEnd").map((e) => e.why)).toEqual(["ball_lost", "ball_lost"]);
+});
+
 describe("shot labels", () => {
   test("forehand vs backhand follows the racket wrist side relative to the shoulders", () => {
     const lm = Array.from({ length: 33 }, () => ({ x: 0, y: 0, v: 1 }));

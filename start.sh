@@ -6,9 +6,10 @@
 #   FUNNEL_PORT=443
 #   PORT=8791
 #   PPV_TOURNAMENT_URL=http://127.0.0.1:<scoreboard port>   # PIN check for PC save; "off" turns it off
-#   PPV_TS_MODE=serve                                       # serve (tailnet only) or funnel (default)
+#   PPV_TS_MODE=serve                                       # serve (tailnet only) or funnel (internet); no default
 #   ./start.sh            start (idempotent)
-#   ./start.sh --restart  deploy the checkout's committed HEAD and restart (URL unchanged)
+#   ./start.sh --restart  deploy the checkout's committed HEAD and restart (URL unchanged); a running
+#                         analysis desk worker restarts onto the new release too
 # The service never reads this checkout: each deploy copies the committed HEAD (git archive)
 # into releases/<sha> under DEPLOY_ROOT and points current at it, so editing files or switching
 # branches here changes nothing live until the next deploy. Uncommitted edits are never deployed.
@@ -25,8 +26,12 @@ done
 # Checked before anything is copied or switched. No default: the scoreboard app's address differs per host.
 PPV_TOURNAMENT_URL="${PPV_TOURNAMENT_URL:?set PPV_TOURNAMENT_URL (the scoreboard app that checks the PIN for PC save, e.g. http://127.0.0.1:<port>, or off) in $DEPLOY_ENV or the environment}"
 [[ "$PPV_TOURNAMENT_URL" == off ]] && PPV_TOURNAMENT_URL=""
+# Where PC save reads the tournament PIN. The service runs a release copy, so this is always absolute.
+PPV_TOURNAMENT_DATA="${PPV_TOURNAMENT_DATA:-$ROOT/tournament/data/tournament.json}"
 # serve: only your tailnet's devices can open it; funnel: anyone with the link.
-TS_MODE="${PPV_TS_MODE:-funnel}"
+# No default: falling back to funnel would put a fresh install on the internet, and falling back
+# to serve would take an existing funnel host off it. Both are checked before anything changes.
+TS_MODE="${PPV_TS_MODE:?set PPV_TS_MODE in $DEPLOY_ENV: serve (only your tailnet, the default in deploy.env.example) or funnel (the whole internet, README: Open it to the internet)}"
 [[ "$TS_MODE" == serve || "$TS_MODE" == funnel ]] || { echo "PPV_TS_MODE must be serve or funnel, not $TS_MODE" >&2; exit 2; }
 DEPLOY_ROOT="${DEPLOY_ROOT:-$HOME/.local/share/pingpong-vision}"
 REV="$(git -C "$ROOT" rev-parse --short=12 HEAD)"
@@ -65,6 +70,7 @@ After=network-online.target
 WorkingDirectory=${DEPLOY_ROOT}/current
 Environment=PORT=${PORT}
 Environment=PPV_TOURNAMENT_URL=${PPV_TOURNAMENT_URL}
+Environment=PPV_TOURNAMENT_DATA=${PPV_TOURNAMENT_DATA}
 ExecStart=${BUN} ${DEPLOY_ROOT}/current/server.js
 Restart=always
 RestartSec=2
@@ -78,6 +84,12 @@ systemctl --user enable pingpong-vision.service >/dev/null 2>&1
 echo "release: $REV ($REL)"
 if [[ "${1:-}" == "--restart" ]]; then
   systemctl --user restart pingpong-vision.service
+  # the desk worker runs from current as it was when it started: a running one restarts onto the new
+  # release (an analysis in progress stops and resumes from its checkpoint, docs/analysis-desk.md)
+  if systemctl --user is-active --quiet pingpong-desk-worker.service; then
+    systemctl --user restart pingpong-desk-worker.service
+    echo "restarted pingpong-desk-worker onto $REV"
+  fi
 else
   systemctl --user start pingpong-vision.service
 fi
@@ -94,3 +106,8 @@ URL="https://${DNS}:${FUNNEL_PORT}${MOUNT}/"
 printf '%s\n' "$URL" > "$ROOT/public-url.txt"
 echo "URL: $URL"
 echo "undo: tailscale ${TS_MODE} --https=${FUNNEL_PORT} --set-path=${MOUNT} off ; systemctl --user disable --now pingpong-vision"
+
+# The scoreboard in tournament/ takes "/" of the same port, so the phone needs one address.
+if [[ -n "$PPV_TOURNAMENT_URL" && -x "$ROOT/tournament/start.sh" ]]; then
+  "$ROOT/tournament/start.sh" "$@"
+fi

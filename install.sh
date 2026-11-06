@@ -44,6 +44,10 @@ fi
 # shellcheck disable=SC1090
 source "$DEPLOY_ENV"
 PORT="${PORT:-8791}"
+if [[ -z "${PPV_TS_MODE:-}" ]]; then
+  echo "  your settings file has no PPV_TS_MODE line. Add PPV_TS_MODE=serve (only your tailnet) to $DEPLOY_ENV;"
+  echo "  start.sh stops without it. Earlier versions put the app on the internet (funnel) when it was missing."
+fi
 
 say "4/4 test run on http://127.0.0.1:${PORT}/vision/"
 if curl -sf "http://127.0.0.1:${PORT}/healthz" >/dev/null 2>&1; then
@@ -69,18 +73,46 @@ else
   fi
 fi
 
+if [[ -f tournament/server.js && "${PPV_TOURNAMENT_URL:-off}" != off ]]; then
+  TPORT="${TOURNAMENT_PORT:-8792}"
+  say "tournament app test run on http://127.0.0.1:${TPORT}/"
+  if curl -sf "http://127.0.0.1:${TPORT}/healthz" >/dev/null 2>&1; then
+    echo "  something already answers on port ${TPORT} (the app's service, or another program)."
+  else
+    TLOG="$(mktemp)"; TDATA="$(mktemp -d)"
+    PORT="$TPORT" DATA_DIR="$TDATA" bun tournament/server.js >"$TLOG" 2>&1 &
+    pid=$!
+    ok=0
+    for _ in $(seq 1 40); do
+      if curl -sf "http://127.0.0.1:${TPORT}/healthz" >/dev/null 2>&1; then ok=1; break; fi
+      kill -0 "$pid" 2>/dev/null || break
+      sleep 0.5
+    done
+    kill "$pid" 2>/dev/null || true
+    wait "$pid" 2>/dev/null || true
+    rm -rf "$TDATA"
+    if [[ "$ok" == 1 ]]; then
+      echo "  /healthz 200: the tournament app works."
+      rm -f "$TLOG"
+    else
+      echo "  the tournament app did not answer. Its output:"; sed 's/^/    /' "$TLOG"; rm -f "$TLOG"; exit 1
+    fi
+  fi
+elif [[ -f tournament/server.js ]]; then
+  echo
+  echo "  The tournament app is off in $DEPLOY_ENV. To use it, copy TOURNAMENT_PORT and PPV_TOURNAMENT_URL from deploy.env.example."
+fi
+
 say "next"
 if command -v tailscale >/dev/null 2>&1 && tailscale status >/dev/null 2>&1; then
   echo "  Tailscale is installed and logged in."
 else
   echo "  Tailscale is not installed or not logged in on this PC: https://tailscale.com/download"
-  echo "  (Windows with WSL: install Tailscale on Windows itself, not inside WSL.)"
 fi
 if command -v systemctl >/dev/null 2>&1 && systemctl --user show-environment >/dev/null 2>&1; then
   echo "  Start it and keep it running after reboots:   ./start.sh"
 else
-  echo "  Start it:   bun server.js"
-  echo "  Then, in a second terminal:"
-  echo "    tailscale serve --bg --https=${FUNNEL_PORT:-443} --set-path=/vision http://127.0.0.1:${PORT}/vision"
+  echo "  Start it (keep the terminal open, Ctrl+C stops it):   bun run.mjs"
+  echo "  Share it once:   tailscale serve --bg --https=${FUNNEL_PORT:-443} http://127.0.0.1:${APP_PORT:-8780}"
 fi
-echo "  Then open https://<your PC's Tailscale name>/vision/ on your phone (README: Install on your PC)."
+echo "  Then open https://<your PC's Tailscale name>/ on your phone (README: Install on your PC)."

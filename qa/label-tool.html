@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>공개 영상 샷 확인</title>
+<style>
+*{box-sizing:border-box}body{font:16px system-ui,sans-serif;background:#111827;color:#f8fafc;margin:0;padding:20px}main{max-width:1000px;margin:auto}h1{font-size:24px}p{line-height:1.6;color:#cbd5e1}.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:16px 0}button,select{min-height:44px;padding:8px 14px;font:inherit;border-radius:6px;border:1px solid #94a3b8}button{cursor:pointer;background:#dbeafe;color:#172554}button:disabled{opacity:.5}select{max-width:100%;background:#fff;color:#111827}label{display:flex;gap:8px;align-items:center}.frames{display:grid;grid-template-columns:1fr 1fr;gap:16px}figure{margin:0;min-width:0}img{width:100%;max-height:580px;object-fit:contain;background:#020617}figcaption{margin-bottom:8px}#status{min-height:28px;color:#a7f3d0}@media(max-width:600px){body{padding:12px}.frames{grid-template-columns:1fr}img{max-height:380px}.controls{gap:8px}}
+</style>
+<main>
+<h1>공개 영상 샷을 확인해요</h1>
+<p>얼굴이 흐려진 공개 영상만 보여 드려요. 에이전트 표시와 사람 확인은 따로 저장해요. 자세가 안 보이면 ‘판단 어려워요’를 골라 주세요.</p>
+<div class="controls"><button id="prev">이전 샷</button><select id="shot" aria-label="샷을 골라 주세요"></select><button id="next">다음 샷</button></div>
+<h2 id="title"></h2><p id="source"></p>
+<div class="frames"><figure><figcaption>맞기 0.3초 전이에요</figcaption><img id="before" alt="공을 맞히기 전 자세"></figure><figure><figcaption>공을 맞히는 순간이에요</figcaption><img id="hit" alt="공을 맞히는 순간 자세"></figure></div>
+<div class="controls">
+<label>손 기술 <select id="hand"><option value="unsure">판단 어려워요</option value="fore">포핸드</option><option value="back">백핸드</option></select></label>
+<label>샷 종류 <select id="type"><option value="unsure">판단 어려워요</option><option value="serve">서브</option><option value="attack">공격</option><option value="defence">수비</option></select></label>
+<button id="save">사람 확인으로 저장해요</button>
+</div>
+<p id="status" role="status" aria-live="polite"></p>
+</main>
+<script type="module">
+const $=id=>document.getElementById(id);
+let data,index=0;
+function show(){
+ const s=data.shots[index],human=data.human.find(x=>x.id===s.id),agent=data.agent.find(x=>x.id===s.id),label=human||agent;
+ $("title").textContent=`${s.clip} · ${s.t.toFixed(3)}초 · ${s.side} · ${index+1}/${data.shots.length}`;
+ $("source").textContent=human?"사람이 확인한 표시예요.":agent?"에이전트가 표시했어요. 아직 사람이 확인하지 않았어요.":"아직 확인한 표시가 없어요. 공개 데이터 정답은 별도 파일에 보관해요.";
+ $("before").src=s.frames.before;$("hit").src=s.frames.hit;
+ $("hand").value=label?.hand||"unsure";$("type").value=label?.type||"unsure";
+ $("shot").value=String(index);$("prev").disabled=index===0;$("next").disabled=index===data.shots.length-1;$("status").textContent="";
+}
+$("prev").onclick=()=>{index--;show()};$("next").onclick=()=>{index++;show()};
+$("shot").onchange=e=>{index=Number(e.target.value);show()};
+$("save").onclick=async()=>{
+ $("save").disabled=true;
+ try{
+  const r=await fetch("/api/label",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:data.shots[index].id,hand:$("hand").value,type:$("type").value})});
+  if(!r.ok)throw new Error(`HTTP ${r.status}`);
+  const row=await r.json();data.human=data.human.filter(x=>x.id!==row.id);data.human.push(row);show();$("status").textContent="사람 확인으로 저장했어요.";
+ }catch(e){$("status").textContent=`저장하지 못했어요. ${e.message}`}finally{$("save").disabled=false}
+};
+try{
+ const r=await fetch("/api/data");if(!r.ok)throw new Error(`HTTP ${r.status}`);data=await r.json();
+ data.shots.forEach((s,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=s.id;$("shot").append(o)});
+ if(data.shots.length)show();else{$("status").textContent="검출된 샷이 없어요.";$("save").disabled=true}
+}catch(e){$("status").textContent=`샷을 불러오지 못했어요. ${e.message}`}
+</script>
+</html>

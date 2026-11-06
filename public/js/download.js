@@ -1,3 +1,4 @@
+import { L } from "./i18n.js";
 // Download a few files with a real progress count: bytes received over bytes expected, summed over
 // all files. The total comes from each response's Content-Length, or the known size when a proxy
 // drops it. A download that receives nothing for `stallMs` is aborted and reported as stalled, so the
@@ -26,7 +27,7 @@ export async function downloadAll(files, { onProgress = () => {}, stallMs = 2000
     report();
     return await Promise.all(files.map(async (f, i) => {
       const res = await fetchImpl(f.url, { signal: ctrl.signal });
-      if (!res.ok) throw new DownloadError("failed", `${f.name || f.url}: 서버 응답 ${res.status}`);
+      if (!res.ok) throw new DownloadError("failed", L(`${f.name || f.url}: 서버 응답 ${res.status}`, `${f.name || f.url}: server replied ${res.status}`));
       const length = Number(res.headers.get("content-length") || 0);
       if (length > 0 && !res.headers.get("content-encoding")) size[i] = length;
       report();
@@ -42,7 +43,7 @@ export async function downloadAll(files, { onProgress = () => {}, stallMs = 2000
         last = Date.now();
         report();
       }
-      if (ctrl.signal.aborted) throw new DownloadError("failed", "받기가 끊겼어요");
+      if (ctrl.signal.aborted) throw new DownloadError("failed", L("받기가 끊겼어요", "The download was interrupted"));
       size[i] = got[i];
       report();
       const out = new Uint8Array(got[i]);
@@ -55,9 +56,9 @@ export async function downloadAll(files, { onProgress = () => {}, stallMs = 2000
     }));
   } catch (err) {
     ctrl.abort();
-    if (stalled) throw new DownloadError("stalled", `${Math.round(stallMs / 1000)}초 동안 받은 게 없어요`);
+    if (stalled) throw new DownloadError("stalled", L(`${Math.round(stallMs / 1000)}초 동안 받은 게 없어요`, `Nothing received for ${Math.round(stallMs / 1000)} s`));
     if (err instanceof DownloadError) throw err;
-    throw new DownloadError("failed", "네트워크가 끊겼어요");
+    throw new DownloadError("failed", L("네트워크가 끊겼어요", "The network dropped"));
   } finally {
     clearInterval(timer);
   }

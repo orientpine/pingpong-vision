@@ -30,14 +30,14 @@ PingPong Vision is a **table tennis analysis web app** (a PWA) for **iPhone Safa
 
 All the computer vision runs on the phone. The camera stream never leaves it unless you turn on saving rally clips to your own PC. You run the small server on your own computer with [bun](https://bun.sh) and open it on your phone over HTTPS through [Tailscale](https://tailscale.com). There is no account, no subscription, and no cloud service of ours.
 
-> The app's screens are in Korean (it was built for a Korean table tennis club). This README explains every button in English.
-
 ## Contents
 
+- [What's new in 1.1](#whats-new-in-11)
 - [Features](#features)
 - [Screenshots](#screenshots)
 - [Quick start (try it on your computer)](#quick-start-try-it-on-your-computer)
 - [Install on your PC with Tailscale](#install-on-your-pc-with-tailscale)
+- [Tournament and PIN](#tournament-and-pin)
 - [Using it at the table](#using-it-at-the-table)
 - [Accuracy and limits](#accuracy-and-limits)
 - [Optional extras](#optional-extras)
@@ -46,6 +46,25 @@ All the computer vision runs on the phone. The camera stream never leaves it unl
 - [Releases](#releases)
 - [License and third-party notices](#license-and-third-party-notices)
 
+## What's new in 1.1
+
+**PingPong Vision now runs a whole tournament.** One PC, one address: referees keep score on their phones, the tripod phone calls the points, and the TV shows the board. Everything below is in the public repository up to 1.1.35; the screens are the real app on a public test clip, with made-up player names.
+
+| | |
+|---|---|
+| <img src="docs/img/feature-tv.webp" alt="TV scoreboard at 1920x1080: 선수2 blue end and 선수1 red end with big score digits, game count, the last point's clip with the overlay and the rally replay list" width="440"> | **Run the tournament.** Double, triple or league brackets for 2 to 8 players. Referee phones, spectator screens and a big TV scoreboard stay in sync, and a PIN protects the score ([Tournament and PIN](#tournament-and-pin)). |
+| <img src="docs/img/feature-call.webp" alt="Camera phone in landscape: the Who won it? bar says the camera calls Blue and the Blue button is pre-chosen, with the Red button beside it; skeletons, name tags and end lines over the table" width="440"> | **The camera calls the point.** It judges each point from the bounces. Its call waits on the *Who won it?* bar with that side already chosen, and one tap enters it, on the camera or on the referee screen, with 3 s to cancel. A call it is not sure of is shown in words and left to you. |
+| | **Two phones, one match.** A second phone with the PIN joins by itself: the two merge their bounces, one fills in the moments the other lost the ball, and each point still counts once. Each phone's end colour (blue or red) is picked by a person after the corners, so the two agree. |
+| <img src="docs/img/feature-replay.webp" alt="Full-screen replay on a landscape phone: rally timer, backhand serve label, LOCK on the ball with its trail, both skeletons, the players panel, and Close, From the start and Overlay off buttons" width="440"> | **Replays with the overlay.** Each point's clip is saved on your PC as original video, holding the 3 s before the rally; the replay starts 1 s before the serve and plays full screen on the phone. Names, skeletons and the ball trail are drawn when you watch and fold away with one tap. |
+| <img src="docs/img/feature-sheet.webp" alt="Match analysis sheet on a phone: one-line report for each player and the technique success table, where forehand attack carries an estimate badge" width="300"> | **Match analysis sheet.** After the match: a one-line report, technique success rates, rally lengths, serve and receive points, and where each shot landed. Forehand / backhand and the stroke kinds are **estimates** ([Accuracy and limits](#accuracy-and-limits)). |
+| <img src="docs/img/feature-judge.webp" alt="Camera calls vs referee page: totals for camera calls, calls that matched the referee, missed and cancelled calls, and a per-match table" width="300"> | **Camera calls vs referee.** Every camera call is kept next to what the referee entered: how often they matched, which side the referee picked on weak calls, missed and cancelled calls, per match and as CSV. Numbers only, no names or pictures. |
+| <img src="docs/img/feature-players.webp" alt="New tournament form on a phone: typing 홍 in the first seed field opens the registered players list with 홍길동 0712, and the hint explains name,four digits" width="300"> | **Player name + 4 digits.** Enter each player as `name,1234` once (for example `홍길동,0712`). The digits only tell apart players with the same name and are not shown to spectators, and that player's matches stay together across tournaments. |
+| <img src="docs/img/feature-calib.webp" alt="Calibration screen after Precise: the fitted yellow outline on the table border, the rough taps left as a faint dotted outline, the message Fitted to the border, moved up to 8 px, and Revert, Fit again, Swap colours and OK buttons" width="440"> | **Precise calibration, and a placement guide.** Tap the four corners roughly, press **Precise**, and the app fits them to the table's white border; your taps stay faint for comparison (**Revert**, **Fit again**). An optional guide in Settings checks position, height, framing, level and shake before you confirm. |
+
+Runs on Linux, macOS and Windows: `bun run.mjs` serves both apps on one address, `bun update.mjs` updates, and Settings shows a line when a newer release exists. Every screen comes in **English** or **한국어**. Free, MIT, no account.
+
+<sub>The camera, replay and calibration images and the TV's clip are frames of the OpenTTGames dataset (OSAI, <code>test_2</code>) with the app's overlay drawn on top, CC BY-NC-SA 4.0, not MIT. The scoreboard, sheet, comparison and form images contain no dataset frames. Player names are made up.</sub>
+
 ## Features
 
 | | What you get |
@@ -53,11 +72,13 @@ All the computer vision runs on the phone. The camera stream never leaves it unl
 | 🏓 **Live overlay** | Rally timer, shot count, estimated speed, shot type (drive / smash / lob / push, forehand / backhand by rule), ball trail with a **LOCK** box when the ball track is trusted |
 | 🧍 **Players** | Skeletons for the player at each end, MOVE distance, wrist angle, standing position behind or beside the table |
 | 🗺️ **Court map** | Bounces and standing positions on a top view of the table |
-| 📐 **One-time calibration** | Tap the four table corners once. The taps snap onto the white border and you confirm the outline |
+| 📐 **One-time calibration** | Tap the four table corners roughly, press Precise to fit them to the white border, and confirm the outline |
+| 🌐 **English or Korean** | Pick **English** or **한국어** on the first screen (mode choice) or in **Settings**. Every screen, the overlay on the video, score call-outs and error messages follow it, and the phone remembers it. Player names stay as typed |
 | 📱 **Phone first** | Portrait or landscape, full-screen picture with floating panels. Works on a tablet or a TV (AirPlay mirroring) as a big-screen layout |
 | 🎞️ **Rally history and replays** | Each rally's time, shots, top speed and bounce map. Clips can be saved to *your* PC with an unguessable share link (optional) |
 | 🛟 **Stable judging mode** | If the phone falls behind (repeated frames or under 12 reads per second), the picture shrinks so the analysis keeps up, then comes back |
 | 🔒 **Private by design** | On-device analysis, the server binds to `127.0.0.1` only, nothing is uploaded unless you turn it on |
+| 🏆 **Tournaments** | Double, triple and league brackets for 2 to 8 players, with referee, camera, spectator and TV screens on one address, and a PIN for scoring ([Tournament and PIN](#tournament-and-pin)) |
 | 🧪 **Measurable** | Offline harness that scores ball, bounce and shot detection against the public [OpenTTGames](https://lab.osai.ai/) annotations |
 
 ## Screenshots
@@ -78,10 +99,10 @@ You need [bun](https://bun.sh) 1.1 or newer, `git`, `curl` and `unzip`.
 
 ```bash
 git clone https://github.com/orientpine/pingpong-vision && cd pingpong-vision
-bash install.sh && bun server.js
+bash install.sh && bun run.mjs     # Windows: install.ps1, see step 3
 ```
 
-Open **http://localhost:8791/vision/** (keep the trailing slash). Desktop browsers treat `localhost` as secure, so the camera works there. No camera? Tap **영상 파일로 시험** (*Test with a video file*) and pick any table tennis video.
+Open **http://localhost:8780/** for the tournament app, or **http://localhost:8780/vision/** for the camera (keep the trailing slash). Desktop browsers treat `localhost` as secure, so the camera works there. No camera? Tap **영상 파일로 시험** (*Test with a video file*) and pick any table tennis video.
 
 `install.sh` checks your tools, runs `bun install`, downloads the pose models (sha256-checked) into `public/models/`, writes your settings file and does a test run (`/healthz` must answer 200). It is safe to run again. `bun test` runs the unit tests.
 
@@ -90,12 +111,12 @@ Open **http://localhost:8791/vision/** (keep the trailing slash). Desktop browse
 This is how the maintainer runs it at the club: the server stays on a PC at home or at the venue, and phones open it over HTTPS. A phone only allows camera access on HTTPS, and Tailscale gives your PC an HTTPS address with a real certificate, for free and without opening any port on your router.
 
 ```text
- phone (Safari/Chrome) ──HTTPS──▶ Tailscale ──▶ your PC: tailscale serve ──▶ bun server.js (127.0.0.1:8791)
+ phone (Safari/Chrome) ──HTTPS──▶ Tailscale ──▶ your PC: tailscale serve ──▶ bun server.js (vision 127.0.0.1:8791, tournament 127.0.0.1:8792)
 ```
 
 **What you need**
 
-- A PC that stays on: Linux, macOS, or Windows 10/11 with [WSL](https://learn.microsoft.com/windows/wsl/install) (Ubuntu)
+- A PC that stays on: Linux, macOS, or Windows 10/11
 - A phone: iPhone with Safari (the maintainer uses iOS 18) or Android with Chrome
 - A free Tailscale account (sign in with Google, Microsoft, GitHub or Apple)
 - A tripod or phone stand, about 1.5 to 2 m high
@@ -111,7 +132,7 @@ This is how the maintainer runs it at the club: the server stays on a PC at home
    sudo tailscale set --operator=$USER
    ```
 
-**Windows (WSL):** install Tailscale on **Windows**, not inside WSL. The app runs inside WSL and Windows forwards `localhost` to it.
+**macOS and Windows:** install the Tailscale app from the same download page and sign in. Its `tailscale` command works in Terminal (macOS) and PowerShell (Windows).
 
 ### 2. bun
 
@@ -119,7 +140,9 @@ This is how the maintainer runs it at the club: the server stays on a PC at home
 curl -fsSL https://bun.sh/install | bash
 ```
 
-Open a new terminal afterwards so `bun` is on your `PATH` (`bun --version` should print 1.1 or newer). On Linux/WSL you may need `sudo apt install -y git curl unzip` first.
+**Windows (PowerShell):** `powershell -c "irm bun.sh/install.ps1 | iex"`, and git with `winget install --id Git.Git -e`.
+
+Open a new terminal afterwards so `bun` is on your `PATH` (`bun --version` should print 1.1 or newer). On Linux you may need `sudo apt install -y git curl unzip` first. macOS has git after `xcode-select --install`.
 
 ### 3. Get the code and install
 
@@ -129,7 +152,13 @@ cd pingpong-vision
 bash install.sh
 ```
 
-The last lines tell you what to do next. A good run ends with `/healthz 200: the server works.`
+On **Windows**, run the installer in PowerShell instead of `bash install.sh`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+The last lines tell you what to do next. A good run ends with `/healthz 200` (Linux, macOS) or `/ and /vision/ answer 200` (Windows).
 
 ### 4. Settings
 
@@ -139,10 +168,20 @@ The last lines tell you what to do next. A good run ends with `/healthz 200: the
 PORT=8791                # local port; the server listens on 127.0.0.1 only
 FUNNEL_PORT=443          # HTTPS port on your Tailscale name (443 = no port in the address)
 PPV_TS_MODE=serve        # serve: only your tailnet's devices; funnel: anyone with the link
-PPV_TOURNAMENT_URL=off   # scoreboard app for "PC save by PIN"; keep off (not in this repo)
+TOURNAMENT_PORT=8792     # local port of the tournament app
+PPV_TOURNAMENT_URL=http://127.0.0.1:8792   # where the camera app finds it; off runs the camera alone
 ```
 
-Keep `serve` unless people outside your tailnet (for example a friend's phone without Tailscale) must open it. [Funnel](https://tailscale.com/kb/1223/funnel) puts it on the public internet and allows only ports 443, 8443 and 10000.
+Keep `serve`: only devices signed in to your tailnet can open the app. To let phones without Tailscale in, see [Open it to the internet](#open-it-to-the-internet-optional).
+
+#### Open it to the internet (optional)
+
+**Risk: anyone who learns the address can open it.** They can watch, and with the tournament app they can try to guess the 4-digit PIN, or create the first tournament before you do. Turn it on only when you need it.
+
+1. In the Tailscale [admin console](https://login.tailscale.com/admin/acls), allow Funnel for this PC (`tailscale funnel` prints the link the first time).
+2. In `deploy.env` set `PPV_TS_MODE=funnel` and a `FUNNEL_PORT` of 443, 8443 or 10000.
+3. Linux with `start.sh`: run `./start.sh --restart`. To go back, set `PPV_TS_MODE=serve` and run it again.
+4. macOS, Windows (`bun run.mjs`): share with `tailscale funnel --bg --https=443 http://127.0.0.1:8780` instead of the `serve` line. To go back: `tailscale funnel --https=443 off`, then the `serve` line again.
 
 ### 5. Start it
 
@@ -153,38 +192,38 @@ Keep `serve` unless people outside your tailnet (for example a friend's phone wi
 loginctl enable-linger $USER   # keep it running when you are logged out (once)
 ```
 
-It prints `URL: https://<your PC's MagicDNS name>:443/vision/` (the full name `tailscale serve status` shows). `./start.sh --restart` deploys the current checkout and restarts. The service runs a copy under `~/.local/share/pingpong-vision/releases/`, so editing the checkout changes nothing until you restart.
+It starts the tournament app too and prints `URL: https://<your PC's MagicDNS name>:443/` (the full name `tailscale serve status` shows). `./start.sh --restart` deploys the current checkout and restarts. The camera service runs a copy under `~/.local/share/pingpong-vision/releases/`, so editing the checkout changes nothing until you restart. If the analysis desk worker is running, it restarts onto the new release too (`systemctl --user restart pingpong-desk-worker` by hand).
 
-**macOS, WSL, or by hand:** start the server, then share it once with Tailscale. The `--bg` setting is remembered across reboots.
+**macOS, Windows, or Linux without systemd:** one command starts both apps on one local address (`127.0.0.1:8780`). Keep the window open; Ctrl+C stops it. Then share that address once with Tailscale. The `--bg` setting is remembered across reboots.
 
 ```bash
-bun server.js                                                         # terminal 1 (keep open)
-tailscale serve --bg --https=443 --set-path=/vision http://127.0.0.1:8791/vision   # terminal 2, once
-tailscale serve status                                                # shows your https:// address
+bun run.mjs                                              # terminal 1 (keep open)
+tailscale serve --bg --https=443 http://127.0.0.1:8780   # terminal 2, once
+tailscale serve status                                   # shows your https:// address
 ```
 
-On Windows run the `tailscale serve` line in PowerShell (Tailscale for Windows), and `bun server.js` inside WSL.
+On Windows type the same lines in PowerShell. `run.mjs` restarts an app that stops, and passes each phone's address on to the apps, so a wrong PIN on one phone locks only that phone.
 
 ### 6. Open it on the phone
 
 1. Make sure Tailscale is **connected** on the phone.
-2. Open `https://<your PC's MagicDNS name>/vision/` (the address from step 5).
+2. Open `https://<your PC's MagicDNS name>/` (the address from step 5) and pick a role ([Tournament and PIN](#tournament-and-pin)). `/vision/` opens the camera directly.
 3. The first visit downloads about 20 MB (pose model and runtime). The loading bar counts the real bytes, and later visits use the cache.
 4. Add it to the home screen so it opens full screen like an app: **Safari** → Share → *Add to Home Screen*. **Chrome** → ⋮ → *Add to Home screen* / *Install app*.
 5. Tap **카메라 시작** (*Start camera*) and allow the camera.
 
-### 7. Start automatically (macOS)
+### 7. Start automatically (macOS, Windows)
 
-`start.sh` covers Linux. On macOS, a LaunchAgent keeps `bun server.js` running. Save this as `~/Library/LaunchAgents/local.pingpong-vision.plist` (fix the two paths):
+`start.sh` covers Linux.
+
+**macOS:** a LaunchAgent keeps `bun run.mjs` running and starts it when you log in. Save this as `~/Library/LaunchAgents/local.pingpong-vision.plist` (change `YOU` in both paths):
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
   <key>Label</key><string>local.pingpong-vision</string>
-  <key>WorkingDirectory</key><string>/Users/YOU/pingpong-vision</string>
-  <key>ProgramArguments</key><array><string>/Users/YOU/.bun/bin/bun</string><string>server.js</string></array>
-  <key>EnvironmentVariables</key><dict><key>PORT</key><string>8791</string></dict>
+  <key>ProgramArguments</key><array><string>/Users/YOU/.bun/bin/bun</string><string>/Users/YOU/pingpong-vision/run.mjs</string></array>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
 </dict></plist>
@@ -194,14 +233,37 @@ On Windows run the `tailscale serve` line in PowerShell (Tailscale for Windows),
 launchctl load -w ~/Library/LaunchAgents/local.pingpong-vision.plist
 ```
 
-### 8. Update
+**Windows:** run the installer once more with `-AutoStart`. It adds a Task Scheduler task, *PingPong Vision*, that runs `bun run.mjs` when you sign in:
 
-```bash
-cd pingpong-vision && git pull && bash install.sh
-./start.sh --restart        # Linux service; on macOS/by hand restart bun server.js instead
+```powershell
+powershell -ExecutionPolicy Bypass -File install.ps1 -AutoStart
 ```
 
-Check [Releases](https://github.com/orientpine/pingpong-vision/releases) for what changed.
+To remove it: `Unregister-ScheduledTask 'PingPong Vision'`.
+
+### 8. Update
+
+One command updates it, on Linux, macOS and Windows alike:
+
+```bash
+cd pingpong-vision && bun update.mjs
+```
+
+It goes step by step and says what it does:
+
+1. **Checks this copy.** If you changed files in the folder or made commits of your own, it stops and changes nothing (it lists the files).
+2. **Backs up** your settings folder (`~/.config/pingpong-vision`), the tournament data and the rally saves into `~/pingpong-vision-backups/<date>_<time>/`.
+3. **Gets the new version** (`git pull`) and runs `install.sh` again (`install.ps1` on Windows).
+4. **Restarts the app** the way it runs: the Linux service (`start.sh --restart`) or the macOS LaunchAgent from step 7. If you started it by hand, it waits for you to stop it and start it again.
+5. **Checks** that `/healthz` answers and the new version is running.
+
+If a step after the backup fails, it prints the lines that take you back to the version you had. Type the whole name: `bun update` without `.mjs` is bun's own package updater.
+
+Coming from v1.0.x, which has no `update.mjs` yet: run `git pull && bash install.sh` and restart once as before; from then on `bun update.mjs`.
+
+**New version line.** When the public repository has a newer release, Settings (on the camera screen and on the tournament screen) shows one line, *New version · vX.Y.Z*, that opens its release notes. To know that, the app asks GitHub's public API for the latest release at most once a day and sends nothing else; when it cannot reach GitHub it shows nothing. To turn it off, add `PPV_UPDATE_CHECK=off` to `deploy.env` and restart.
+
+See [Releases](https://github.com/orientpine/pingpong-vision/releases) for what changed.
 
 ### 9. Troubleshooting
 
@@ -214,18 +276,100 @@ Check [Releases](https://github.com/orientpine/pingpong-vision/releases) for wha
 | Funnel says it is not enabled | Funnel needs a tailnet policy change: follow the link it prints, or use `PPV_TS_MODE=serve`. |
 | Firewall | Nothing to open. Tailscale makes its own connection, and the app needs no inbound port. |
 | `install.sh` or `start.sh` says port 8791 is in use | Find it with `ss -ltnp \| grep 8791` (Linux) or `lsof -i :8791` (macOS). Set another `PORT` in `deploy.env`, run `bash install.sh` again, and use the new port in the `tailscale serve` command. |
-| `start.sh` stops with *set PPV_TOURNAMENT_URL* or *set FUNNEL_PORT* | Your `deploy.env` is missing that line. Copy it from `deploy.env.example`. |
+| `start.sh` stops with *set PPV_TOURNAMENT_URL*, *set FUNNEL_PORT* or *set PPV_TS_MODE* | Your `deploy.env` is missing that line. Copy it from `deploy.env.example`. |
 | The loading bar stops | The reason and **다시 받기** (*download again*) appear. Check the PC is online: the models are served by your PC, and the PC downloaded them in `install.sh`. |
 | `bun: command not found` | Open a new terminal after installing bun, or run `~/.bun/bin/bun`. |
-| Service logs (Linux) | `journalctl --user -u pingpong-vision -n 50` |
+| The referee screen says the camera is waiting for its PIN | Enter the PIN on the camera phone. Camera and scoreboard must be open on the same address. |
+| Service logs (Linux) | `journalctl --user -u pingpong-vision -n 50`, and `-u pingpong-scoreboard` for the tournament app |
+
+## Tournament and PIN
+
+`tournament/` is the scoreboard. It runs beside the camera app on one address: `https://<your PC>/` is the entrance and `/vision/` is the camera. The screens are in Korean, so the button names are given in both languages here.
+
+### Roles
+
+Each device picks its role on the first screen (the name appears on the button, and the top button changes it later):
+
+| Role | Who | Needs the PIN? | What it does |
+|---|---|---|---|
+| **심판** (*Referee*) | The person keeping score | Yes | Add, undo and fix points. In referee mode, tap the left or right half of the screen for a point; hold to undo |
+| **카메라** (*Camera*) | The phone on the tripod | Yes | Films the table and enters points by itself (the same app as above) |
+| **관전** (*Spectator*) | Anyone | No | Live score, replays and sound. Nothing can be changed from here |
+| **TV** | A big screen or tablet | No | Choose **관전** on it: a big screen gets the large scoreboard layout |
+
+### Make a tournament
+
+1. Open `https://<your PC>/`, choose **심판**, and go to **새 대회 만들기** (*New tournament*).
+2. Type a tournament name and 2 to 8 players. Enter each player as `name,four digits` (for example `홍길동,0712`). The digits only tell apart players with the same name and are not shown to spectators; a player you entered once comes up in the list in the next tournament as you type the first letters. Set the seed order or use the random draw.
+3. Pick the format: **더블** (double elimination, out after 2 losses), **트리플** (triple, out after 3) or **리그전** (league, everyone plays everyone), and the match length.
+4. Tap **대회 만들기** (*Create*). The bracket fills in by itself as matches finish. A new tournament archives the old one under the **기록** (*History*) tab.
+
+### The PIN
+
+The PIN is 4 digits. Referees and cameras need it to write scores; watching needs nothing. There is no PIN until the first tournament exists, so anyone who can open the address could create that first one. Keep `PPV_TS_MODE=serve` (the default), or create it right after installing.
+
+**First install: use the one it gives you, or pick your own**
+
+- Do nothing, and **each new tournament gets a random PIN**. It appears once on screen after **대회 만들기**, and that device remembers it. Open **설정** (*Settings*) on that device to see it again.
+- To **pick your own PIN**, write it to a file and restart. Every tournament then uses it. Replace `4827` with your own 4 digits (keep the quotes):
+
+  ```bash
+  cd pingpong-vision
+  mkdir -p tournament/data
+  echo '{"pin": "4827"}' > tournament/data/settings.json
+  ./start.sh --restart     # macOS, Windows: Ctrl+C in the bun run.mjs window, then bun run.mjs again
+  ```
+
+**Making a new tournament**
+
+- With `settings.json`, the PIN stays the same.
+- Without it, you need the current PIN to replace a tournament, and the new one gets a new random PIN. Tell your referees and enter it again on the camera.
+
+**Changing the PIN**
+
+Edit `tournament/data/settings.json` and restart as above. The running tournament switches to the new PIN and keeps its scores. Devices holding the old PIN are asked for the new one the next time they write. Delete the file and restart to go back to random PINs from the next new tournament.
+
+**Forgot it**
+
+On the PC, in the `pingpong-vision` folder:
+
+```bash
+grep '"pin"' tournament/data/tournament.json
+```
+
+The first match is the current PIN. The file stays on your PC, and `tournament/data/` is never committed.
+
+**Too many wrong tries.** Five wrong PINs lock that device for 1 minute. Twenty wrong PINs within a minute from all devices together pause devices that have not entered the right PIN recently; phones already scoring keep working. Restarting the app clears the locks.
+
+**Keep it safe.** Four digits only slow guessing down, so `serve` is the safer choice. Never commit `tournament/data/`: it holds your players' names, scores and the PIN.
+
+### Connect the camera
+
+`PPV_TOURNAMENT_URL` tells the camera app where the scoreboard is, so it can check the PIN for saving clips to your PC. `install.sh` writes it into `deploy.env`:
+
+```bash
+TOURNAMENT_PORT=8792
+PPV_TOURNAMENT_URL=http://127.0.0.1:8792   # same port as above, or off to run the camera alone
+```
+
+`PPV_TOURNAMENT_DATA` is the file that holds the PIN. `start.sh` sets it to `tournament/data/tournament.json` for you. Set it only if you moved the data with `DATA_DIR`.
+
+Then, on the tripod phone:
+
+1. Open `https://<your PC>/`, choose **카메라**, and enter the PIN once.
+2. Tap the four table corners ([Using it at the table](#using-it-at-the-table)).
+3. The referee screen shows **카메라 연결됨** (*camera connected*). Points now go in by themselves, with a 3 s cancel bar on the camera.
+
+The camera and the scoreboard must be on the same address. Opening them on different hosts or ports does not link them.
 
 ## Using it at the table
 
 1. **Place the phone** on a tripod in line with the net, 2 to 3 m from the side of the table, 1.5 to 2 m high, looking slightly down, so the whole table and both players are in the picture. Keep it level. If the camera sits at table height, the table top becomes a line and bounces and speed cannot be computed. Placement details: [docs/system-design.md](docs/system-design.md).
-2. Tap **카메라 시작** (*Start camera*), or **영상 파일로 시험** (*Test with a video file*) to try a recording.
-3. **Calibrate once** with **코트 보정** (*court calibration*). Tap the four table corners in the order shown: (1) your end, left; (2) your end, right; (3) far end, right; (4) far end, left. The taps snap to the white border. Drag a point to fix it, then **확인** (*Confirm*). Calibration stays as long as the tripod does not move. Until it is done, or when the four points do not enclose a table top, the app does not look for the ball. It also pauses while the phone shakes.
-4. The two ends are **레드 사이드 / 블루 사이드** (red / blue side). If the players change ends, tap **자리 교체** (*swap places*). Set a left-handed player's racket hand in **설정** (*Settings*). It decides forehand or backhand.
-5. Play. Tap **정지** (*Stop*) when done, and open **기록** (*History*) for each rally's time, shot count, top speed and bounce map.
+2. The app opens in Korean. Tap **English** on the mode choice or in **Settings** (설정); the names below are the English ones. Tap **Start camera**, or **Try a video file** to try a recording.
+3. **Calibrate once** with **Calibrate**. Tap the four table corners in the order shown: (1) your end, left; (2) your end, right; (3) far end, right; (4) far end, left. Rough taps are fine: press **Precise** and the app fits them to the white border over about a second, showing your taps faintly beside the fit (**Revert**, **Fit again**). Drag a point to fix it, then **OK**. Calibration stays as long as the tripod does not move. Until it is done, or when the four points do not enclose a table top, the app does not look for the ball. It also pauses while the phone shakes.
+4. The two ends are **Red side / Blue side**. If the players change ends, tap **Swap**. Set a left-handed player's racket hand in **Settings**. It decides forehand or backhand.
+   Enable **Camera placement guide** in Settings when needed (off by default) for skippable position, angle, framing and level/shake checks before Precise; phones without orientation sensors still show placement recommendations.
+5. Play. Tap **Stop** when done, and open **History** for each rally's time, shot count, top speed and bounce map.
 6. On an iPad in landscape, or a phone mirrored to a TV, the app switches to the big-screen layout. You can pick it in Settings.
 
 ## Accuracy and limits
@@ -259,7 +403,7 @@ bun qa/score.mjs /tmp/test_2.offline.json data/videos/test_2 /tmp/test_2.score.j
 ## Optional extras
 
 - **Save rallies to your PC.** Each finished rally's record and clip go to `save-server.js` on your PC (the folder is `0700`, with size and count caps). The rally gets a long, unguessable share link and a delete button. A one-time setup link hands the upload key to a phone. See [docs/save-to-pc.md](docs/save-to-pc.md). Never commit the key under `~/.config/pingpong-vision/`.
-- **Scoreboard link.** `public/js/point.js` judges who won each point from the bounce order (double bounce, out, miss). `public/js/tournament.js` can enter it into a scoreboard app served at `/` of the same origin, with a 3 s cancel bar, Korean score call-outs and one-tap let / fault prompts. **The scoreboard app is not part of this repository.** [docs/tournament-link.md](docs/tournament-link.md) describes the API it has to provide. Without one, everything else works on its own.
+- **Scoreboard link.** `public/js/point.js` judges who won each point from the bounce order (double bounce, out, miss). `public/js/tournament.js` can enter it into a scoreboard app served at `/` of the same origin, with a 3 s cancel bar, score call-outs in the chosen language (Korean or English) and one-tap let / fault prompts. The scoreboard is in `tournament/` ([Tournament and PIN](#tournament-and-pin)), and [docs/tournament-link.md](docs/tournament-link.md) describes its API. With `PPV_TOURNAMENT_URL=off` the camera works on its own.
 
 Environment variables of `server.js`:
 
@@ -271,6 +415,7 @@ Environment variables of `server.js`:
 | `PPV_KEY_FILE` | `~/.config/pingpong-vision/upload-key` | Upload key file (created on first start) |
 | `PPV_SETUP_FILE` | `~/.config/pingpong-vision/setup-tokens.json` | One-time setup link tokens |
 | `PPV_TOURNAMENT_URL` | unset | Scoreboard app that checks the PIN for PC save. Unset means that feature is off |
+| `PPV_TOURNAMENT_DATA` | `tournament/data/tournament.json` | The file holding the tournament PIN |
 
 ## Adapting to another sport
 
@@ -305,11 +450,11 @@ Issues and pull requests are welcome, in English or Korean.
 
 ## Releases
 
-Versions follow [semantic versioning](https://semver.org/). [CHANGELOG.md](CHANGELOG.md) (한국어 [CHANGELOG.ko.md](CHANGELOG.ko.md)) lists what changed in each version, in plain words. Downloads (source zip) are on the [Releases](https://github.com/orientpine/pingpong-vision/releases) page. [RELEASING.md](RELEASING.md) describes how a release is made.
+The version is one number: the `V x.y.z` on the start screen, `package.json` and the release tag are the same. Tags can skip numbers. [CHANGELOG.md](CHANGELOG.md) (한국어 [CHANGELOG.ko.md](CHANGELOG.ko.md)) lists what changed in each version, in plain words. Downloads (source zip) are on the [Releases](https://github.com/orientpine/pingpong-vision/releases) page. [RELEASING.md](RELEASING.md) describes how a release is made.
 
 ## License and third-party notices
 
-MIT © orientpine, see [LICENSE](LICENSE). Free to use, change and share, also commercially. Keep the copyright notice.
+MIT © orientpine, see [LICENSE](LICENSE). This covers the tournament app in `tournament/` too. Free to use, change and share, also commercially. Keep the copyright notice.
 
 Third-party parts (details in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)):
 

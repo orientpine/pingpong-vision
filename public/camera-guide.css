@@ -1,0 +1,42 @@
+/* Calibration's existing tokens and .btn anatomy; absolutely positioned so neither
+   calibration taps nor the stage box move when a step or recommendation changes. */
+.camera-guide {
+  position: absolute;
+  z-index: 4;
+  top: calc(var(--safe-t) + var(--strip-h) + var(--sp-2) * 2);
+  left: calc(var(--safe-l) + var(--sp-2));
+  right: calc(var(--safe-r) + var(--sp-2));
+  background: var(--c-panel-solid);
+  color: var(--c-ink);
+  padding: var(--sp-2);
+  font: 400 var(--fs-label) / var(--lh-ui) var(--font-11);
+}
+.camera-guide__text {
+  margin: 0;
+  min-height: calc(var(--lh-ui) * 2);
+  overflow-wrap: anywhere;
+  padding-bottom: var(--sp-1);
+}
+.camera-guide__calibration, .camera-guide__advice { display: block; white-space: nowrap; }
+/* Never clip the calibration message. The optional placement advice is the only
+   line allowed to use ellipsis; its full text remains in the paragraph's aria-label. */
+.camera-guide__advice { overflow: hidden; text-overflow: ellipsis; color: var(--c-ink-2); }
+.camera-guide__row { display: flex; align-items: center; gap: var(--sp-2); }
+.camera-guide__row strong { flex: 1; min-width: 0; }
+.camera-guide__row .btn { min-height: var(--tap); padding: var(--sp-1) var(--sp-2); font: inherit; }
+.camera-guide__dots { color: var(--c-ink-2); white-space: nowrap; }
+.camera-guide :focus-visible { outline: var(--px) solid var(--c-ink); outline-offset: var(--sp-1); }
+@media (orientation: landscape) {
+  .app[data-layout="phone"] .camera-guide {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    right: calc(var(--safe-r) + var(--bar-w) + var(--sp-2) * 2 + var(--px-shadow));
+  }
+  .app[data-layout="phone"] .camera-guide__text { flex: 1; min-width: 0; min-height: 0; }
+  .app[data-layout="phone"] .camera-guide__row { flex: 0 0 auto; }
+  .app[data-layout="phone"] .camera-guide__row strong { white-space: nowrap; }
+  /* Replace the existing absolute guide strip, never its layout box or the picture.
+     The compact card fits above the far end instead of covering the near end label. */
+  .app[data-layout="phone"]:has(.camera-guide) .calibbar__guide { visibility: hidden; }
+}

@@ -99,7 +99,19 @@ function intersect(a, b) {
 
 // rgba: w x h frame; corners in video px; scale = video px per frame px (1 for a full-size frame).
 // Returns { ok, corners (video px, same order as given), moved: [px per corner], sides, reason }.
-export function refineCorners(rgba, w, h, corners, { scale = 1, minInlierShare = 0.45, minRidge = 12, minUniform = 0.4, minEdgeContrast = 28, minEdgeShare = 0.6, debug = false } = {}) {
+// A rough tap on a phone is off by more than the first search reaches: on an 874x402 landscape phone screen one
+// CSS px is 1.8 px of the 1280x720 camera picture, so a finger 20 px off is 36 px off, past the 32 px the
+// first pass searches across a 640 px table. When that pass finds no line or would move a corner past
+// its reach, the same fit runs once more searching twice as wide (the same checks then decide).
+export function refineCorners(rgba, w, h, corners, opts = {}) {
+  if (opts.reach) return refineOnce(rgba, w, h, corners, opts);
+  const first = refineOnce(rgba, w, h, corners, { ...opts, reach: 1 });
+  if (first.ok || (first.code !== "no-line" && first.code !== "too-far")) return first;
+  const wide = refineOnce(rgba, w, h, corners, { ...opts, reach: 2 });
+  return wide.ok ? wide : first;
+}
+
+function refineOnce(rgba, w, h, corners, { scale = 1, reach = 1, minInlierShare = 0.45, minRidge = 12, minUniform = 0.4, minEdgeContrast = 28, minEdgeShare = 0.6, debug = false } = {}) {
   const given = corners.map((p) => ({ x: p.x / scale, y: p.y / scale }));
   const quad = orderCorners(given);
   const cx = quad.reduce((a, p) => a + p.x, 0) / 4;
@@ -125,7 +137,7 @@ export function refineCorners(rgba, w, h, corners, { scale = 1, minInlierShare =
     let line = null;
     let stat = null;
     // Pass 1 searches wide (taps can be tens of px off); pass 2 re-scans tightly around the fit.
-    for (const [r, ref] of [[Math.round(Math.min(90, Math.max(16, diag * 0.05))), null], [Math.max(6, d * 3), "fit"]]) {
+    for (const [r, ref] of [[Math.round(Math.min(90, Math.max(16, diag * 0.05)) * reach), null], [Math.max(6, d * 3), "fit"]]) {
       const pts = [];
       for (let k = 0; k < SAMPLES; k++) {
         const t = 0.08 + (0.84 * k) / (SAMPLES - 1);
@@ -152,13 +164,13 @@ export function refineCorners(rgba, w, h, corners, { scale = 1, minInlierShare =
       stat = { found: pts.length, inliers: fit.inliers, searchPx: r, ...(debug ? { pts: pts.map((q) => [Math.round(q.x), Math.round(q.y)]) } : {}) };
     }
     sides.push(stat);
-    if (!line || stat.inliers < SAMPLES * minInlierShare) return { ok: false, corners, moved: null, sides, reason: `side ${e} has no clear border line` };
+    if (!line || stat.inliers < SAMPLES * minInlierShare) return { ok: false, code: "no-line", side: sideOf(e), corners, moved: null, sides, reason: `side ${e} has no clear border line` };
     lines.push(line);
   }
   const out = [];
   for (let i = 0; i < 4; i++) {
     const p = intersect(lines[(i + 3) % 4], lines[i]);
-    if (!p) return { ok: false, corners, moved: null, sides, reason: "parallel sides" };
+    if (!p) return { ok: false, code: "no-line", corners, moved: null, sides, reason: "parallel sides" };
     out.push(p);
   }
   const refined = given.map((g) => {
@@ -166,11 +178,15 @@ export function refineCorners(rgba, w, h, corners, { scale = 1, minInlierShare =
     return { x: Math.round(q.x * scale * 10) / 10, y: Math.round(q.y * scale * 10) / 10 };
   });
   const moved = refined.map((p, i) => Math.round(Math.hypot(p.x - corners[i].x, p.y - corners[i].y) * 10) / 10);
-  const limit = Math.min(90, Math.max(16, diag * 0.05)) * 1.5 * scale;
+  const limit = Math.min(90, Math.max(16, diag * 0.05)) * reach * 1.5 * scale;
   // A line fit always returns something, and on a small or low-contrast table it can land tens of
   // px off while every side still has "inliers". So the snapped quad has to prove it is a table
-  // top: its colour uniformity must pass the pipeline's own gate and must not be worse than the
-  // tapped quad's. Without this, a 1152x648 test_2 frame snapped 58 px off, confidently.
+  // top: its colour uniformity must pass the pipeline's own gate. It used to also have to be no
+  // less uniform than the tapped quad, but under the club's ceiling lights a rough quad that sits
+  // inside the table reads more uniform than the whole top (owner clip VPz2VJ: 0.55 tapped, 0.46
+  // fitted), and that refused 94 of 252 rough fits on 11-04 club clips. Without that comparison a
+  // second of frames took no wrong fit on those clips, and the 1152x648 test_2 case it was added for
+  // still fits to 1.9-2.1 px (the side colour check above catches a line across the table top).
   const uniform = (pts) => {
     const cal = makeCalibration(pts);
     return cal ? tableUniformity(rgba, w, h, cal, 1) : 0;
@@ -203,24 +219,76 @@ export function refineCorners(rgba, w, h, corners, { scale = 1, minInlierShare =
   };
   const contrast = out.map((_, i) => Math.round(sideContrast(out[i], out[(i + 1) % 4]) * 100) / 100);
   const weak = contrast.findIndex((c) => c < minEdgeShare);
-  if (weak >= 0) return { ok: false, corners, moved, sides, contrast, reason: `side ${weak} shows no colour change across it (not a table edge)` };
+  if (weak >= 0) return { ok: false, code: "not-edge", side: sideOf(weak), corners, moved, sides, contrast, reason: `side ${weak} shows no colour change across it (not a table edge)` };
   const uTap = uniform(given);
   const uSnap = uniform(refined.map((p) => ({ x: p.x / scale, y: p.y / scale })));
-  if (!(uSnap >= minUniform && uSnap >= uTap - 0.02)) return { ok: false, corners, moved, sides, uniform: [uTap, uSnap], reason: "the snapped quad does not look like the table top" };
-  if (new Set(refined.map((p) => `${p.x},${p.y}`)).size < 4) return { ok: false, corners, moved, sides, reason: "corners collapsed" };
-  if (moved.some((m) => m > limit)) return { ok: false, corners, moved, sides, reason: "a corner would move further than searched" };
+  if (!(uSnap >= minUniform)) return { ok: false, code: "not-table", corners, moved, sides, uniform: [uTap, uSnap], reason: "the snapped quad does not look like the table top" };
+  if (new Set(refined.map((p) => `${p.x},${p.y}`)).size < 4) return { ok: false, code: "not-table", corners, moved, sides, reason: "corners collapsed" };
+  const far = moved.findIndex((m) => m > limit);
+  if (far >= 0) return { ok: false, code: "too-far", corner: far, corners, moved, sides, reason: "a corner would move further than searched" };
   return { ok: true, corners: refined, moved, sides, uniform: [uTap, uSnap], contrast, reason: null };
+
+  // side e runs from quad[e] to quad[e+1] (sorted order); report it as the two tapped corner indices
+  function sideOf(e) {
+    return [given.indexOf(quad[e]), given.indexOf(quad[(e + 1) % 4])].sort((a, b) => a - b);
+  }
 }
 
-// Players lean over the table and hide a side in one frame but not the next: refine on a few
-// frames (say 5 over 2 s) and take each corner's median over the frames that snapped. Needs a
-// majority of frames to snap, else the taps stay.
+// How far the table may wander between the frames of one refine before the owner is told (warn)
+// or the taps are kept (refuse), in video px, scaled by the table's diagonal (whichever is larger).
+// Measured on the owner's 11-04 club clips (tripod beside the table, 960x540, diagonal about 640 px),
+// 63 one-second windows of 10 frames: a still tripod reads 0.1-0.4 px. The same windows with every
+// frame shifted at random by up to 3 / 6 / 10 / 15 px read about 2.3 / 5 / 7 / 13 px.
+export const SHAKE = { warnPx: 3, warnFrac: 0.005, refusePx: 10, refuseFrac: 0.016 };
+
+// The tripod shakes and players lean over the table and hide a side in one frame but not the next:
+// refine on every frame of about a second and take each corner's median over the frames that snapped.
+// Needs a majority of frames to snap, else the taps stay. shakePx is how far the snapped corners
+// wander from that median (the second largest per corner, so one odd frame does not count as shake):
+// over the warn level the result says so (shake: "warn"), over the refuse level the taps stay.
 export function refineCornersMulti(frames, corners, opts = {}) {
-  const runs = frames.map(({ rgba, w, h }) => refineCorners(rgba, w, h, corners, opts));
+  return combineRefines(frames.map(({ rgba, w, h }) => refineCorners(rgba, w, h, corners, opts)), corners);
+}
+
+// The same, from refineCorners results already made one frame at a time (the app refines each
+// camera frame as it arrives, so a second of full-size frames is never held in memory).
+export function combineRefines(runs, corners) {
   const good = runs.filter((r) => r.ok);
-  if (good.length * 2 <= runs.length) return { ok: false, corners, moved: null, frames: runs.length, snapped: good.length, reason: (runs.find((r) => !r.ok) || {}).reason };
-  const med = (v) => v.sort((a, b) => a - b)[v.length >> 1];
+  if (good.length * 2 <= runs.length) {
+    const codes = runs.filter((r) => !r.ok);
+    // the commonest failure tells the owner what to fix (ties: the first frame's)
+    const tally = {};
+    for (const r of codes) tally[r.code] = (tally[r.code] || 0) + 1;
+    const worst = codes.reduce((a, r) => (tally[r.code] > tally[a.code] ? r : a), codes[0] || {});
+    return { ok: false, code: worst.code || "no-line", side: worst.side, corner: worst.corner, corners, moved: null, frames: runs.length, snapped: good.length, reason: worst.reason };
+  }
+  const med = (v) => [...v].sort((a, b) => a - b)[v.length >> 1];
   const refined = corners.map((_, i) => ({ x: med(good.map((r) => r.corners[i].x)), y: med(good.map((r) => r.corners[i].y)) }));
   const moved = refined.map((p, i) => Math.round(Math.hypot(p.x - corners[i].x, p.y - corners[i].y) * 10) / 10);
-  return { ok: true, corners: refined, moved, frames: runs.length, snapped: good.length, reason: null };
+  // Shake is measured across the sides, not at the corners: where two sides meet at a wide angle
+  // the corner slides along them by several px from frame to frame (owner clip ILKso2: 410-416 px
+  // on a still camera) while each line stays put. So per side, how far the middle of that frame's
+  // side sits from the median side line.
+  const ord = orderCorners(refined).map((q) => refined.indexOf(q));
+  const spread = ord.map((i, e) => {
+    const j = ord[(e + 1) % 4];
+    const a = refined[i];
+    const b = refined[j];
+    const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    const d = good
+      .map((r) => {
+        const mx = (r.corners[i].x + r.corners[j].x) / 2;
+        const my = (r.corners[i].y + r.corners[j].y) / 2;
+        return Math.abs((mx - a.x) * (b.y - a.y) - (my - a.y) * (b.x - a.x)) / len;
+      })
+      .sort((p, q) => q - p);
+    return d.length > 2 ? d[1] : d[0] || 0;
+  });
+  const shakePx = Math.round(Math.max(...spread) * 10) / 10;
+  const diag = Math.hypot(refined[0].x - refined[2].x, refined[0].y - refined[2].y);
+  const level = (px, frac) => Math.max(px, frac * diag);
+  const base = { frames: runs.length, snapped: good.length, shakePx };
+  if (good.length < 2) return { ok: true, corners: refined, moved, ...base, shake: "unknown", reason: null };
+  if (shakePx > level(SHAKE.refusePx, SHAKE.refuseFrac)) return { ok: false, code: "shake", corners, moved: null, ...base, reason: `the table moved ${shakePx} px between frames` };
+  return { ok: true, corners: refined, moved, ...base, shake: shakePx > level(SHAKE.warnPx, SHAKE.warnFrac) ? "warn" : "ok", reason: null };
 }

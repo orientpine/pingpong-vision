@@ -28,7 +28,8 @@ const cards = (page) => page.evaluate(() => [...document.querySelectorAll(".role
   const r = c.getBoundingClientRect();
   return { role: c.dataset.role, bg: s.backgroundColor, border: s.borderTopColor, mode: getComputedStyle(c.querySelector("b")).color, outline: s.outlineStyle === "none" ? 0 : parseFloat(s.outlineWidth), outlineColor: s.outlineColor, cls: c.className, x: r.left + r.width / 2, y: r.top + r.height / 2, focus: document.activeElement === c };
 }));
-const same = (list) => list.length === 3 && list.every((c) => c.bg === list[0].bg && c.border === list[0].border && !/\b(on|pressed)\b/.test(c.cls));
+// four mode buttons: camera, referee, viewer, desk
+const same = (list) => list.length === 4 && list.every((c) => c.bg === list[0].bg && c.border === list[0].border && !/\b(on|pressed)\b/.test(c.cls));
 const toPicker = async (page) => {
   await page.goto(app.origin + "/");
   await page.waitForSelector(".start-go");
@@ -72,7 +73,7 @@ try {
       await page.mouse.up();
       await page.waitForTimeout(250);
       const after = await cards(page);
-      check(`${name}: sliding off ${card.role} and letting go leaves the picker unpainted`, after.length === 3 && same(after), after.map(({ role, bg, cls }) => ({ role, bg, cls })));
+      check(`${name}: sliding off ${card.role} and letting go leaves the picker unpainted`, after.length === 4 && same(after), after.map(({ role, bg, cls }) => ({ role, bg, cls })));
     }
 
     // Press and release on 관전: purple-family press seen, then the spectator screen opens.

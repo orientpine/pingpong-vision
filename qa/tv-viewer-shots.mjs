@@ -5,6 +5,7 @@
 //   bun qa/tv-viewer-shots.mjs --origin=http://127.0.0.1:8960 --key-file=<upload-key> --clip=<webm> [--out=evidence/r6/tv]
 import { chromium, devices, webkit } from "playwright";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { withCodes } from "./player-names.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
 const origin = args.origin;
@@ -16,7 +17,7 @@ const api = async (path, body, headers = {}) => {
 };
 
 // A match in its second game: blue won game 1 11:7, game 2 stands at 7:5, and the last point has its clip.
-const created = await api("/api/tournament", { name: "탁구장 시험", players: ["김블루", "박레드", "셋째", "넷째"], format: "double", bestOf: 3 });
+const created = await api("/api/tournament", { name: "탁구장 시험", players: await withCodes(origin, ["김블루", "박레드", "셋째", "넷째"]), format: "double", bestOf: 3 });
 const pin = created.pin;
 const matchId = created.state.derived.matches.find((m) => m.status === "ready").id;
 const seq = [...Array(11).fill(0).flatMap((_, i) => (i < 7 ? [0, 1] : [0])), ...[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0]];

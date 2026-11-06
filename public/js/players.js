@@ -1,4 +1,5 @@
 import { apply, dist, mid, TABLE_LENGTH, TABLE_WIDTH } from "./geom.js";
+import { L } from "./i18n.js";
 
 const TORSO_M = 0.5;
 // Movement: the foot point on the floor, in table metres, median of the last few pose samples;
@@ -104,8 +105,8 @@ function newPlayer(side, label) {
 export class Players {
   constructor() {
     // near / far are the table's two ends; app.js names them ("레드 · <name>" or "레드 사이드")
-    this.near = newPlayer("near", "블루 사이드");
-    this.far = newPlayer("far", "레드 사이드");
+    this.near = newPlayer("near", L("블루 사이드", "Blue side"));
+    this.far = newPlayer("far", L("레드 사이드", "Red side"));
     this.cal = null;
   }
 

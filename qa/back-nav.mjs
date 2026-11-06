@@ -3,6 +3,8 @@
 //   bun qa/back-nav.mjs --vision=<checkout> --tournament=<checkout> --clip=<webm> [--out=evidence/r8/back] [--port=8970]
 import { webkit } from "playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
 import { DEVICES, fakeCamera, startCamera, startOneApp } from "./one-app-harness.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
@@ -12,6 +14,57 @@ const app = await startOneApp({ vision: args.vision, tournament: args.tournament
 const browser = await webkit.launch(process.env.PPV_WEBKIT ? { executablePath: process.env.PPV_WEBKIT } : {});
 const results = [];
 const errors = [];
+
+// Page load at a check (the 5 s before it): CPU of this run's WebKit web processes, main-thread stalls
+// (a 100 ms tick arriving over 50 ms late), and what the page keeps open (timers, intervals, listeners,
+// animation-frame requests). Same code for the branch and main runs.
+const loadProbe = () => {
+  const W = window;
+  if (W.__qaLoad) return;
+  const st = (W.__qaLoad = { timers: new Set(), intervals: new Set(), listeners: 0, raf: 0, stalls: [] });
+  const sT = W.setTimeout, cT = W.clearTimeout, sI = W.setInterval, cI = W.clearInterval;
+  W.setTimeout = function (f, ms, ...a) { const id = sT.call(W, function (...x) { st.timers.delete(id); return typeof f === "function" ? f.apply(this, x) : undefined; }, ms, ...a); st.timers.add(id); return id; };
+  W.clearTimeout = function (id) { st.timers.delete(id); return cT.call(W, id); };
+  W.setInterval = function (...a) { const id = sI.apply(W, a); st.intervals.add(id); return id; };
+  W.clearInterval = function (id) { st.intervals.delete(id); return cI.call(W, id); };
+  const aE = EventTarget.prototype.addEventListener, rE = EventTarget.prototype.removeEventListener;
+  EventTarget.prototype.addEventListener = function (...a) { st.listeners++; return aE.apply(this, a); };
+  EventTarget.prototype.removeEventListener = function (...a) { st.listeners--; return rE.apply(this, a); };
+  const rAF = W.requestAnimationFrame;
+  W.requestAnimationFrame = function (cb) { st.raf++; return rAF.call(W, cb); };
+  let last = performance.now();
+  sI.call(W, () => { const n = performance.now(); const late = n - last - 100; if (late > 50) st.stalls.push([n, late]); if (st.stalls.length > 300) st.stalls.shift(); last = n; }, 100);
+};
+const pageLoad = (page) => page.evaluate(() => {
+  const st = window.__qaLoad;
+  if (!st) return null;
+  const now = performance.now();
+  const recent = st.stalls.filter(([t]) => now - t <= 5000);
+  return { timers: st.timers.size, intervals: st.intervals.size, listeners: st.listeners, rafTotal: st.raf, stalls5s: recent.length, worstStallMs: Math.round(Math.max(0, ...recent.map(([, l]) => l))) };
+}).catch(() => null);
+// CPU of this run's WPE web processes (children of this test), sampled every second
+const cpuRing = [];
+const procCpu = () => {
+  const { readdirSync, readFileSync } = require("node:fs");
+  const kids = new Map();
+  for (const p of readdirSync("/proc")) {
+    if (!/^\d+$/.test(p)) continue;
+    try { const s = readFileSync(`/proc/${p}/stat`, "utf8"); const r = s.slice(s.lastIndexOf(")") + 2).split(" "); kids.set(Number(p), { ppid: Number(r[1]), cpu: Number(r[11]) + Number(r[12]), name: s.slice(s.indexOf("(") + 1, s.lastIndexOf(")")) }); } catch {}
+  }
+  const mine = new Set([process.pid]);
+  let grew = true;
+  while (grew) { grew = false; for (const [pid, k] of kids) if (!mine.has(pid) && mine.has(k.ppid)) { mine.add(pid); grew = true; } }
+  let web = 0;
+  for (const pid of mine) { const k = kids.get(pid); if (k && /WPEWebProcess|WebKitWebProces/.test(k.name)) web += k.cpu; }
+  return web;
+};
+setInterval(() => { cpuRing.push([Date.now(), procCpu()]); if (cpuRing.length > 30) cpuRing.shift(); }, 1000).unref();
+const cpu5s = () => {
+  const now = Date.now(), cur = procCpu();
+  const old = cpuRing.find(([t]) => now - t <= 5500) || cpuRing[0];
+  return old ? Math.round(((cur - old[1]) / 100) / ((now - old[0]) / 1000) * 100) : null; // percent of one core
+};
+let lastPage = null, lastLoad = null;
 
 async function open(role, { pin = false, query = "", device = "phone" } = {}) {
   const ctx = await browser.newContext(DEVICES[device]);
@@ -24,7 +77,11 @@ async function open(role, { pin = false, query = "", device = "phone" } = {}) {
     if (r) localStorage.setItem("pp-role", r);
     if (p) localStorage.setItem("pp-pin", p);
   }, [role, pin ? app.pin : null]);
+  await ctx.addInitScript(loadProbe);
   const page = await ctx.newPage();
+  lastPage = page;
+  const close0 = ctx.close.bind(ctx);
+  ctx.close = async (...a) => { lastLoad = { ...(await pageLoad(page)), cpu5sPct: cpu5s() }; return close0(...a); };
   page.on("pageerror", (e) => errors.push(`${role}: ${e.stack || e.message}`));
   await page.goto(app.origin + "/" + query, { waitUntil: "load" });
   return { ctx, page };
@@ -50,9 +107,12 @@ async function scenario(name, fn) {
     const detail = await fn();
     results.push({ name, pass: true, detail, s: (Date.now() - t0) / 1000 });
     console.log(`PASS ${name} ${JSON.stringify(detail)}`);
+    console.log(`LOAD pass ${name} ${JSON.stringify(lastLoad)}`);
   } catch (err) {
     results.push({ name, pass: false, detail: String(err.message || err).split("\n")[0], s: (Date.now() - t0) / 1000 });
     console.log(`FAIL ${name} ${String(err.message || err).split("\n")[0]}`);
+    const load = lastPage ? { ...(await pageLoad(lastPage)), cpu5sPct: cpu5s() } : null;
+    console.log(`LOAD fail ${name} ${JSON.stringify(load)}`);
   }
 }
 const expect = (cond, what, seen) => { if (!cond) throw new Error(`${what}: ${JSON.stringify(seen)}`); };

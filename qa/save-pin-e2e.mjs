@@ -12,6 +12,7 @@ import { chromium, devices, webkit } from "playwright";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createSetupToken } from "../save-server.js";
+import { withCodes } from "./player-names.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
 const base = args.base;
@@ -31,7 +32,7 @@ const players = { name: "저장 시험", players: ["블루", "레드", "셋째",
 const tourFile = join(args.data, "tour/tournament.json");
 let pin = existsSync(tourFile) ? JSON.parse(readFileSync(tourFile, "utf8")).pin : null;
 const newTournament = async () => {
-  const res = await fetch(origin + "/api/tournament", { method: "POST", headers: { "content-type": "application/json", ...(pin ? { "x-pin": pin } : {}) }, body: JSON.stringify({ ...players, force: true }) });
+  const res = await fetch(origin + "/api/tournament", { method: "POST", headers: { "content-type": "application/json", ...(pin ? { "x-pin": pin } : {}) }, body: JSON.stringify({ ...players, players: await withCodes(origin, players.players), force: true }) });
   if (!res.ok) throw new Error("create tournament " + res.status);
   pin = (await res.json()).pin;
 };

@@ -101,8 +101,8 @@ await step("calibrate-4-taps", async () => {
     return 1 / Math.min(r.width / v.videoWidth, r.height / v.videoHeight);
   });
   const errCss = err / videoPxPerCssPx;
-  // The fourth tap snaps the corners onto the table's white border (calib-refine.js), so the
-  // saved corners may sit a few px from exact taps; more than 8 px (1080p) is a wrong snap.
+  // The corners stay where they were tapped (the white-border fit runs only from the 정밀하게 button,
+  // qa/calib-snap-ui.mjs); more than 8 px (1080p) is a wrong conversion.
   if (err > 8 * k) throw new Error(`corner error ${err.toFixed(2)} video px = ${errCss.toFixed(2)} CSS px`);
   const currentTime = await page.evaluate(() => document.querySelector("video").currentTime);
   return { maxCornerErrorVideoPx: Math.round(err * 100) / 100, maxCornerErrorCssPx: Math.round(errCss * 100) / 100, videoTimeAfterCalibration: Math.round(currentTime * 100) / 100 };

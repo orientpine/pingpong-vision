@@ -8,6 +8,10 @@
 // on whole device pixels. Colours and sizes come from the CSS tokens (style.css) so the canvas
 // and the DOM share one design system.
 
+import { L } from "./i18n.js";
+import { kindText } from "./rally.js";
+import { arrowSpot, bodyBox, coverOf, endLines, panelEdge, panelLabelSpot } from "./end-marks.js";
+
 export const POSE_CONNECTIONS = [
   [0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8], [9, 10],
   [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21], [17, 19],
@@ -171,11 +175,12 @@ function drawFootEllipse(ctx, t, pts, color) {
   ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
   ctx.stroke();
   ctx.setLineDash([]);
+  return { x: cx - rx - 1, y: cy - ry - 1, w: rx * 2 + 2, h: ry * 2 + 2 };
 }
 
 /** "끝선 뒤 1.2m" behind the nearer end line, "대 옆" when standing beside the table. */
 export function standLabel(stand) {
-  return stand.behindM >= 0.05 ? `끝선 뒤 ${stand.behindM.toFixed(1)}m` : "대 옆";
+  return stand.behindM >= 0.05 ? L(`끝선 뒤 ${stand.behindM.toFixed(1)}m`, `${stand.behindM.toFixed(1)} m behind end line`) : L("대 옆", "beside table");
 }
 
 // Standing position: a solid ring on the floor under the feet (the point MOVE counts from) and
@@ -372,8 +377,78 @@ function drawTable(ctx, t, corners, toScreen) {
   ctx.globalAlpha = 1;
 }
 
+// Which end is blue and which red (owner, 2026-10-31: thin, dotted, see-through): the two end lines in
+// their end colours over a faint dark dot, so the colour reads on a bright table and on a dark floor
+// and the table and the ball still show through. Painted first, under the trail, LOCK and plates, and
+// only on this overlay canvas: the analysis never reads it (it reads the video, app.js analysisSource).
+// Saturated mid-lightness blue and red inside a dark 1 px edge. Measured under the end lines of the
+// public videos: a bright yellow floor (~#85884b) and a near-black one (~#3a2407). On the bright floor the
+// dark edge carries the line; on the dark one the colour does (L* ~55: contrast ~3 there; the deep pair
+// at L* 46 was ~2.4). The light tints read as a white line (blue) and as a player's joint lines (red:
+// skeletons use --c-red #ff6b6b; this red is more saturated and darker, and joint lines have no edge).
+export const END_LINE = { width: 2, dash: [3, 4], alpha: 0.85, haloWidth: 4, haloAlpha: 0.75, blue: "#2f7dff", red: "#ff3020", offset: 5 };
+function drawEndLines(ctx, t, state, corners, toScreen) {
+  if (!corners || corners.length !== 4) return;
+  // each line sits END_LINE.offset px outside the table edge (away from its centre): off the white
+  // border, on the floor or wall behind it, so the colour shows and the table stays clear
+  const lines = endLines(corners, toScreen, END_LINE.offset);
+  const p = [...lines.near, ...lines.far];
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.setLineDash(END_LINE.dash);
+  for (const [a, b, side] of [[p[0], p[1], "near"], [p[2], p[3], "far"]]) {
+    for (const [w, color, alpha] of [[END_LINE.haloWidth, "#000", END_LINE.haloAlpha], [END_LINE.width, endColor(t, state, side) === t.red ? END_LINE.red : END_LINE.blue, END_LINE.alpha]]) {
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = w;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  return lines;
+}
+
 function fmtKmh(v) {
   return v == null ? "--" : `~${Math.round(v)}`;
+}
+
+// A hidden end line is marked when at least half of it is out of sight. A covering panel gets an
+// end-colour border on one edge (ui.js) and the label just outside it; these ids are the panels in the
+// avoid list. The court map is left out: it draws both ends in their colours itself, and a line under it
+// gets no border, label or arrow.
+export const END_TAG = { minCovered: 0.5, alpha: 0.85 };
+export const PANEL_IDS = ["players"];
+function drawEndTag(ctx, t, e, taken, box, panel = null) {
+  const text = e.color === "red" ? L("레드 끝", "Red end") : L("블루 끝", "Blue end");
+  ctx.font = font(t, t.fsLabel, true);
+  const arrow = Math.round(t.fsLabel * 0.8);
+  const w = Math.ceil(ctx.measureText(text).width) + Math.round(t.fsLabel / 2) * 2 + arrow + 4;
+  const h = t.fsLabel + Math.round(t.fsLabel / 4) * 2;
+  const spot = panel ? panelLabelSpot(panel, e.edge, e.quad, taken.filter((r) => r.id !== panel.id), { w, h, ...box }) : arrowSpot(e.line, e.quad, taken, { w, h, ...box });
+  if (!spot) return null;
+  const color = e.color === "red" ? END_LINE.red : END_LINE.blue;
+  ctx.save();
+  ctx.globalAlpha = END_TAG.alpha;
+  const r = pixelBox(ctx, t, spot.x, spot.y, w, h, color);
+  // the arrow on the side facing the line, pointing at it
+  const right = spot.dir.x >= 0;
+  const ax = right ? r.x + w - arrow / 2 - 3 : r.x + arrow / 2 + 3, ay = r.y + h / 2;
+  const ang = Math.atan2(spot.dir.y, spot.dir.x);
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(ax + Math.cos(ang) * arrow / 2, ay + Math.sin(ang) * arrow / 2);
+  ctx.lineTo(ax + Math.cos(ang + 2.4) * arrow / 2, ay + Math.sin(ang + 2.4) * arrow / 2);
+  ctx.lineTo(ax + Math.cos(ang - 2.4) * arrow / 2, ay + Math.sin(ang - 2.4) * arrow / 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.textBaseline = "top";
+  ctx.textAlign = "left";
+  ctx.fillText(text, right ? r.x + Math.round(t.fsLabel / 2) : r.x + arrow + 6, r.y + Math.round(t.fsLabel / 4));
+  ctx.restore();
+  return { x: spot.x, y: spot.y, w, h, dir: spot.dir, color: e.color, kind: panel ? "panel-label" : "arrow" };
 }
 
 /**
@@ -394,18 +469,35 @@ export function drawHud(ctx, state, toScreen, { top = 4, right = Infinity, botto
   ctx.clearRect(0, 0, cw, fullH);
   const xMax = Math.min(cw, right);
   const t = ensureTheme(canvas, state?.layout);
-  const out = { lock: null, tags: {}, stands: {}, fonts: `${t.fsLabel},${t.fsValue}`, font: t.fontFamily };
+  const out = { lock: null, tags: {}, stands: {}, bodies: {}, fonts: `${t.fsLabel},${t.fsValue}`, font: t.fontFamily };
   if (!state) return out;
 
-  if (state.calibration?.corners) drawTable(ctx, t, state.calibration.corners, toScreen);
+  let lines = null;
+  if (state.calibration?.corners) {
+    drawTable(ctx, t, state.calibration.corners, toScreen);
+    if (state.showEnds !== false) lines = drawEndLines(ctx, t, state, state.calibration.corners, toScreen);
+  }
+  // which end line is out of sight, and under what (an avoid rect's id, or "off" the canvas): ui.js marks
+  // a covering panel's edge; anything else gets a small arrow tag off the table (below)
+  out.ends = {};
+  out.endTags = {};
+  if (lines) for (const side of ["near", "far"]) {
+    const c = coverOf(lines[side], avoid, cw, fullH);
+    const e = { color: endColor(t, state, side) === t.red ? "red" : "blue", ...c, line: lines[side], quad: lines.quad };
+    const panel = e.covered >= END_TAG.minCovered && PANEL_IDS.includes(e.by) ? avoid.find((r) => r.id === e.by) : null;
+    if (panel) e.edge = panelEdge(panel, e.line, e.quad);
+    out.ends[side] = e;
+  }
 
   // Nothing drawn here may cover a button or panel over the picture (avoid) or the LOCK bracket on
   // the ball; boxes keep clear of each other by their drop shadow plus 1 px.
   const air = t.px + 1;
-  const grow = (r) => ({ x: r.x - air, y: r.y - air, w: r.w + air * 2, h: r.h + air * 2 });
+  // keeps the rect's id: a covering panel's label leaves its own panel out of the boxes it must avoid
+  const grow = (r) => ({ ...r, x: r.x - air, y: r.y - air, w: r.w + air * 2, h: r.h + air * 2 });
   const lockAt = state.ball?.lock ? toScreen(state.ball.lock) : null;
   const reach = Math.round(t.fsLabel) + 1;
   const bracket = lockAt ? [{ x: Math.round(lockAt.x) - reach, y: Math.round(lockAt.y) - reach, w: reach * 2 + 1, h: reach * 2 + 1 }] : [];
+  out.bracket = bracket[0] || null; // the LOCK bracket on the ball (a notice keeps off it, ui.js)
 
   const sides = ["far", "near"]; // far first so the near player draws on top
   plateQueue = [];
@@ -423,8 +515,11 @@ export function drawHud(ctx, state, toScreen, { top = 4, right = Infinity, botto
     const color = endColor(t, state, side);
     const pts = player.landmarks.map((lm) => (visible(lm) ? toScreen(lm) : null));
     // with a calibrated floor the stand ring marks the feet; the ellipse is the uncalibrated cue
-    if (!out.stands[side]) drawFootEllipse(ctx, t, pts, color);
+    const foot = out.stands[side] ? null : drawFootEllipse(ctx, t, pts, color);
     drawSkeleton(ctx, t, pts, color);
+    // the joints' box (and the foot ellipse): end labels keep off the player's body
+    const body = bodyBox(pts, 3, [foot]);
+    if (body) out.bodies[side] = body;
     const head = headAnchor(pts);
     if (head) {
       const label = player.label || "";
@@ -445,7 +540,20 @@ export function drawHud(ctx, state, toScreen, { top = 4, right = Infinity, botto
   const queued = plateQueue;
   plateQueue = null;
   for (const paint of queued) paint();
-  const plates = () => [...Object.values(out.tags), ...Object.values(out.stands).filter((s) => s.w && !s.labelHidden)];
+  // an end line hidden by something other than a panel (a button, the bar, the canvas edge): a small
+  // see-through "블루 끝" / "레드 끝" tag with an arrow at the nearest free spot off the table
+  for (const side of ["near", "far"]) {
+    const e = out.ends[side];
+    if (!e || e.covered < END_TAG.minCovered || e.by === "court") continue;
+    const taken = [...avoid, ...Object.values(out.tags), ...Object.values(out.stands).filter((s) => s.w && !s.labelHidden), ...Object.values(out.bodies), ...Object.values(out.endTags), ...bracket].map(grow);
+    // a covering panel gets its label just outside the marked edge (ui.js draws the edge); else an arrow
+    const panel = e.edge ? avoid.find((r) => r.id === e.by) : null;
+    // a panel label may sit below the label floor (`ch`, the top of the lower panels): it is placed by the
+    // same avoid list, so it still keeps off the panels, buttons and the table
+    const r = drawEndTag(ctx, t, e, taken, { cw: xMax, ch: panel ? fullH : ch, top }, panel);
+    if (r) out.endTags[side] = r;
+  }
+  const plates = () => [...Object.values(out.tags), ...Object.values(out.stands).filter((s) => s.w && !s.labelHidden), ...Object.values(out.endTags)];
   // the box also keeps off its own bracket: near an edge the clamped spot would sit on the ball
   out.lock = drawLock(ctx, t, state, toScreen, top, xMax, ch, [...plates(), ...avoid, ...bracket].map(grow));
 
@@ -459,7 +567,7 @@ export function drawHud(ctx, state, toScreen, { top = 4, right = Infinity, botto
     }
     if (anchor) {
       // shot label above the hitter's name plate
-      const label = shot.label || `${shot.stroke || ""} ${shot.kind || ""} ${fmtKmh(shot.speedKmh)}km`.trim();
+      const label = shot.label || `${kindText(shot.stroke) || ""} ${kindText(shot.kind) || ""} ${fmtKmh(shot.speedKmh)}km`.trim();
       ctx.font = font(t, t.fsLabel, true);
       const lw = Math.ceil(ctx.measureText(label).width) + Math.round(t.fsLabel / 2) * 2;
       const lh = t.fsLabel + Math.round(t.fsLabel / 4) * 2;

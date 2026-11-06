@@ -51,7 +51,7 @@ try {
   await page.waitForSelector(".role-card");
   check("picker has no back", (await page.locator("[data-back]").count()) === 0);
   // owner, 2026-10-31: a remembered mode is not painted in advance; a card takes its colour only while held.
-  check("remembered mode is not painted", (await page.locator(".role-card.on, .role-card.pressed").count()) === 0 && (await page.locator(".role-card").count()) === 3);
+  check("remembered mode is not painted", (await page.locator(".role-card.on, .role-card.pressed").count()) === 0 && (await page.locator(".role-card").count()) === 4); // 카메라 · 심판 · 관전 · 데스크
   await page.screenshot({ path: `${out}/picker-remembered.png` });
   await page.locator('.role-card[data-role="viewer"]').click();
   await page.waitForSelector(".pscore");

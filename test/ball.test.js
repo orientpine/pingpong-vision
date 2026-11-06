@@ -43,6 +43,20 @@ describe("orange ball colour", () => {
 });
 
 describe("BallTracker lock", () => {
+  test("outside the calibrated table only a fast flight can acquire a lock", () => {
+    for (const [x0, speed, want] of [[100, 90, true], [450, 90, false], [450, 420, true]]) {
+      const tr = tracker();
+      tr.overTable = { x0: 80, x1: 400 };
+      let locked = 0;
+      for (let i = 0; i < 12; i++) {
+        const t = i / 30;
+        const hit = tr.update([{ x: x0 + speed * t, y: 110 - 30 * t + 50 * t * t, area: 4 }], t);
+        if (hit?.locked) locked++;
+      }
+      expect(locked > 0).toBe(want);
+    }
+  });
+
   test("a ball flying a parabola is locked within about 0.13 s, at 60 and at 30 fps", () => {
     for (const fps of [60, 30]) {
       const tr = tracker();
@@ -95,6 +109,34 @@ describe("BallTracker lock", () => {
       }
     }
     expect(onBall).toBeGreaterThan(frames * 0.9);
+  });
+
+  test("at 20 fps a ball first seen just before a bounce locks within 0.3 s of it", () => {
+    const tr = tracker();
+    let lockedAt = null;
+    for (let i = 0; i < 16; i++) {
+      const t = i / 20;
+      const tb = t - 0.1;
+      const y = tb < 0 ? 260 + 600 * tb : 260 - 500 * tb + 600 * tb * tb;
+      const hit = tr.update([{ x: 100 + 420 * t, y, area: 6 }], t);
+      if (hit && hit.locked && lockedAt == null) lockedAt = t;
+    }
+    expect(lockedAt).not.toBeNull();
+    expect(lockedAt - 0.1).toBeLessThanOrEqual(0.3);
+  });
+
+  test("at 20 fps blobs flickering at random places still almost never lock", () => {
+    let locked = 0, frames = 0;
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const rand = rng(seed);
+      const tr = tracker();
+      for (let i = 0; i < 200; i++) {
+        const hit = tr.update(Array.from({ length: 25 }, () => ({ x: rand() * 640, y: rand() * 360, area: 5 })), i / 20);
+        frames++;
+        if (hit && hit.locked) locked++;
+      }
+    }
+    expect(locked).toBeLessThan(frames * 0.01);
   });
 
   test("a flight towards the lens with blurry blobs locks only with the end-on cubic", () => {

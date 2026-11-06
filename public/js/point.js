@@ -1,3 +1,4 @@
+import { L } from "./i18n.js";
 // Who won the point, read from one rally's bounces (sides "near" / "far") and shots.
 // In a legal rally the table bounces alternate sides: serve on the server's side, then the
 // receiver's, then each return lands on the other side. Whatever ends the rally, the player on
@@ -12,14 +13,20 @@
 // "do not score". sure marks the calls that held up on OpenTTGames game_1 (REPORT-3): a double
 // bounce, or a rally with at least three bounces; a short rally that ends with the ball lost
 // is often missing its deciding bounce, so it is only a suggestion.
+// ask marks the calls that are not entered even when every call is (모두 넣기): the referee picks
+// the winner (누가 땄나요). A rally with one bounce is a serve the camera saw land once and then
+// lost, and a fragment under SHORT_RALLY_S with at most two shots is a piece of a rally the
+// tracker cut: real phones at 19-29 fps entered 8 of 9 saved points from one-bounce rallies of
+// 0.3-2.7 s (2026-10-31 / 11-01), and a 20 fps camera split one rally into such fragments.
+export const SHORT_RALLY_S = 1.0;
 export const REASONS = {
-  double_bounce: "두 번 튐",
-  no_return: "못 받음",
+  double_bounce: L("두 번 튐", "double bounce"),
+  no_return: L("못 받음", "missed"),
 };
 
 const other = (side) => (side === "near" ? "far" : "near");
 
-export function judgePoint({ shots = [], bounces = [] } = {}) {
+export function judgePoint({ shots = [], bounces = [], durationS = null } = {}) {
   if (!bounces.length) return null;
   const byT = (a, b) => a.t - b.t;
   const bs = [...bounces].sort(byT);
@@ -36,8 +43,9 @@ export function judgePoint({ shots = [], bounces = [] } = {}) {
       break;
     }
   }
-  const sure = reason === "double_bounce" || bs.length >= 3;
-  return { winner: other(loser), loser, reason, label: REASONS[reason], sure, bounces: bs.length, shots: ss.length };
+  const ask = bs.length < 2 || (durationS != null && durationS < SHORT_RALLY_S && ss.length <= 2);
+  const sure = !ask && (reason === "double_bounce" || bs.length >= 3);
+  return { winner: other(loser), loser, reason, label: REASONS[reason], sure, ask, bounces: bs.length, shots: ss.length };
 }
 
 // Signals that the serve may have been a fault or a let. They only raise a one-tap question

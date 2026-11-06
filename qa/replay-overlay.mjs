@@ -12,6 +12,7 @@ import { chromium } from "playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { measure } from "./overlay-measure.mjs";
+import { withLang } from "./qa-lang.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
 const root = join(args.root, "public");
@@ -33,7 +34,7 @@ const server = Bun.serve({
   },
 });
 
-const browser = await chromium.launch();
+const browser = withLang(await chromium.launch());
 const rows = [];
 try {
   for (const [shape, vw, vh] of [["portrait", 720, 1280], ["landscape", 1280, 720]]) {

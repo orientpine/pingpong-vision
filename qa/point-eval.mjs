@@ -47,8 +47,11 @@ const gt = runs
 
 const app = res.events
   .filter((e) => e.type === "rallyEnd" && e.why !== "stop")
-  .map((e) => ({ startS: e.t - e.durationS, endS: e.t, why: e.why, judged: judgePoint({ shots: e.shotList || [], bounces: e.bounces || [] }), suspect: suspects({ shots: e.shotList || [], bounces: e.bounces || [], serveNet: e.serveNet || null, serveSeen: e.serveSeen || null }), serveNet: e.serveNet || null, serveSeen: e.serveSeen || null }))
+  .map((e) => ({ startS: e.t - e.durationS, endS: e.t, why: e.why, judged: judgePoint({ shots: e.shotList || [], bounces: e.bounces || [], durationS: e.durationS }), suspect: suspects({ shots: e.shotList || [], bounces: e.bounces || [], serveNet: e.serveNet || null, serveSeen: e.serveSeen || null }), serveNet: e.serveNet || null, serveSeen: e.serveSeen || null }))
   .filter((a) => a.judged);
+// calls point.js marks ask go to the referee's 누가 땄나요 bar in every mode: nothing is entered
+const asked = app.filter((a) => a.judged.ask);
+app.splice(0, app.length, ...app.filter((a) => !a.judged.ask));
 
 const overlap = (x, w) => Math.min(x.endS, w.endS) - Math.max(x.startS, w.startS);
 const allWindows = [...gt.map((g, i) => ({ ...g, point: i })), ...windows.filter((w) => !gt.some((g) => g.startS === w.startS)).map((w) => ({ ...w, point: null }))];
@@ -76,6 +79,7 @@ const summary = {
   sureWrong: rows.filter((r) => r.appSure && r.appEntries && !r.correct).length,
   faultAsked: rows.filter((r) => r.faultAsk).length,
   letAsked: rows.filter((r) => r.letAsk).length,
+  asked: asked.length,
   unverifiedInFragments: inFragments,
   outsideGt: outside,
   fragments: windows.length - gt.length,

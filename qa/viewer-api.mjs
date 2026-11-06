@@ -3,6 +3,7 @@
 // cannot tell a spectator from a referee. Records status codes and that the state did not move.
 //   bun qa/viewer-api.mjs --vision=<checkout> --tournament=<checkout> --clip=<webm> [--port=9660]
 import { startOneApp } from "./one-app-harness.mjs";
+import { withCodes } from "./player-names.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split(/=(.*)/s).slice(0, 2)));
 const app = await startOneApp({ vision: args.vision, tournament: args.tournament, clip: args.clip, port: Number(args.port || 9660) });
@@ -20,7 +21,7 @@ try {
     ["undo", "/api/action", { type: "undo", matchId: m.id, seq: m.points.length }],
     ["rename", "/api/action", { type: "rename", index: 0, name: "시험" }],
     ["camera approve", "/api/vision/approve", { id: "b".repeat(64) }],
-    ["new tournament", "/api/tournament", { name: "시험", players: ["a", "b"], format: "single", bestOf: 3 }],
+    ["new tournament", "/api/tournament", { name: "시험", players: await withCodes(app.origin, ["a", "b"]), format: "single", bestOf: 3 }],
   ];
   for (const [name, path, body] of writes) rows.push({ name, noPin: await send(path, body), wrongHeader: await send(path, body, { "x-vision-token": "x".repeat(43) }) });
   const after = await state();
